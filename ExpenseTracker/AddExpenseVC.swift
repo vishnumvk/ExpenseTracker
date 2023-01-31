@@ -6,122 +6,243 @@
 //
 
 import UIKit
-import SQLite3
+
 
 class AddExpenseVC: UIViewController {
     
     lazy var datePicker = {
         let datePicker = UIDatePicker()
         datePicker.translatesAutoresizingMaskIntoConstraints = false
+        datePicker.preferredDatePickerStyle = .compact
+       
         return datePicker
+    }()
+    
+    lazy var dateStack = {
+        let stack = UIStackView()
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        stack.axis = .horizontal
+        stack.distribution = .fillProportionally
+        stack.layer.cornerRadius = 5
+        stack.layer.borderWidth = 1
+        stack.layer.borderColor = UIColor.placeholderText.cgColor
+        stack.isLayoutMarginsRelativeArrangement = true
+        stack.directionalLayoutMargins = .init(top: 5, leading: 5, bottom: 5, trailing: 5)
+        return stack
+    }()
+    lazy var dateLabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = "Date"
+        label.textAlignment = .left
+        label.font = .systemFont(ofSize: 20)
+        label.textColor = .placeholderText
+        return label
     }()
     
     lazy var stackView = {
         let stackView = UIStackView()
         stackView.translatesAutoresizingMaskIntoConstraints = false
+        stackView.alignment = .fill
+        stackView.axis = .vertical
+        stackView.distribution = .fill
+        stackView.spacing = 10
+        stackView.isLayoutMarginsRelativeArrangement = true
+        stackView.directionalLayoutMargins = .init(top: 20, leading: 20, bottom: 20, trailing: 20)
         return stackView
     }()
     
     
-    let testView = UIView(frame: .init(x: 196.5, y: 457.83333333333337, width: 200, height: 200))
-    let chart = PieChartView()
+    lazy var titleField = {
+       let textfield = UITextField()
+        textfield.translatesAutoresizingMaskIntoConstraints = false
+        textfield.textColor = .label
+        textfield.textAlignment = .left
+        textfield.font = .systemFont(ofSize: 20)
+        textfield.placeholder = "Title"
+        textfield.borderStyle = .roundedRect
+        textfield.heightAnchor.constraint(equalToConstant: 44).isActive = true
+        textfield.layer.cornerRadius = 5
+        textfield.layer.borderWidth = 1
+        textfield.layer.borderColor = UIColor.placeholderText.cgColor
+        
+        
+        
+        
+        return textfield
+    }()
+    
+    lazy var amountField = {
+       let textfield = UITextField()
+        textfield.translatesAutoresizingMaskIntoConstraints = false
+        textfield.textColor = .label
+        textfield.textAlignment = .left
+        textfield.font = .systemFont(ofSize: 18)
+        textfield.placeholder = "Amount"
+        textfield.borderStyle = .roundedRect
+        
+        textfield.heightAnchor.constraint(equalToConstant: 44).isActive = true
+        textfield.layer.cornerRadius = 5
+        textfield.layer.borderWidth = 1
+        textfield.layer.borderColor = UIColor.placeholderText.cgColor
+        
+        
+        return textfield
+    }()
+    
+    
+    lazy var noteField = {
+        let note = UITextField()
+        note.translatesAutoresizingMaskIntoConstraints = false
+        note.font = .systemFont(ofSize: 20)
+        note.textColor = .label
+        note.placeholder = "Note"
+        note.borderStyle = .roundedRect
+        note.textAlignment = .left
+        note.heightAnchor.constraint(equalToConstant: 44).isActive = true
+        note.layer.cornerRadius = 5
+        note.layer.borderWidth = 1
+        note.layer.borderColor = UIColor.placeholderText.cgColor
+        return note
+    }()
+    
+    lazy var camBtn = {
+        let btn = UIButton()
+        let image = UIImage(systemName: "camera")
+        btn.translatesAutoresizingMaskIntoConstraints = false
+//        btn.heightAnchor.constraint(equalToConstant: 45).isActive = true
+        btn.setImage(image, for: .normal)
+        btn.addTarget(self, action: #selector(camButtonTapped), for: .touchUpInside)
+        btn.imageView?.contentMode = .scaleToFill
+        btn.imageView?.tintColor = .label
+        btn.imageView?.translatesAutoresizingMaskIntoConstraints = false
+        btn.imageView?.heightAnchor.constraint(equalToConstant: 44).isActive = true
+        btn.imageView?.widthAnchor.constraint(equalToConstant: 70).isActive = true
+        return btn
+    }()
+    
+    lazy var scrollContainer = {
+        let scroll = UIScrollView()
+        scroll.translatesAutoresizingMaskIntoConstraints = false
+        scroll.bounces = false
+        return scroll
+    }()
+    
+    
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
+        view.backgroundColor = .systemBackground
         title = "Add Expense"
        
 //        view.addSubview(stackView)
 //        stackView.pinTo(view: view)
-//
-//        stackView.alignment = .fill
-//        stackView.axis = .vertical
-//        stackView.distribution = .equalSpacing
+        view.addSubview(scrollContainer)
+        scrollContainer.pinTo(view: view)
+        
+        scrollContainer.addSubview(stackView)
+        stackView.topAnchor.constraint(equalTo: scrollContainer.contentLayoutGuide.topAnchor).isActive = true
+        stackView.bottomAnchor.constraint(equalTo: scrollContainer.contentLayoutGuide.bottomAnchor).isActive = true
+        stackView.trailingAnchor.constraint(equalTo: scrollContainer.contentLayoutGuide.trailingAnchor).isActive = true
+        stackView.leadingAnchor.constraint(equalTo: scrollContainer.contentLayoutGuide.leadingAnchor).isActive = true
+        stackView.widthAnchor.constraint(equalTo: scrollContainer.frameLayoutGuide.widthAnchor).isActive = true
+        
+        dateStack.addArrangedSubview(dateLabel)
+//        dateStack.addArrangedSubview(Spacer())
+        dateStack.addArrangedSubview(datePicker)
+        
+       
         
         
-        chart.translatesAutoresizingMaskIntoConstraints = false
+        stackView.addArrangedSubview(titleField)
+        stackView.addArrangedSubview(dateStack)
+        stackView.addArrangedSubview(amountField)
+        stackView.addArrangedSubview(noteField)
+        stackView.addArrangedSubview(camBtn)
         
-        chart.dataSet = [(-0.2,.black),(-0.3,.systemCyan),(-0.25,.magenta),(-0.25,.brown)]
-        view.addSubview(chart)
-        chart.backgroundColor = .gray
-        chart.pinTo(view: view)
-        chart.radius = 100
-        let btn = UIBarButtonItem(title: "click", style: .done, target: self, action: #selector(changeData))
-        navigationItem.rightBarButtonItem = btn
+//        stackView.addArrangedSubview(Spacer())
         
         
         
-        let testView = UIView(frame: .init(x: 196.5, y: 457.83333333333337, width: 200, height: 200))
-        testView.translatesAutoresizingMaskIntoConstraints = false
-
-        chart.addSubview(testView)
-        chart.bringSubviewToFront(testView)
-        testView.backgroundColor = .yellow
-
-        testView.centerXAnchor.constraint(equalTo: chart.centerXAnchor).isActive = true
-        testView.centerYAnchor.constraint(equalTo: chart.centerYAnchor).isActive = true
-        testView.heightAnchor.constraint(equalToConstant: 70).isActive = true
-        testView.widthAnchor.constraint(equalToConstant: 70).isActive = true
-
-
         
     }
    
-    
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
+//        print("date width: \(dateStack.frame.height)")
+    }
+    
+    @objc func camButtonTapped(){
+        let pickerVC = UIImagePickerController()
+        pickerVC.delegate = self
+        pickerVC.allowsEditing = true
+        if UIImagePickerController.isSourceTypeAvailable(.camera){
+            
+            pickerVC.sourceType = .camera
+            
+        }
+        else{
+            
+            pickerVC.sourceType = .photoLibrary
+            
+        }
+        
+        
+       
+        present(pickerVC, animated: true)
+    }
+    
+}
 
-//        let testView = UIView(frame: .init(x: 196.5, y: 457.83333333333337, width: 20, height: 20))
-//        testView.translatesAutoresizingMaskIntoConstraints = false
-//        chart.layoutSubviews()
-//        chart.addSubview(testView)
-//        testView.backgroundColor = .yellow
-//        testView.centerXAnchor.constraint(equalTo: testView.centerXAnchor).isActive = true
-//        testView.centerYAnchor.constraint(equalTo: testView.centerYAnchor).isActive = true
-//        testView.heightAnchor.constraint(equalToConstant: 20).isActive = true
-//        testView.widthAnchor.constraint(equalToConstant: 20).isActive = true
-//
 
-        print(chart.center)
-        print(testView.center)
 
+
+
+extension AddExpenseVC: UIImagePickerControllerDelegate,UINavigationControllerDelegate{
+    
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        let imageView = UIImageView()
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.contentMode = .scaleAspectFit
+        
+        DispatchQueue.main.async { [self] in
+            self.stackView.addArrangedSubview(imageView)
+            imageView.heightAnchor.constraint(equalToConstant: 100).isActive = true
+            if let image = info[UIImagePickerController.InfoKey.originalImage] as? UIImage{
+                imageView.image = image
+                
+                UIImageWriteToSavedPhotosAlbum(image, self, #selector(image(_:didFinishSavingWithError:contextInfo:)), nil)
+                
+                
+            }
+            
+            
+            
+            
+        }
+        picker.dismiss(animated: true)
     }
     
     
-//    override func viewDidLayoutSubviews() {
-//        super.viewDidLayoutSubviews()
-//        print("did layout msg")
-//        print(chart.center)
-//        print(testView.center)
-//    }
-    
-    
-   
-    var clicked = true
-    @objc func changeData(){
-        //        chart.alpha = 0
-        //        if clicked {
-        //            UIView.animate(withDuration: 2, delay: 0) { [self] in
-        //                chart.alpha = 1
-        //                chart.radius = 100
-        //                chart.dataSet = [(0.25,.yellow),(0.25,.systemCyan),(0.2,.magenta),(0.3,.blue)]
-        //            }
-        //            clicked = !clicked
-        //        }else{
-        //
-        //            UIView.animate(withDuration: 2, delay: 0) { [self] in
-        //                chart.alpha = 1
-        //                chart.radius = 150
-        //                chart.dataSet = [(-0.2,.black),(-0.3,.systemCyan),(-0.25,.magenta),(-0.25,.brown)]
-        //            }
-        //            clicked = !clicked
-        //        }
-        //    }
-        
-        UIView.animate(withDuration: 2, delay: 0) {
-            self.chart.layer.setAffineTransform(self.chart.layer.affineTransform().rotated(by: Double.pi))
-            self.chart.radius = 150
+    @objc func image(_ image: UIImage, didFinishSavingWithError error: Error?, contextInfo: UnsafeRawPointer) {
+        if let error = error {
+            // we got back an error!
+            let ac = UIAlertController(title: "Save error", message: error.localizedDescription, preferredStyle: .alert)
+            ac.addAction(UIAlertAction(title: "OK", style: .default))
+            present(ac, animated: true)
+        } else {
+            let ac = UIAlertController(title: "Saved!", message: " Image has been saved to your photos.", preferredStyle: .alert)
+            ac.addAction(UIAlertAction(title: "OK", style: .default))
+            present(ac, animated: true)
         }
+    }
+    
+    
+    
+    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+        picker.dismiss(animated: true)
     }
     
 }
@@ -139,13 +260,28 @@ class AddExpenseVC: UIViewController {
 
 
 
-
-
-
-
-
-
-
+class Spacer: UIView{
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        translatesAutoresizingMaskIntoConstraints = false
+        setContentCompressionResistancePriority(.init(1), for: .vertical)
+        setContentCompressionResistancePriority(.init(1), for: .horizontal)
+        setContentHuggingPriority(.init(1), for: .vertical)
+        setContentHuggingPriority(.init(1), for: .horizontal)
+        backgroundColor = .gray
+        let width = widthAnchor.constraint(equalToConstant: 0)
+        width.isActive = true
+        width.priority = .init(1)
+        
+        let height = heightAnchor.constraint(equalToConstant: 0)
+        height.isActive = true
+        height.priority = .init(1)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+}
 
 
 
@@ -164,185 +300,6 @@ extension UIView{
         ])
     }
 }
-
-
-
-//enum SQLiteError: Error {
-//    case sqliteError(message: String)
-//
-//}
-//
-//class SQLiteHelper {
-//    let db: OpaquePointer
-//
-//    init(databasePath: String) throws {
-//        var db: OpaquePointer? = nil
-//        guard sqlite3_open(databasePath, &db) == SQLITE_OK else {
-//            throw SQLiteError.sqliteError(message: String(cString: sqlite3_errmsg(db)))
-//        }
-//        self.db = db!
-//    }
-//
-//    deinit {
-//        sqlite3_close(db)
-//    }
-//
-//
-//
-//
-//    func execute(query: String) throws {
-//
-//
-//        var statement: OpaquePointer?
-//        guard sqlite3_prepare_v2(db, query, -1, &statement, nil) == SQLITE_OK else {
-//            throw SQLiteError.sqliteError(message: String(cString: sqlite3_errmsg(db)))
-//        }
-//        defer {
-//            sqlite3_finalize(statement)
-//        }
-//        guard sqlite3_step(statement) == SQLITE_DONE else {
-//            throw SQLiteError.sqliteError(message: String(cString: sqlite3_errmsg(db)))
-//        }
-//    }
-//
-//
-//
-//
-//
-//
-//    func insert(table: String, values: [Any]) throws {
-//        let questionMarks = Array(repeating: "?", count: values.count).joined(separator: ",")
-//        let query = "INSERT INTO \(table) VALUES (\(questionMarks))"
-//        var statement: OpaquePointer?
-//        guard sqlite3_prepare_v2(db, query, -1, &statement, nil) == SQLITE_OK else {
-//            throw SQLiteError.sqliteError(message: String(cString: sqlite3_errmsg(db)))
-//        }
-//        defer {
-//            sqlite3_finalize(statement)
-//        }
-//        bindValues(statement!, values)
-//        guard sqlite3_step(statement) == SQLITE_DONE else {
-//            throw SQLiteError.sqliteError(message: String(cString: sqlite3_errmsg(db)))
-//        }
-//    }
-//
-//    func select(table: String, columns: [String], whereClause: String? = nil) throws -> [[String: Any]] {
-//        let columnsString = columns.joined(separator: ",")
-//        var query = "SELECT \(columnsString) FROM \(table)"
-//        if let whereClause = whereClause {
-//            query += " WHERE \(whereClause)"
-//        }
-//        var statement: OpaquePointer?
-//        guard sqlite3_prepare_v2(db, query, -1, &statement, nil) == SQLITE_OK else {
-//            throw SQLiteError.sqliteError(message: String(cString: sqlite3_errmsg(db)))
-//        }
-//        defer {
-//            sqlite3_finalize(statement)
-//        }
-//        var results: [[String: Any]] = []
-//        while sqlite3_step(statement) == SQLITE_ROW {
-//            var row: [String: Any] = [:]
-//            for i in 0..<sqlite3_column_count(statement) {
-//                let name = String(cString: sqlite3_column_name(statement, i))
-//                switch sqlite3_column_type(statement, i) {
-//                case SQLITE_INTEGER:
-//                    row[name] = sqlite3_column_int64(statement, i)
-//                case SQLITE_FLOAT:
-//                    row[name] = sqlite3_column_double(statement, i)
-//                case SQLITE_TEXT:
-//                    row[name] = String(cString: sqlite3_column_text(statement, i))
-//                case SQLITE_BLOB:
-//                    if let bytes = sqlite3_column_blob(statement, i) {
-//                        let data = Data(bytes: bytes, count: Int(sqlite3_column_bytes(statement, i)))
-//                        row[name] = data
-//                    }
-//                    else {
-//                        row[name] = nil
-//                    }
-//                default:
-//                    row[name] = nil
-//                }
-//            }
-//            results.append(row)
-//        }
-//        return results
-//    }
-//
-//
-//    func createTable(table: String, columns: [(name: String, type: String)]) throws {
-//        let columnDefinitions = columns.map { "\($0.name) \($0.type)" }.joined(separator: ",")
-//        let query = "CREATE TABLE IF NOT EXISTS \(table) (\(columnDefinitions))"
-//        var statement: OpaquePointer?
-//        guard sqlite3_prepare_v2(db, query, -1, &statement, nil) == SQLITE_OK else {
-//            throw SQLiteError.sqliteError(message: String(cString: sqlite3_errmsg(db)))
-//        }
-//        defer {
-//            sqlite3_finalize(statement)
-//        }
-//        guard sqlite3_step(statement) == SQLITE_DONE else {
-//            throw SQLiteError.sqliteError(message: String(cString: sqlite3_errmsg(db)))
-//        }
-//    }
-//
-//
-//
-//    func delete(from table: String, where condition: String) throws {
-//        let query = "DELETE FROM \(table) WHERE \(condition)"
-//        var statement: OpaquePointer?
-//        guard sqlite3_prepare_v2(db, query, -1, &statement, nil) == SQLITE_OK else {
-//            throw SQLiteError.sqliteError(message: String(cString: sqlite3_errmsg(db)))
-//        }
-//        defer {
-//            sqlite3_finalize(statement)
-//        }
-//        guard sqlite3_step(statement) == SQLITE_DONE else {
-//            throw SQLiteError.sqliteError(message: String(cString: sqlite3_errmsg(db)))
-//        }
-//    }
-//
-//
-//
-//    func update(table: String, values: [String: Any], where condition: String) throws {
-//        let valueAssignments = values.map { "\($0.0) = ?" }.joined(separator: ",")
-//        let query = "UPDATE \(table) SET \(valueAssignments) WHERE \(condition)"
-//        var statement: OpaquePointer?
-//        guard sqlite3_prepare_v2(db, query, -1, &statement, nil) == SQLITE_OK else {
-//            throw SQLiteError.sqliteError(message: String(cString: sqlite3_errmsg(db)))
-//        }
-//        defer {
-//            sqlite3_finalize(statement)
-//        }
-//        bindValues(statement!, values.map { $0.1 })
-//        guard sqlite3_step(statement) == SQLITE_DONE else {
-//            throw SQLiteError.sqliteError(message: String(cString: sqlite3_errmsg(db)))
-//        }
-//    }
-//
-//
-//
-//
-//
-//    func bindValues(_ statement: OpaquePointer, _ values: [Any]) {
-//        for i in 0..<values.count {
-//            let value = values[i]
-//            switch value {
-//                case let intValue as Int64:
-//                    sqlite3_bind_int64(statement, Int32(i + 1), intValue)
-//                case let doubleValue as Double:
-//                    sqlite3_bind_double(statement, Int32(i + 1), doubleValue)
-//                case let stringValue as String:
-//                    sqlite3_bind_text(statement, Int32(i + 1), stringValue, -1, nil)
-//                case let dataValue as Data:
-//                   let _ = dataValue.withUnsafeBytes { (bytes: UnsafeRawBufferPointer) in
-//                        sqlite3_bind_blob(statement, Int32(i + 1), bytes.baseAddress, Int32(dataValue.count), nil)
-//                    }
-//                default:
-//                    fatalError("Unexpected value type")
-//            }
-//        }
-//    }
-//
-//}
 
 
 
