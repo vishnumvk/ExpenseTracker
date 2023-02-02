@@ -6,7 +6,24 @@
 //
 
 import UIKit
+import PhotosUI
 
+
+
+
+
+
+enum Categories: String,CaseIterable{
+    case houseHold = "House hold"
+    case Electricity
+    case Education
+    case Food
+    case Clothing
+    case Travel
+    case Groceries
+    case Entertainment
+    case Health
+}
 
 class AddExpenseVC: UIViewController {
     
@@ -46,7 +63,7 @@ class AddExpenseVC: UIViewController {
         stackView.alignment = .fill
         stackView.axis = .vertical
         stackView.distribution = .fill
-        stackView.spacing = 10
+        stackView.spacing = 15
         stackView.isLayoutMarginsRelativeArrangement = true
         stackView.directionalLayoutMargins = .init(top: 20, leading: 20, bottom: 20, trailing: 20)
         return stackView
@@ -99,6 +116,7 @@ class AddExpenseVC: UIViewController {
         note.placeholder = "Note"
         note.borderStyle = .roundedRect
         note.textAlignment = .left
+        
         note.heightAnchor.constraint(equalToConstant: 44).isActive = true
         note.layer.cornerRadius = 5
         note.layer.borderWidth = 1
@@ -110,24 +128,92 @@ class AddExpenseVC: UIViewController {
         let btn = UIButton()
         let image = UIImage(systemName: "camera")
         btn.translatesAutoresizingMaskIntoConstraints = false
-//        btn.heightAnchor.constraint(equalToConstant: 45).isActive = true
         btn.setImage(image, for: .normal)
         btn.addTarget(self, action: #selector(camButtonTapped), for: .touchUpInside)
-        btn.imageView?.contentMode = .scaleToFill
+        btn.imageView?.contentMode = .scaleAspectFit
+        btn.imageView?.tintColor = .label
+//        btn.backgroundColor = .systemCyan
+        btn.imageView?.translatesAutoresizingMaskIntoConstraints = false
+        btn.imageView?.heightAnchor.constraint(equalToConstant: 44).isActive = true
+        btn.imageView?.widthAnchor.constraint(equalToConstant: 44).isActive = true
+        return btn
+    }()
+    
+    lazy var clipBtn = {
+        let btn = UIButton()
+        let image = UIImage(systemName: "paperclip")
+        btn.translatesAutoresizingMaskIntoConstraints = false
+        btn.setImage(image, for: .normal)
+        btn.addTarget(self, action: #selector(clipButtonTapped), for: .touchUpInside)
+//        btn.backgroundColor = .systemCyan
+        btn.imageView?.contentMode = .scaleAspectFit
         btn.imageView?.tintColor = .label
         btn.imageView?.translatesAutoresizingMaskIntoConstraints = false
         btn.imageView?.heightAnchor.constraint(equalToConstant: 44).isActive = true
-        btn.imageView?.widthAnchor.constraint(equalToConstant: 70).isActive = true
+        btn.imageView?.widthAnchor.constraint(equalToConstant: 44).isActive = true
         return btn
     }()
+    
+    lazy var attachmentLabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = "Add bill image"
+        label.textAlignment = .left
+        label.font = .systemFont(ofSize: 20)
+        label.textColor = .placeholderText
+        return label
+    }()
+    
     
     lazy var scrollContainer = {
         let scroll = UIScrollView()
         scroll.translatesAutoresizingMaskIntoConstraints = false
-        scroll.bounces = false
+        scroll.bounces = true
         return scroll
     }()
     
+    lazy var categoryBtn = {
+        var btn = UIButton()
+        let image = UIImage(systemName: "chevron.down")
+        btn.setTitle("Category", for: .normal)
+        btn.setImage(image, for: .normal)
+        btn.setTitleColor(UIColor.label, for: .normal)
+        btn.contentHorizontalAlignment = .fill
+        
+        
+        btn.tintColor = .label
+        btn.configuration = .plain()
+        
+        btn.configuration?.imagePlacement = .trailing
+        
+       
+        btn.layer.cornerRadius = 5
+        btn.layer.borderColor = UIColor.placeholderText.cgColor
+        btn.layer.borderWidth = 1
+        btn.addTarget(self, action: #selector(categoryButtonTapped), for: .touchUpInside)
+        btn.translatesAutoresizingMaskIntoConstraints = false
+        btn.heightAnchor.constraint(equalToConstant: 44).isActive = true
+        return btn
+        
+    }()
+    
+    
+    lazy var attachmentOptions = {
+        let stack = UIStackView(arrangedSubviews: [attachmentLabel,Spacer(),camBtn,clipBtn])
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        stack.axis = .horizontal
+        stack.distribution = .fill
+        stack.spacing = 15
+        stack.layer.cornerRadius = 5
+        stack.layer.borderWidth = 1
+        stack.layer.borderColor = UIColor.placeholderText.cgColor
+        stack.isLayoutMarginsRelativeArrangement = true
+        stack.directionalLayoutMargins = .init(top: 5, leading: 5, bottom: 5, trailing: 5)
+       
+        return stack
+    }()
+    
+    let attachmentsVC = AttachmentsVC()
     
     
     
@@ -158,41 +244,81 @@ class AddExpenseVC: UIViewController {
         stackView.addArrangedSubview(titleField)
         stackView.addArrangedSubview(dateStack)
         stackView.addArrangedSubview(amountField)
+        stackView.addArrangedSubview(categoryBtn)
         stackView.addArrangedSubview(noteField)
-        stackView.addArrangedSubview(camBtn)
+        stackView.addArrangedSubview(attachmentOptions)
         
 //        stackView.addArrangedSubview(Spacer())
         
         
+        self.addChild(attachmentsVC)
+        
+        attachmentsVC.view.translatesAutoresizingMaskIntoConstraints = false
+//        attachmentsVC.view.heightAnchor.constraint(equalToConstant: 200).isActive = true
+        stackView.addArrangedSubview(attachmentsVC.view)
+        
+        attachmentsVC.didMove(toParent: self)
+       
         
         
     }
    
     
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-//        print("date width: \(dateStack.frame.height)")
+    @objc func categoryButtonTapped(){
+        
+        let optionsVC = SelectionViewController(options: Categories.allCases.map{$0.rawValue})
+        
+        optionsVC.modalPresentationStyle = .pageSheet
+        
+        optionsVC.didSelectOption = { selectedOption in
+            
+            self.categoryBtn.setTitle(selectedOption, for: .normal)
+            
+        }
+        
+        present(optionsVC, animated: true)
+        
+        
     }
     
+  
+    
     @objc func camButtonTapped(){
+        
         let pickerVC = UIImagePickerController()
         pickerVC.delegate = self
         pickerVC.allowsEditing = true
+        
         if UIImagePickerController.isSourceTypeAvailable(.camera){
-            
             pickerVC.sourceType = .camera
             
         }
         else{
+            let ac = UIAlertController(title: "Camera not found", message: nil, preferredStyle: .alert)
+            ac.addAction(UIAlertAction(title: "OK", style: .default))
+            present(ac, animated: true)
             
-            pickerVC.sourceType = .photoLibrary
-            
+            return
         }
-        
-        
-       
+      
         present(pickerVC, animated: true)
     }
+    
+    
+    @objc func clipButtonTapped(){
+        var config = PHPickerConfiguration(photoLibrary: .shared())
+        config.filter = .images
+        config.selectionLimit = 10
+        
+        let picker = PHPickerViewController(configuration: config)
+        picker.delegate = self
+        
+        present(picker, animated: true)
+        
+        
+        
+    }
+    
     
 }
 
@@ -203,17 +329,22 @@ class AddExpenseVC: UIViewController {
 extension AddExpenseVC: UIImagePickerControllerDelegate,UINavigationControllerDelegate{
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-        let imageView = UIImageView()
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-        imageView.contentMode = .scaleAspectFit
         
         DispatchQueue.main.async { [self] in
-            self.stackView.addArrangedSubview(imageView)
-            imageView.heightAnchor.constraint(equalToConstant: 100).isActive = true
+           
+            
             if let image = info[UIImagePickerController.InfoKey.originalImage] as? UIImage{
-                imageView.image = image
+                displayImage(image: image)
                 
-                UIImageWriteToSavedPhotosAlbum(image, self, #selector(image(_:didFinishSavingWithError:contextInfo:)), nil)
+                
+                let alert = UIAlertController(title: "Save Image", message: "Would you like to save the image to photos", preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: "No", style: .default))
+                alert.addAction(UIAlertAction(title: "Yes", style: .default, handler: { [self] _ in
+                    UIImageWriteToSavedPhotosAlbum(image, self, #selector(image(_:didFinishSavingWithError:contextInfo:)), nil)
+                }))
+                
+                present(alert, animated: true)
+                
                 
                 
             }
@@ -226,9 +357,25 @@ extension AddExpenseVC: UIImagePickerControllerDelegate,UINavigationControllerDe
     }
     
     
+    
+    
+    func displayImage(image: UIImage){
+//        let imageView = UIImageView()
+//        imageView.clipsToBounds = true
+//        imageView.translatesAutoresizingMaskIntoConstraints = false
+//        imageView.contentMode = .scaleAspectFill
+//        stackView.addArrangedSubview(imageView)
+//        imageView.heightAnchor.constraint(equalToConstant: 200).isActive = true
+//        imageView.image = image
+        attachmentsVC.attachments.append(image)
+//        present(AttachmentsVC(), animated: true)
+    }
+    
+    
+    
     @objc func image(_ image: UIImage, didFinishSavingWithError error: Error?, contextInfo: UnsafeRawPointer) {
         if let error = error {
-            // we got back an error!
+            
             let ac = UIAlertController(title: "Save error", message: error.localizedDescription, preferredStyle: .alert)
             ac.addAction(UIAlertAction(title: "OK", style: .default))
             present(ac, animated: true)
@@ -246,6 +393,132 @@ extension AddExpenseVC: UIImagePickerControllerDelegate,UINavigationControllerDe
     }
     
 }
+
+
+extension AddExpenseVC: PHPickerViewControllerDelegate{
+    
+    func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
+        
+        for result in results {
+            if result.itemProvider.canLoadObject(ofClass: UIImage.self){
+                result.itemProvider.loadObject(ofClass: UIImage.self) { object, error in
+                    if let error = error {
+                        print(error.localizedDescription)
+                    }
+                    
+                    if let image = object as? UIImage {
+                        DispatchQueue.main.async {
+                            self.displayImage(image: image)
+                        }
+                    }
+                }
+            }
+        }
+        
+        picker.dismiss(animated: true)
+    }
+    
+    
+}
+
+
+
+
+
+
+//extension UIColor{
+//    static var placeholderText: UIColor {
+//        get{
+//            return UIColor.systemCyan
+//        }
+//    }
+//}
+
+
+
+
+
+
+
+
+
+class SelectionViewController: UIViewController,UITableViewDataSource,UITableViewDelegate{
+    
+    
+    init(options: [String]) {
+        self.options = options
+        super.init(nibName: nil, bundle: nil)
+        
+        
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    var didSelectOption : ((_ selectedOption: String) -> ())?
+    
+    lazy var table = {
+        let table = UITableView()
+        table.backgroundColor = .systemBackground
+        table.separatorStyle = .singleLine
+        table.translatesAutoresizingMaskIntoConstraints = false
+        table.dataSource = self
+        table.delegate = self
+        table.isPagingEnabled = true
+        return table
+    }()
+    
+
+    
+    private var options: [String]
+    
+    override func viewDidLoad() {
+        
+        view.addSubview(table)
+        table.pinTo(view: view)
+        
+    }
+    
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        options.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = UITableViewCell()
+        cell.textLabel?.text = options[indexPath.row]
+       
+        cell.textLabel?.textColor = .black
+        cell.textLabel?.font = .systemFont(ofSize: 20)
+        return cell
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        if let didSelectOption{
+            didSelectOption(options[indexPath.row])
+        }
+        dismiss(animated: true)
+    }
+    
+    
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -268,7 +541,7 @@ class Spacer: UIView{
         setContentCompressionResistancePriority(.init(1), for: .horizontal)
         setContentHuggingPriority(.init(1), for: .vertical)
         setContentHuggingPriority(.init(1), for: .horizontal)
-        backgroundColor = .gray
+//        backgroundColor = .gray
         let width = widthAnchor.constraint(equalToConstant: 0)
         width.isActive = true
         width.priority = .init(1)
@@ -305,3 +578,101 @@ extension UIView{
 
 
 
+class AttachmentsVC: UIViewController{
+    
+    
+    var attachments = [UIImage](){
+        didSet{
+            DispatchQueue.main.async {[weak self] in
+                self?.collectionView.reloadData()
+            }
+        }
+    }
+    
+    let collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
+    
+    override func viewDidLoad() {
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
+        collectionView.dataSource = self
+        collectionView.delegate = self
+        collectionView.isScrollEnabled = false
+        
+        view.addSubview(collectionView)
+        collectionView.pinTo(view: view)
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.heightAnchor.constraint(equalToConstant: collectionView.contentSize.height).isActive = true
+        collectionView.register(AttachmentCell.self, forCellWithReuseIdentifier: AttachmentCell.reuseID)
+    }
+    
+  
+    
+}
+
+extension AttachmentsVC: UICollectionViewDelegateFlowLayout,UICollectionViewDataSource{
+    
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        attachments.count
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: AttachmentCell.reuseID, for: indexPath) as! AttachmentCell
+        
+        cell.imageView.image = attachments[indexPath.row]
+        
+        
+        return cell
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        CGSize(width: 80, height: 100)
+    }
+    
+    
+    
+}
+
+
+class AttachmentCell: UICollectionViewCell{
+    
+    static let reuseID = "Attachment cell"
+    
+    
+    lazy var imageView={
+        let imageView = UIImageView()
+        
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.contentMode = .scaleToFill
+        imageView.image = UIImage(systemName: "arrow.triangle.2.circlepath")
+        return imageView
+    }()
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        configView()
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    
+    private func configView(){
+        contentView.addSubview(imageView)
+
+        imageView.layer.borderWidth = 0.5
+//        imageView.layer.cornerRadius = 15
+        imageView.clipsToBounds = true
+//        imageView.layer.borderColor = UIColor.black.cgColor
+        NSLayoutConstraint.activate([
+            imageView.topAnchor.constraint(equalTo: contentView.topAnchor),
+            imageView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+            imageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            imageView.leadingAnchor.constraint(equalTo: leadingAnchor)
+        ])
+    }
+    
+    
+    
+    
+    
+}
