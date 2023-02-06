@@ -454,26 +454,42 @@ extension AddExpenseVC: PHPickerViewControllerDelegate{
     
     func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
         
-        for result in results {
-            if result.itemProvider.canLoadObject(ofClass: UIImage.self){
-                result.itemProvider.loadObject(ofClass: UIImage.self) { object, error in
-                    if let error = error {
-                        print(error.localizedDescription)
-                    }
+        //        for result in results {
+        //            if result.itemProvider.canLoadObject(ofClass: UIImage.self){
+        //                result.itemProvider.loadObject(ofClass: UIImage.self) { object, error in
+        //                    if let error = error {
+        //                        print(error.localizedDescription)
+        //                    }
+        //
+        //                    if let image = object as? UIImage {
+        //                        DispatchQueue.main.async {
+        //                            self.displayImage(image: image)
+        //                        }
+        //                    }
+        //                }
+        //            }
+        //        }
+        //
+        //        picker.dismiss(animated: true)
+        //
+        for result in results{
+            
+            result.itemProvider.loadFileRepresentation(forTypeIdentifier: UTType.image.identifier) { (url, error) in
+                guard let url = url else {
                     
-                    if let image = object as? UIImage {
-                        DispatchQueue.main.async {
-                            self.displayImage(image: image)
-                        }
-                    }
+                    return
+                }
+                
+                
+                let image = downsample(imageAt: url, to: .init(width: 100, height: 120))!
+                DispatchQueue.main.async {
+                    self.displayImage(image: image)
                 }
             }
+            
         }
-        
         picker.dismiss(animated: true)
     }
-    
-    
 }
 
 
@@ -649,4 +665,37 @@ extension UIView{
 
 
 
+
+
+
+func downsample(imageAt imageURL: URL,
+                to pointSize: CGSize,
+                scale: CGFloat = UIScreen.main.scale) -> UIImage? {
+    
+    // Create an CGImageSource that represent an image
+    let imageSourceOptions = [kCGImageSourceShouldCache: false] as CFDictionary
+    guard let imageSource = CGImageSourceCreateWithURL(imageURL as CFURL, imageSourceOptions) else {
+        print("source error")
+        return nil
+    }
+    
+    // Calculate the desired dimension
+    let maxDimensionInPixels = max(pointSize.width, pointSize.height) * scale
+    
+    // Perform downsampling
+    let downsampleOptions = [
+        kCGImageSourceCreateThumbnailFromImageAlways: true,
+        kCGImageSourceShouldCacheImmediately: true,
+        kCGImageSourceCreateThumbnailWithTransform: true,
+        kCGImageSourceThumbnailMaxPixelSize: maxDimensionInPixels
+    ] as CFDictionary
+    
+    guard let downsampledImage = CGImageSourceCreateThumbnailAtIndex(imageSource, 0, downsampleOptions) else {
+        print("down sampling error")
+        return nil
+    }
+    
+    // Return the downsampled image as UIImage
+    return UIImage(cgImage: downsampledImage)
+}
 

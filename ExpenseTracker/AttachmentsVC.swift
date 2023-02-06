@@ -166,6 +166,7 @@ class AttachmentCell: UICollectionViewCell{
     
     override func prepareForReuse() {
         super.prepareForReuse()
+//        print(#function)
         imageView.image = nil
     }
     
