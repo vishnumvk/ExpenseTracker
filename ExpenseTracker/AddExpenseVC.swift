@@ -23,7 +23,17 @@ enum Categories: String,CaseIterable{
     case Groceries
     case Entertainment
     case Health
+    case Others
 }
+
+
+enum TextFields: Int{
+    case title = 100
+    case amount = 101
+}
+
+
+
 
 class AddExpenseVC: UIViewController {
     
@@ -77,6 +87,8 @@ class AddExpenseVC: UIViewController {
         textfield.textAlignment = .left
         textfield.font = .systemFont(ofSize: 20)
         textfield.placeholder = "Title"
+        textfield.delegate = self
+        
         textfield.borderStyle = .roundedRect
         textfield.heightAnchor.constraint(equalToConstant: 44).isActive = true
         textfield.layer.cornerRadius = 5
@@ -97,6 +109,10 @@ class AddExpenseVC: UIViewController {
         textfield.font = .systemFont(ofSize: 18)
         textfield.placeholder = "Amount"
         textfield.borderStyle = .roundedRect
+        textfield.delegate = self
+        
+        textfield.keyboardType = .decimalPad
+        
         
         textfield.heightAnchor.constraint(equalToConstant: 44).isActive = true
         textfield.layer.cornerRadius = 5
@@ -116,13 +132,34 @@ class AddExpenseVC: UIViewController {
         note.placeholder = "Note"
         note.borderStyle = .roundedRect
         note.textAlignment = .left
-        
+        note.delegate = self
         note.heightAnchor.constraint(equalToConstant: 44).isActive = true
         note.layer.cornerRadius = 5
         note.layer.borderWidth = 1
         note.layer.borderColor = UIColor.placeholderText.cgColor
         return note
     }()
+
+    
+    
+//    lazy var noteField = {
+//        let note = UITextView()
+//        note.translatesAutoresizingMaskIntoConstraints = false
+//        note.font = .systemFont(ofSize: 20)
+//        note.textColor = .label
+////        note.placeholder = "Note"
+////        note.borderStyle = .roundedRect
+//        note.textAlignment = .left
+//        note.isScrollEnabled = false
+//
+//        note.textColor = .label
+//        note.layer.cornerRadius = 5
+//        note.layer.borderWidth = 1
+//        note.layer.borderColor = UIColor.placeholderText.cgColor
+//        return note
+//    }()
+//
+    
     
     lazy var camBtn = {
         let btn = UIButton()
@@ -222,8 +259,7 @@ class AddExpenseVC: UIViewController {
         view.backgroundColor = .systemBackground
         title = "Add Expense"
        
-//        view.addSubview(stackView)
-//        stackView.pinTo(view: view)
+
         view.addSubview(scrollContainer)
         scrollContainer.pinTo(view: view)
         
@@ -240,10 +276,9 @@ class AddExpenseVC: UIViewController {
         
        
         
-        
+        stackView.addArrangedSubview(amountField)
         stackView.addArrangedSubview(titleField)
         stackView.addArrangedSubview(dateStack)
-        stackView.addArrangedSubview(amountField)
         stackView.addArrangedSubview(categoryBtn)
         stackView.addArrangedSubview(noteField)
         stackView.addArrangedSubview(attachmentOptions)
@@ -254,7 +289,7 @@ class AddExpenseVC: UIViewController {
         self.addChild(attachmentsVC)
         
         attachmentsVC.view.translatesAutoresizingMaskIntoConstraints = false
-//        attachmentsVC.view.heightAnchor.constraint(equalToConstant: 200).isActive = true
+        attachmentsVC.view.heightAnchor.constraint(equalToConstant: 310).isActive = true
         stackView.addArrangedSubview(attachmentsVC.view)
         
         attachmentsVC.didMove(toParent: self)
@@ -287,7 +322,7 @@ class AddExpenseVC: UIViewController {
         
         let pickerVC = UIImagePickerController()
         pickerVC.delegate = self
-        pickerVC.allowsEditing = true
+        
         
         if UIImagePickerController.isSourceTypeAvailable(.camera){
             pickerVC.sourceType = .camera
@@ -318,6 +353,26 @@ class AddExpenseVC: UIViewController {
         
         
     }
+    
+    
+    
+    
+    
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection){
+            dateStack.layer.borderColor = UIColor.placeholderText.cgColor
+            titleField.layer.borderColor = UIColor.placeholderText.cgColor
+            amountField.layer.borderColor = UIColor.placeholderText.cgColor
+            categoryBtn.layer.borderColor = UIColor.placeholderText.cgColor
+            noteField.layer.borderColor = UIColor.placeholderText.cgColor
+            attachmentOptions.layer.borderColor = UIColor.placeholderText.cgColor
+//            UIDatePicker.appearance().tintColor = .systemMint
+            datePicker.tintColor = .systemMint
+        }
+    }
+    
+    
+    
     
     
 }
@@ -423,6 +478,20 @@ extension AddExpenseVC: PHPickerViewControllerDelegate{
 
 
 
+extension AddExpenseVC: UITextFieldDelegate{
+    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        return true
+    }
+    
+}
+
+
+
+
+
+
 
 
 
@@ -489,8 +558,11 @@ class SelectionViewController: UIViewController,UITableViewDataSource,UITableVie
         let cell = UITableViewCell()
         cell.textLabel?.text = options[indexPath.row]
        
-        cell.textLabel?.textColor = .black
+        cell.textLabel?.textColor = .label
         cell.textLabel?.font = .systemFont(ofSize: 20)
+        
+       
+        
         return cell
     }
     
@@ -578,101 +650,3 @@ extension UIView{
 
 
 
-class AttachmentsVC: UIViewController{
-    
-    
-    var attachments = [UIImage](){
-        didSet{
-            DispatchQueue.main.async {[weak self] in
-                self?.collectionView.reloadData()
-            }
-        }
-    }
-    
-    let collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
-    
-    override func viewDidLoad() {
-        collectionView.translatesAutoresizingMaskIntoConstraints = false
-        collectionView.dataSource = self
-        collectionView.delegate = self
-        collectionView.isScrollEnabled = false
-        
-        view.addSubview(collectionView)
-        collectionView.pinTo(view: view)
-        view.translatesAutoresizingMaskIntoConstraints = false
-        view.heightAnchor.constraint(equalToConstant: collectionView.contentSize.height).isActive = true
-        collectionView.register(AttachmentCell.self, forCellWithReuseIdentifier: AttachmentCell.reuseID)
-    }
-    
-  
-    
-}
-
-extension AttachmentsVC: UICollectionViewDelegateFlowLayout,UICollectionViewDataSource{
-    
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        attachments.count
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: AttachmentCell.reuseID, for: indexPath) as! AttachmentCell
-        
-        cell.imageView.image = attachments[indexPath.row]
-        
-        
-        return cell
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        CGSize(width: 80, height: 100)
-    }
-    
-    
-    
-}
-
-
-class AttachmentCell: UICollectionViewCell{
-    
-    static let reuseID = "Attachment cell"
-    
-    
-    lazy var imageView={
-        let imageView = UIImageView()
-        
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-        imageView.contentMode = .scaleToFill
-        imageView.image = UIImage(systemName: "arrow.triangle.2.circlepath")
-        return imageView
-    }()
-    
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        configView()
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
-    
-    private func configView(){
-        contentView.addSubview(imageView)
-
-        imageView.layer.borderWidth = 0.5
-//        imageView.layer.cornerRadius = 15
-        imageView.clipsToBounds = true
-//        imageView.layer.borderColor = UIColor.black.cgColor
-        NSLayoutConstraint.activate([
-            imageView.topAnchor.constraint(equalTo: contentView.topAnchor),
-            imageView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
-            imageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            imageView.leadingAnchor.constraint(equalTo: leadingAnchor)
-        ])
-    }
-    
-    
-    
-    
-    
-}
