@@ -46,17 +46,21 @@ class AttachmentsVC: UIViewController{
         view.translatesAutoresizingMaskIntoConstraints = false
 
         collectionView.register(AttachmentCell.self, forCellWithReuseIdentifier: AttachmentCell.reuseID)
-    }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
         
+        
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+
         if hasNoAttachments{
             view.isHidden = true
         }else{
             view.isHidden = false
         }
     }
+    
+    
     
     private static func getLayout() -> UICollectionViewLayout{
         let layout = UICollectionViewFlowLayout()
@@ -309,9 +313,9 @@ extension SlideShowViewController:UICollectionViewDelegate,UICollectionViewDataS
 
     override func willTransition(to newCollection: UITraitCollection, with coordinator: UIViewControllerTransitionCoordinator) {
         super.willTransition(to: newCollection, with: coordinator)
-        print(#function)
-
-        print(collectionView.indexPathsForVisibleItems)
+//        print(#function)
+//
+//        print(collectionView.indexPathsForVisibleItems)
 
         if let index = collectionView.indexPathForItem(at: view.center){
             selectedIndex = index
@@ -329,7 +333,7 @@ extension SlideShowViewController:UICollectionViewDelegate,UICollectionViewDataS
 //            selectedIndex = index
 //        }
 //        print(collectionView.indexPathForItem(at: view.center))
-        print(selectedIndex)
+//        print(selectedIndex)
     }
     
     

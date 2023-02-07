@@ -294,7 +294,7 @@ class AddExpenseVC: UIViewController {
         
         attachmentsVC.didMove(toParent: self)
        
-        
+        applyColours()
         
     }
    
@@ -355,19 +355,33 @@ class AddExpenseVC: UIViewController {
     }
     
     
-    
+    func applyColours(){
+             view.backgroundColor  = UIColor.systemGroupedBackground
+        dateStack.backgroundColor  = UIColor.secondarySystemGroupedBackground
+        titleField.backgroundColor = UIColor.secondarySystemGroupedBackground
+       amountField.backgroundColor = UIColor.secondarySystemGroupedBackground
+       categoryBtn.backgroundColor = UIColor.secondarySystemGroupedBackground
+         noteField.backgroundColor = UIColor.secondarySystemGroupedBackground
+ attachmentOptions.backgroundColor = UIColor.secondarySystemGroupedBackground
+        datePicker.tintColor = .systemTeal
+        
+         dateStack.layer.borderColor  = UIColor.systemTeal.cgColor
+         titleField.layer.borderColor = UIColor.systemTeal.cgColor
+        amountField.layer.borderColor = UIColor.systemTeal.cgColor
+        categoryBtn.layer.borderColor = UIColor.systemTeal.cgColor
+          noteField.layer.borderColor = UIColor.systemTeal.cgColor
+  attachmentOptions.layer.borderColor = UIColor.systemTeal.cgColor
+        
+        navigationController?.navigationBar.tintColor = .systemTeal
+        navigationController?.toolbar.tintColor = .systemTeal
+        
+        
+    }
     
     
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection){
-            dateStack.layer.borderColor = UIColor.placeholderText.cgColor
-            titleField.layer.borderColor = UIColor.placeholderText.cgColor
-            amountField.layer.borderColor = UIColor.placeholderText.cgColor
-            categoryBtn.layer.borderColor = UIColor.placeholderText.cgColor
-            noteField.layer.borderColor = UIColor.placeholderText.cgColor
-            attachmentOptions.layer.borderColor = UIColor.placeholderText.cgColor
-//            UIDatePicker.appearance().tintColor = .systemMint
-            datePicker.tintColor = .systemMint
+            applyColours()
         }
     }
     
@@ -454,41 +468,49 @@ extension AddExpenseVC: PHPickerViewControllerDelegate{
     
     func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
         
-        //        for result in results {
-        //            if result.itemProvider.canLoadObject(ofClass: UIImage.self){
-        //                result.itemProvider.loadObject(ofClass: UIImage.self) { object, error in
-        //                    if let error = error {
-        //                        print(error.localizedDescription)
-        //                    }
-        //
-        //                    if let image = object as? UIImage {
-        //                        DispatchQueue.main.async {
-        //                            self.displayImage(image: image)
-        //                        }
-        //                    }
-        //                }
-        //            }
-        //        }
-        //
-        //        picker.dismiss(animated: true)
-        //
+//                for result in results {
+//                    if result.itemProvider.canLoadObject(ofClass: UIImage.self){
+//                        result.itemProvider.loadObject(ofClass: UIImage.self) { object, error in
+//                            if let error = error {
+//                                print(error.localizedDescription)
+//                            }
+//
+//                            if let image = object as? UIImage {
+//                                DispatchQueue.main.async {
+//                                    self.displayImage(image: image)
+//                                }
+//                            }
+//                        }
+//                    }
+//                }
+//
+//                picker.dismiss(animated: true)
+        
+        
         for result in results{
-            
+
             result.itemProvider.loadFileRepresentation(forTypeIdentifier: UTType.image.identifier) { (url, error) in
                 guard let url = url else {
-                    
+
                     return
                 }
-                
-                
+
+
+//                if let data = try? Data(contentsOf: url){
+//                    DispatchQueue.main.async {
+//                        self.displayImage(image: UIImage(data: data,scale: 0.1)!)
+//                    }
+//                }
+
                 let image = downsample(imageAt: url, to: .init(width: 100, height: 120))!
                 DispatchQueue.main.async {
                     self.displayImage(image: image)
                 }
             }
-            
         }
         picker.dismiss(animated: true)
+        
+        
     }
 }
 
@@ -669,7 +691,7 @@ extension UIView{
 
 
 func downsample(imageAt imageURL: URL,
-                to pointSize: CGSize,
+                to pointSize: CGSize = .init(width: 200, height: 200),
                 scale: CGFloat = UIScreen.main.scale) -> UIImage? {
     
     // Create an CGImageSource that represent an image
@@ -687,7 +709,7 @@ func downsample(imageAt imageURL: URL,
         kCGImageSourceCreateThumbnailFromImageAlways: true,
         kCGImageSourceShouldCacheImmediately: true,
         kCGImageSourceCreateThumbnailWithTransform: true,
-        kCGImageSourceThumbnailMaxPixelSize: maxDimensionInPixels
+        kCGImageSourceThumbnailMaxPixelSize: 2_000
     ] as CFDictionary
     
     guard let downsampledImage = CGImageSourceCreateThumbnailAtIndex(imageSource, 0, downsampleOptions) else {
