@@ -27,7 +27,7 @@ class HomePageVC: UIViewController {
 
         pieChart.delegate = self
         let set = PieChartDataSet(entries: [
-            PieChartDataEntry(value: 100, label: "apples"),
+            PieChartDataEntry(value: 1000, label: "apples"),
             PieChartDataEntry(value: 200, label: "pine apples"),
             PieChartDataEntry(value: 500, label: "bananas"),
             PieChartDataEntry(value: 100, label: "grapes"),
@@ -44,7 +44,7 @@ class HomePageVC: UIViewController {
         set.colors = ChartColorTemplates.colorful()
         pieChart.data = PieChartData(dataSet: set)
 
-
+       
 
 
         let button = UIButton()
@@ -69,7 +69,7 @@ class HomePageVC: UIViewController {
 
 
     @objc func plusBtnTapped(){
-        print("plus tapped")
+        
         navigationController?.pushViewController(AddExpenseVC(), animated: true)
     }
 

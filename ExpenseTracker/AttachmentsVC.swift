@@ -32,7 +32,7 @@ class AttachmentsVC: UIViewController{
         }
     }
     
-    var heightConstraint: NSLayoutConstraint!
+    
     let collectionView = UICollectionView(frame: .zero, collectionViewLayout: getLayout())
     
     override func viewDidLoad() {
@@ -206,7 +206,7 @@ class SlideShowViewController: UIViewController{
         view.backgroundColor = .black
         configCollectionView()
 
-
+        
     }
 
     override func viewWillAppear(_ animated: Bool) {

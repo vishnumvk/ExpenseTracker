@@ -13,7 +13,7 @@ import PhotosUI
 
 
 
-enum Categories: String,CaseIterable{
+enum ExpenseCategory: String,CaseIterable{
     case houseHold = "House hold"
     case Electricity
     case Education
@@ -27,7 +27,7 @@ enum Categories: String,CaseIterable{
 }
 
 
-enum TextFields: Int{
+enum TextFieldTag: Int{
     case title = 100
     case amount = 101
 }
@@ -37,7 +37,12 @@ enum TextFields: Int{
 
 class AddExpenseVC: UIViewController {
     
-    lazy var datePicker = {
+    
+    
+    
+    
+    
+    private lazy var datePicker = {
         let datePicker = UIDatePicker()
         datePicker.translatesAutoresizingMaskIntoConstraints = false
         datePicker.preferredDatePickerStyle = .compact
@@ -45,7 +50,7 @@ class AddExpenseVC: UIViewController {
         return datePicker
     }()
     
-    lazy var dateStack = {
+    private lazy var dateStack = {
         let stack = UIStackView()
         stack.translatesAutoresizingMaskIntoConstraints = false
         stack.axis = .horizontal
@@ -57,7 +62,7 @@ class AddExpenseVC: UIViewController {
         stack.directionalLayoutMargins = .init(top: 5, leading: 5, bottom: 5, trailing: 5)
         return stack
     }()
-    lazy var dateLabel = {
+    private lazy var dateLabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = "Date"
@@ -67,7 +72,7 @@ class AddExpenseVC: UIViewController {
         return label
     }()
     
-    lazy var stackView = {
+    private lazy var stackView = {
         let stackView = UIStackView()
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.alignment = .fill
@@ -80,7 +85,7 @@ class AddExpenseVC: UIViewController {
     }()
     
     
-    lazy var titleField = {
+    private lazy var titleField = {
        let textfield = UITextField()
         textfield.translatesAutoresizingMaskIntoConstraints = false
         textfield.textColor = .label
@@ -101,7 +106,7 @@ class AddExpenseVC: UIViewController {
         return textfield
     }()
     
-    lazy var amountField = {
+    private lazy var amountField = {
        let textfield = UITextField()
         textfield.translatesAutoresizingMaskIntoConstraints = false
         textfield.textColor = .label
@@ -124,44 +129,62 @@ class AddExpenseVC: UIViewController {
     }()
     
     
-    lazy var noteField = {
-        let note = UITextField()
-        note.translatesAutoresizingMaskIntoConstraints = false
-        note.font = .systemFont(ofSize: 20)
-        note.textColor = .label
-        note.placeholder = "Note"
-        note.borderStyle = .roundedRect
-        note.textAlignment = .left
-        note.delegate = self
-        note.heightAnchor.constraint(equalToConstant: 44).isActive = true
-        note.layer.cornerRadius = 5
-        note.layer.borderWidth = 1
-        note.layer.borderColor = UIColor.placeholderText.cgColor
-        return note
-    }()
-
-    
-    
 //    lazy var noteField = {
-//        let note = UITextView()
+//        let note = UITextField()
 //        note.translatesAutoresizingMaskIntoConstraints = false
 //        note.font = .systemFont(ofSize: 20)
 //        note.textColor = .label
-////        note.placeholder = "Note"
-////        note.borderStyle = .roundedRect
+//        note.placeholder = "Note"
+//        note.borderStyle = .roundedRect
 //        note.textAlignment = .left
-//        note.isScrollEnabled = false
-//
-//        note.textColor = .label
+//        note.delegate = self
+//        note.heightAnchor.constraint(equalToConstant: 44).isActive = true
 //        note.layer.cornerRadius = 5
 //        note.layer.borderWidth = 1
 //        note.layer.borderColor = UIColor.placeholderText.cgColor
 //        return note
 //    }()
-//
+
+    
+    private lazy var noteStack = {
+        let stack = UIStackView()
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        stack.axis = .vertical
+        stack.distribution = .fillProportionally
+        stack.spacing = 5
+        return stack
+    }()
     
     
-    lazy var camBtn = {
+    private lazy var noteField = {
+        let note = UITextView()
+        note.translatesAutoresizingMaskIntoConstraints = false
+        note.font = .systemFont(ofSize: 20)
+        note.textColor = .label
+
+        note.textAlignment = .left
+        note.isScrollEnabled = false
+
+        note.textColor = .label
+        note.layer.cornerRadius = 5
+        note.layer.borderWidth = 1
+        note.layer.borderColor = UIColor.placeholderText.cgColor
+        return note
+    }()
+    
+    private lazy var noteLabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = "Note"
+        label.textAlignment = .left
+        label.font = .systemFont(ofSize: 20)
+        label.textColor = .placeholderText
+//        label.layoutMargins = .init(top: 0, left: 55, bottom: 0, right: 0)
+        return label
+    }()
+    
+    
+    private lazy var camBtn = {
         let btn = UIButton()
         let image = UIImage(systemName: "camera")
         btn.translatesAutoresizingMaskIntoConstraints = false
@@ -176,7 +199,7 @@ class AddExpenseVC: UIViewController {
         return btn
     }()
     
-    lazy var clipBtn = {
+    private lazy var clipBtn = {
         let btn = UIButton()
         let image = UIImage(systemName: "paperclip")
         btn.translatesAutoresizingMaskIntoConstraints = false
@@ -191,7 +214,7 @@ class AddExpenseVC: UIViewController {
         return btn
     }()
     
-    lazy var attachmentLabel = {
+    private lazy var attachmentLabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = "Add bill image"
@@ -202,14 +225,14 @@ class AddExpenseVC: UIViewController {
     }()
     
     
-    lazy var scrollContainer = {
+    private lazy var scrollContainer = {
         let scroll = UIScrollView()
         scroll.translatesAutoresizingMaskIntoConstraints = false
         scroll.bounces = true
         return scroll
     }()
     
-    lazy var categoryBtn = {
+    private lazy var categoryBtn = {
         var btn = UIButton()
         let image = UIImage(systemName: "chevron.down")
         btn.setTitle("Category", for: .normal)
@@ -235,7 +258,7 @@ class AddExpenseVC: UIViewController {
     }()
     
     
-    lazy var attachmentOptions = {
+    private lazy var attachmentOptions = {
         let stack = UIStackView(arrangedSubviews: [attachmentLabel,Spacer(),camBtn,clipBtn])
         stack.translatesAutoresizingMaskIntoConstraints = false
         stack.axis = .horizontal
@@ -259,7 +282,7 @@ class AddExpenseVC: UIViewController {
         view.backgroundColor = .systemBackground
         title = "Add Expense"
        
-
+       
         view.addSubview(scrollContainer)
         scrollContainer.pinTo(view: view)
         
@@ -275,12 +298,14 @@ class AddExpenseVC: UIViewController {
         dateStack.addArrangedSubview(datePicker)
         
        
+        noteStack.addArrangedSubview(noteLabel)
+        noteStack.addArrangedSubview(noteField)
         
         stackView.addArrangedSubview(amountField)
         stackView.addArrangedSubview(titleField)
         stackView.addArrangedSubview(dateStack)
         stackView.addArrangedSubview(categoryBtn)
-        stackView.addArrangedSubview(noteField)
+        stackView.addArrangedSubview(noteStack)
         stackView.addArrangedSubview(attachmentOptions)
         
 //        stackView.addArrangedSubview(Spacer())
@@ -301,7 +326,7 @@ class AddExpenseVC: UIViewController {
     
     @objc func categoryButtonTapped(){
         
-        let optionsVC = SelectionViewController(options: Categories.allCases.map{$0.rawValue})
+        let optionsVC = SelectionViewController(options: ExpenseCategory.allCases.map{$0.rawValue})
         
         optionsVC.modalPresentationStyle = .pageSheet
         
@@ -363,7 +388,7 @@ class AddExpenseVC: UIViewController {
        categoryBtn.backgroundColor = UIColor.secondarySystemGroupedBackground
          noteField.backgroundColor = UIColor.secondarySystemGroupedBackground
  attachmentOptions.backgroundColor = UIColor.secondarySystemGroupedBackground
-        datePicker.tintColor = .systemTeal
+              datePicker.tintColor = .systemTeal
         
          dateStack.layer.borderColor  = UIColor.systemTeal.cgColor
          titleField.layer.borderColor = UIColor.systemTeal.cgColor
@@ -468,40 +493,14 @@ extension AddExpenseVC: PHPickerViewControllerDelegate{
     
     func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
         
-//                for result in results {
-//                    if result.itemProvider.canLoadObject(ofClass: UIImage.self){
-//                        result.itemProvider.loadObject(ofClass: UIImage.self) { object, error in
-//                            if let error = error {
-//                                print(error.localizedDescription)
-//                            }
-//
-//                            if let image = object as? UIImage {
-//                                DispatchQueue.main.async {
-//                                    self.displayImage(image: image)
-//                                }
-//                            }
-//                        }
-//                    }
-//                }
-//
-//                picker.dismiss(animated: true)
-        
-        
         for result in results{
-
+            
             result.itemProvider.loadFileRepresentation(forTypeIdentifier: UTType.image.identifier) { (url, error) in
                 guard let url = url else {
-
+                    
                     return
                 }
-
-
-//                if let data = try? Data(contentsOf: url){
-//                    DispatchQueue.main.async {
-//                        self.displayImage(image: UIImage(data: data,scale: 0.1)!)
-//                    }
-//                }
-
+                
                 let image = downsample(imageAt: url, to: .init(width: 100, height: 120))!
                 DispatchQueue.main.async {
                     self.displayImage(image: image)
