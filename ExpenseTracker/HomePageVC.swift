@@ -21,13 +21,13 @@ class HomePageVC: UIViewController {
         super.viewDidLoad()
 
 
-        view.backgroundColor = .white
+        view.backgroundColor = .systemBackground
         view.addSubview(pieChart)
-        pieChart.pinTo(view: view)
+        pieChart.pinToSafeArea(view: view)
 
         pieChart.delegate = self
         let set = PieChartDataSet(entries: [
-            PieChartDataEntry(value: 1000, label: "apples"),
+            PieChartDataEntry(value: 1000, label: "applesyuuytxrdyfgufytdrsdtfyguihkjbvhbcvgfxdzsrdtfyguj"),
             PieChartDataEntry(value: 200, label: "pine apples"),
             PieChartDataEntry(value: 500, label: "bananas"),
             PieChartDataEntry(value: 100, label: "grapes"),

@@ -14,9 +14,6 @@ class AttachmentsVC: UIViewController{
         didSet{
             DispatchQueue.main.async {[weak self] in
                 self?.collectionView.reloadData()
-////                self?.heightConstraint.constant = (self?.collectionView.contentSize.height)!
-////                print("content height of collection view -- \(String(describing: self?.collectionView.contentSize.height))")
-////                self?.view.updateConstraints()
                 self?.hasNoAttachments = self?.attachments.count == 0 ? true : false
             }
         }
@@ -42,7 +39,7 @@ class AttachmentsVC: UIViewController{
         
         
         view.addSubview(collectionView)
-        collectionView.pinTo(view: view)
+        collectionView.pinToSafeArea(view: view)
         view.translatesAutoresizingMaskIntoConstraints = false
 
         collectionView.register(AttachmentCell.self, forCellWithReuseIdentifier: AttachmentCell.reuseID)
@@ -313,30 +310,56 @@ extension SlideShowViewController:UICollectionViewDelegate,UICollectionViewDataS
 
     override func willTransition(to newCollection: UITraitCollection, with coordinator: UIViewControllerTransitionCoordinator) {
         super.willTransition(to: newCollection, with: coordinator)
-//        print(#function)
+////        print(#function)
+////
+////        print(collectionView.indexPathsForVisibleItems)
 //
-//        print(collectionView.indexPathsForVisibleItems)
-
-        if let index = collectionView.indexPathForItem(at: view.center){
-            selectedIndex = index
-        }
-        if needsToScroll{
-            DispatchQueue.main.async {
-                [weak self] in
-                self?.collectionView.scrollToItem(at: self?.selectedIndex ?? .init(row: 0, section: 0), at: .centeredHorizontally, animated: false)
-            }
-        }
-
-        collectionView.collectionViewLayout.invalidateLayout()
-//
-//        if let index = collectionView.indexPathsForVisibleItems.first{
+//        if let index = collectionView.indexPathForItem(at: view.center){
 //            selectedIndex = index
 //        }
-//        print(collectionView.indexPathForItem(at: view.center))
+//        if needsToScroll{
+//            DispatchQueue.main.async {
+//                [weak self] in
+//                self?.collectionView.scrollToItem(at: self?.selectedIndex ?? .init(row: 0, section: 0), at: .centeredHorizontally, animated: false)
+//            }
+//        }
+//
+//        collectionView.collectionViewLayout.invalidateLayout()
+////
+////        if let index = collectionView.indexPathsForVisibleItems.first{
+////            selectedIndex = index
+////        }
+////        print(collectionView.indexPathForItem(at: view.center))
 //        print(selectedIndex)
     }
     
-    
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        super.viewWillTransition(to: size, with: coordinator)
+        
+        //        print(#function)
+        //
+        //        print(collectionView.indexPathsForVisibleItems)
+
+                if let index = collectionView.indexPathForItem(at: view.center){
+                    selectedIndex = index
+                }
+                if needsToScroll{
+                    DispatchQueue.main.async {
+                        [weak self] in
+                        self?.collectionView.scrollToItem(at: self?.selectedIndex ?? .init(row: 0, section: 0), at: .centeredHorizontally, animated: false)
+                    }
+                }
+
+                collectionView.collectionViewLayout.invalidateLayout()
+        //
+        //        if let index = collectionView.indexPathsForVisibleItems.first{
+        //            selectedIndex = index
+        //        }
+        //        print(collectionView.indexPathForItem(at: view.center))
+               
+        
+        
+    }
      
 }
 

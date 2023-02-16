@@ -43,7 +43,7 @@ class RecordsVC: UIViewController{
         
         view.addSubview(table)
         view.addSubview(plusBtn)
-        table.pinTo(view: view)
+        table.pinToSafeArea(view: view)
         NSLayoutConstraint.activate([
             plusBtn.heightAnchor.constraint(equalToConstant: 60),
             plusBtn.widthAnchor.constraint(equalToConstant: 60),
@@ -55,7 +55,7 @@ class RecordsVC: UIViewController{
     }
     
     @objc func plusBtnTapped(){
-        print("plus tapped")
+        
         navigationController?.pushViewController(AddExpenseVC(), animated: true)
     }
     
@@ -256,7 +256,8 @@ class DateBarController: UIViewController {
     
     @objc func filterButtonTapped() {
         let alert = UIAlertController(title: "Select Option", message: nil, preferredStyle: .actionSheet)
-        alert.view.backgroundColor = .systemTeal
+        alert.popoverPresentationController?.sourceView = filterButton
+        
         let dayAction = UIAlertAction(title: "Day", style: .default) { (action) in
             self.dateComponent = .day
             self.datePicker2.isHidden = true

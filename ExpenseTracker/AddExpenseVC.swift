@@ -32,6 +32,88 @@ enum TextFieldTag: Int{
     case amount = 101
 }
 
+protocol AddExpensePresenterProtocol: AnyObject{
+    
+    
+    func camBtnTapped()
+    func clipBtnTapped()
+    
+}
+
+
+import AVFoundation
+import Photos
+
+
+class AddExpensePresenter: AddExpensePresenterProtocol{
+    
+    
+    func clipBtnTapped() {
+        
+        
+        delegate?.openPhotoLibrary()
+        
+//        switch PHPhotoLibrary.authorizationStatus(for: .addOnly){
+//        case .authorized:
+//            delegate?.openPhotoLibrary()
+//        case .denied:
+//            delegate?.presentPhotoLibrarySettings()
+//        case .notDetermined:
+//            PHPhotoLibrary.requestAuthorization(for: .addOnly) { [weak self] status in
+//                switch status{
+//                case .authorized:
+//                    self?.delegate?.openPhotoLibrary()
+//                default:
+//                    print("photo library access was denied")
+//                }
+//            }
+//        default:
+//            print("unhandled authorization status")
+//        }
+    }
+    
+    
+    
+    
+    func camBtnTapped() {
+        
+        switch AVCaptureDevice.authorizationStatus(for: .video) {
+            case .denied:
+                 delegate?.presentCameraSettings()
+            case .restricted:
+                 delegate?.presentCameraSettings()
+            case .authorized:
+                 delegate?.openCamera()
+            case .notDetermined:
+            AVCaptureDevice.requestAccess(for: .video) { [self] success in
+                    if success {
+                        delegate?.openCamera()
+                    } else {
+                        print("Permission denied")
+                    }
+                }
+        @unknown default:
+            print("Unknown case")
+        }
+        }
+        
+        
+        
+    
+    
+    
+    
+    
+    weak var delegate: AddExpenseViewDelegate?
+    
+    
+    
+    
+    
+    
+    
+}
+
 
 
 
@@ -39,7 +121,11 @@ class AddExpenseVC: UIViewController {
     
     
     
-    
+    lazy var presenter = {
+       let presenter = AddExpensePresenter()
+        presenter.delegate = self
+        return presenter
+    }()
     
     
     private lazy var datePicker = {
@@ -129,22 +215,6 @@ class AddExpenseVC: UIViewController {
     }()
     
     
-//    lazy var noteField = {
-//        let note = UITextField()
-//        note.translatesAutoresizingMaskIntoConstraints = false
-//        note.font = .systemFont(ofSize: 20)
-//        note.textColor = .label
-//        note.placeholder = "Note"
-//        note.borderStyle = .roundedRect
-//        note.textAlignment = .left
-//        note.delegate = self
-//        note.heightAnchor.constraint(equalToConstant: 44).isActive = true
-//        note.layer.cornerRadius = 5
-//        note.layer.borderWidth = 1
-//        note.layer.borderColor = UIColor.placeholderText.cgColor
-//        return note
-//    }()
-
     
     private lazy var noteStack = {
         let stack = UIStackView()
@@ -179,7 +249,7 @@ class AddExpenseVC: UIViewController {
         label.textAlignment = .left
         label.font = .systemFont(ofSize: 20)
         label.textColor = .placeholderText
-//        label.layoutMargins = .init(top: 0, left: 55, bottom: 0, right: 0)
+
         return label
     }()
     
@@ -273,7 +343,9 @@ class AddExpenseVC: UIViewController {
         return stack
     }()
     
-    let attachmentsVC = AttachmentsVC()
+    private lazy var attachmentsVC = {
+        AttachmentsVC()
+    }()
     
     
     
@@ -284,14 +356,17 @@ class AddExpenseVC: UIViewController {
        
        
         view.addSubview(scrollContainer)
-        scrollContainer.pinTo(view: view)
+        scrollContainer.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor).isActive = true
+        scrollContainer.bottomAnchor.constraint(equalTo: view.keyboardLayoutGuide.topAnchor).isActive = true
+        scrollContainer.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor).isActive = true
+        scrollContainer.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor).isActive = true
         
         scrollContainer.addSubview(stackView)
         stackView.topAnchor.constraint(equalTo: scrollContainer.contentLayoutGuide.topAnchor).isActive = true
         stackView.bottomAnchor.constraint(equalTo: scrollContainer.contentLayoutGuide.bottomAnchor).isActive = true
-        stackView.trailingAnchor.constraint(equalTo: scrollContainer.contentLayoutGuide.trailingAnchor).isActive = true
-        stackView.leadingAnchor.constraint(equalTo: scrollContainer.contentLayoutGuide.leadingAnchor).isActive = true
-        stackView.widthAnchor.constraint(equalTo: scrollContainer.frameLayoutGuide.widthAnchor).isActive = true
+        stackView.trailingAnchor.constraint(equalTo: scrollContainer.frameLayoutGuide.trailingAnchor).isActive = true
+        stackView.leadingAnchor.constraint(equalTo: scrollContainer.frameLayoutGuide.leadingAnchor).isActive = true
+//        stackView.widthAnchor.constraint(equalTo: scrollContainer.frameLayoutGuide.widthAnchor).isActive = true
         
         dateStack.addArrangedSubview(dateLabel)
 //        dateStack.addArrangedSubview(Spacer())
@@ -321,6 +396,17 @@ class AddExpenseVC: UIViewController {
        
         applyColours()
         
+//        let keyBoardToolBar = UIToolbar()
+//        keyBoardToolBar.translatesAutoresizingMaskIntoConstraints = false
+//        let done = UIBarButtonItem.init(barButtonSystemItem: .done, target: self, action: #selector(amountField.resignFirstResponder))
+//
+//        keyBoardToolBar.items = [UIBarButtonItem.flexibleSpace(),done]
+//        keyBoardToolBar.sizeToFit()
+//        amountField.inputAccessoryView = keyBoardToolBar
+        amountField.doneAccessory = true
+        noteField.doneAccessory = true
+        titleField.doneAccessory = true
+        
     }
    
     
@@ -330,9 +416,9 @@ class AddExpenseVC: UIViewController {
         
         optionsVC.modalPresentationStyle = .pageSheet
         
-        optionsVC.didSelectOption = { selectedOption in
+        optionsVC.didSelectOption = { [weak self] selectedOption in
             
-            self.categoryBtn.setTitle(selectedOption, for: .normal)
+            self?.categoryBtn.setTitle(selectedOption, for: .normal)
             
         }
         
@@ -345,37 +431,15 @@ class AddExpenseVC: UIViewController {
     
     @objc func camButtonTapped(){
         
-        let pickerVC = UIImagePickerController()
-        pickerVC.delegate = self
+        presenter.camBtnTapped()
         
-        
-        if UIImagePickerController.isSourceTypeAvailable(.camera){
-            pickerVC.sourceType = .camera
-            
-        }
-        else{
-            let ac = UIAlertController(title: "Camera not found", message: nil, preferredStyle: .alert)
-            ac.addAction(UIAlertAction(title: "OK", style: .default))
-            present(ac, animated: true)
-            
-            return
-        }
-      
-        present(pickerVC, animated: true)
     }
     
     
     @objc func clipButtonTapped(){
-        var config = PHPickerConfiguration(photoLibrary: .shared())
-        config.filter = .images
-        config.selectionLimit = 10
+       
         
-        let picker = PHPickerViewController(configuration: config)
-        picker.delegate = self
-        
-        present(picker, animated: true)
-        
-        
+        presenter.clipBtnTapped()
         
     }
     
@@ -389,6 +453,9 @@ class AddExpenseVC: UIViewController {
          noteField.backgroundColor = UIColor.secondarySystemGroupedBackground
  attachmentOptions.backgroundColor = UIColor.secondarySystemGroupedBackground
               datePicker.tintColor = .systemTeal
+             amountField.tintColor = .systemTeal
+              titleField.tintColor = .systemTeal
+               noteField.tintColor = .systemTeal
         
          dateStack.layer.borderColor  = UIColor.systemTeal.cgColor
          titleField.layer.borderColor = UIColor.systemTeal.cgColor
@@ -415,6 +482,108 @@ class AddExpenseVC: UIViewController {
     
     
 }
+
+
+
+
+protocol AddExpenseViewDelegate: NSObject{
+    
+    func openCamera()
+    func presentCameraSettings()
+    func openPhotoLibrary()
+    func presentPhotoLibrarySettings()
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+extension AddExpenseVC: AddExpenseViewDelegate{
+    
+    func openPhotoLibrary(){
+        var config = PHPickerConfiguration(photoLibrary: .shared())
+        config.filter = .images
+        config.selectionLimit = 10
+        
+        let picker = PHPickerViewController(configuration: config)
+        picker.delegate = self
+        
+        present(picker, animated: true)
+    }
+    
+
+    func openCamera(){
+        let pickerVC = UIImagePickerController()
+        pickerVC.delegate = self
+        
+        
+        if UIImagePickerController.isSourceTypeAvailable(.camera){
+            pickerVC.sourceType = .camera
+            
+        }
+        else{
+            let ac = UIAlertController(title: "Camera not found", message: nil, preferredStyle: .alert)
+            ac.addAction(UIAlertAction(title: "OK", style: .default))
+            present(ac, animated: true)
+            
+            return
+        }
+        
+        present(pickerVC, animated: true)
+    }
+    
+    
+    
+    func presentCameraSettings() {
+        let alertController = UIAlertController(title: "App does not have access to your camera. To enable access, tap settings and turn on Camera", message: nil,preferredStyle: .alert)
+        alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        alertController.addAction(UIAlertAction(title: "Settings", style: .default) { _ in
+            if let url = URL(string: UIApplication.openSettingsURLString) {
+                UIApplication.shared.open(url, options: [:])
+            }
+        })
+
+        present(alertController, animated: true)
+    }
+    
+    func presentPhotoLibrarySettings() {
+        let alertController = UIAlertController(title: "App does not have access to Photos. To enable access, tap settings and allow to add to photos", message: nil,preferredStyle: .alert)
+        alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        alertController.addAction(UIAlertAction(title: "Settings", style: .default) { _ in
+            if let url = URL(string: UIApplication.openSettingsURLString) {
+                UIApplication.shared.open(url, options: [:])
+            }
+        })
+
+        present(alertController, animated: true)
+    }
+    
+    
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -454,15 +623,9 @@ extension AddExpenseVC: UIImagePickerControllerDelegate,UINavigationControllerDe
     
     
     func displayImage(image: UIImage){
-//        let imageView = UIImageView()
-//        imageView.clipsToBounds = true
-//        imageView.translatesAutoresizingMaskIntoConstraints = false
-//        imageView.contentMode = .scaleAspectFill
-//        stackView.addArrangedSubview(imageView)
-//        imageView.heightAnchor.constraint(equalToConstant: 200).isActive = true
-//        imageView.image = image
+
         attachmentsVC.attachments.append(image)
-//        present(AttachmentsVC(), animated: true)
+
     }
     
     
@@ -501,9 +664,9 @@ extension AddExpenseVC: PHPickerViewControllerDelegate{
                     return
                 }
                 
-                let image = downsample(imageAt: url, to: .init(width: 100, height: 120))!
+                let image = downsample(imageAt: url, to: .init(width: 100, height: 120)) ?? UIImage(systemName: "photo")
                 DispatchQueue.main.async {
-                    self.displayImage(image: image)
+                    self.displayImage(image: image!)
                 }
             }
         }
@@ -521,7 +684,14 @@ extension AddExpenseVC: UITextFieldDelegate{
         textField.resignFirstResponder()
         return true
     }
-    
+//    func textFieldDidBeginEditing(_ textField: UITextField){
+//        textField.layer.borderColor = UIColor.systemGreen.cgColor
+//
+//    }
+//
+//    func textFieldDidEndEditing(_ textField: UITextField) {
+//        textField.layer.borderColor = UIColor.systemTeal.cgColor
+//    }
 }
 
 
@@ -529,16 +699,6 @@ extension AddExpenseVC: UITextFieldDelegate{
 
 
 
-
-
-
-//extension UIColor{
-//    static var placeholderText: UIColor {
-//        get{
-//            return UIColor.systemCyan
-//        }
-//    }
-//}
 
 
 
@@ -582,7 +742,7 @@ class SelectionViewController: UIViewController,UITableViewDataSource,UITableVie
     override func viewDidLoad() {
         
         view.addSubview(table)
-        table.pinTo(view: view)
+        table.pinToSafeArea(view: view)
         
     }
     
@@ -633,53 +793,37 @@ class SelectionViewController: UIViewController,UITableViewDataSource,UITableVie
 
 
 
-
-
-
-
-
-
-
-
-
-class Spacer: UIView{
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        translatesAutoresizingMaskIntoConstraints = false
-        setContentCompressionResistancePriority(.init(1), for: .vertical)
-        setContentCompressionResistancePriority(.init(1), for: .horizontal)
-        setContentHuggingPriority(.init(1), for: .vertical)
-        setContentHuggingPriority(.init(1), for: .horizontal)
-//        backgroundColor = .gray
-        let width = widthAnchor.constraint(equalToConstant: 0)
-        width.isActive = true
-        width.priority = .init(1)
+extension UITextField{
+    
+    @IBInspectable var doneAccessory: Bool{
+        get{
+            return self.doneAccessory
+        }
+        set (hasDone) {
+            if hasDone{
+                addDoneButtonOnKeyboard()
+            }
+        }
+    }
+    
+    func addDoneButtonOnKeyboard()
+    {
+        let doneToolbar: UIToolbar = UIToolbar(frame: CGRect.init(x: 0, y: 0, width: UIScreen.main.bounds.width, height: 50))
+        doneToolbar.barStyle = .default
         
-        let height = heightAnchor.constraint(equalToConstant: 0)
-        height.isActive = true
-        height.priority = .init(1)
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-}
-
-
-
-
-
-
-extension UIView{
-    func pinTo(view: UIView){
-        NSLayoutConstraint.activate([
-            
-            self.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            self.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-            self.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
-            self.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor)
+        let flexSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+        let done: UIBarButtonItem = UIBarButtonItem(title: "Done", style: .done, target: self, action: #selector(self.doneButtonAction))
         
-        ])
+        let items = [flexSpace, done]
+        doneToolbar.items = items
+        doneToolbar.sizeToFit()
+        
+        self.inputAccessoryView = doneToolbar
+    }
+    
+    @objc func doneButtonAction()
+    {
+        self.resignFirstResponder()
     }
 }
 
@@ -687,36 +831,39 @@ extension UIView{
 
 
 
-
-
-func downsample(imageAt imageURL: URL,
-                to pointSize: CGSize = .init(width: 200, height: 200),
-                scale: CGFloat = UIScreen.main.scale) -> UIImage? {
+extension UITextView{
     
-    // Create an CGImageSource that represent an image
-    let imageSourceOptions = [kCGImageSourceShouldCache: false] as CFDictionary
-    guard let imageSource = CGImageSourceCreateWithURL(imageURL as CFURL, imageSourceOptions) else {
-        print("source error")
-        return nil
+    @IBInspectable var doneAccessory: Bool{
+        get{
+            return self.doneAccessory
+        }
+        set (hasDone) {
+            if hasDone{
+                addDoneButtonOnKeyboard()
+            }
+        }
     }
     
-    // Calculate the desired dimension
-    let maxDimensionInPixels = max(pointSize.width, pointSize.height) * scale
-    
-    // Perform downsampling
-    let downsampleOptions = [
-        kCGImageSourceCreateThumbnailFromImageAlways: true,
-        kCGImageSourceShouldCacheImmediately: true,
-        kCGImageSourceCreateThumbnailWithTransform: true,
-        kCGImageSourceThumbnailMaxPixelSize: 2_000
-    ] as CFDictionary
-    
-    guard let downsampledImage = CGImageSourceCreateThumbnailAtIndex(imageSource, 0, downsampleOptions) else {
-        print("down sampling error")
-        return nil
+    func addDoneButtonOnKeyboard()
+    {
+        let doneToolbar: UIToolbar = UIToolbar(frame: CGRect.init(x: 0, y: 0, width: UIScreen.main.bounds.width, height: 50))
+        doneToolbar.barStyle = .default
+        
+        let flexSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+        let done: UIBarButtonItem = UIBarButtonItem(title: "Done", style: .done, target: self, action: #selector(self.doneButtonAction))
+        
+        let items = [flexSpace, done]
+        doneToolbar.items = items
+        doneToolbar.sizeToFit()
+        
+        self.inputAccessoryView = doneToolbar
     }
     
-    // Return the downsampled image as UIImage
-    return UIImage(cgImage: downsampledImage)
+    @objc func doneButtonAction()
+    {
+        self.resignFirstResponder()
+    }
 }
+
+
 

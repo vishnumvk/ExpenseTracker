@@ -16,6 +16,7 @@
 		474220C62983DE520030E036 /* HomePageVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 474220C52983DE520030E036 /* HomePageVC.swift */; };
 		477647A7298BD7A300D7B0B1 /* AttachmentsVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 477647A6298BD7A300D7B0B1 /* AttachmentsVC.swift */; };
 		4784E3A02992101B003BBB9F /* RecordsVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4784E39F2992101B003BBB9F /* RecordsVC.swift */; };
+		47FFBE8B299CAF3B008E196F /* Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47FFBE8A299CAF3B008E196F /* Helpers.swift */; };
 		74E7D38031C5258D53ADCA61 /* Pods_ExpenseTracker.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C5694D47FDA51B9988D5AB6D /* Pods_ExpenseTracker.framework */; };
 /* End PBXBuildFile section */
 
@@ -32,6 +33,7 @@
 		474220C52983DE520030E036 /* HomePageVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomePageVC.swift; sourceTree = "<group>"; };
 		477647A6298BD7A300D7B0B1 /* AttachmentsVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AttachmentsVC.swift; sourceTree = "<group>"; };
 		4784E39F2992101B003BBB9F /* RecordsVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordsVC.swift; sourceTree = "<group>"; };
+		47FFBE8A299CAF3B008E196F /* Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Helpers.swift; sourceTree = "<group>"; };
 		C5694D47FDA51B9988D5AB6D /* Pods_ExpenseTracker.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ExpenseTracker.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D9A9E06B5B6F96BFB4B82A84 /* Pods-ExpenseTracker.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ExpenseTracker.debug.xcconfig"; path = "Target Support Files/Pods-ExpenseTracker/Pods-ExpenseTracker.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -87,6 +89,7 @@
 			children = (
 				474220C1297FD0800030E036 /* PieChart.swift */,
 				474220C3297FD1850030E036 /* SqliteHelper.swift */,
+				47FFBE8A299CAF3B008E196F /* Helpers.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -225,6 +228,7 @@
 				474220B1297902CC0030E036 /* AddExpenseVC.swift in Sources */,
 				474220C2297FD0800030E036 /* PieChart.swift in Sources */,
 				474220C62983DE520030E036 /* HomePageVC.swift in Sources */,
+				47FFBE8B299CAF3B008E196F /* Helpers.swift in Sources */,
 				474220C4297FD1850030E036 /* SqliteHelper.swift in Sources */,
 				4784E3A02992101B003BBB9F /* RecordsVC.swift in Sources */,
 				474220AD297902CC0030E036 /* AppDelegate.swift in Sources */,
