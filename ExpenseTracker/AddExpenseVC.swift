@@ -28,15 +28,21 @@ enum ExpenseCategory: String,CaseIterable{
 
 
 enum TextFieldTag: Int{
-    case title = 100
+     case title = 100
     case amount = 101
 }
+
+
+
+
+
 
 protocol AddExpensePresenterProtocol: AnyObject{
     
     
     func camBtnTapped()
     func clipBtnTapped()
+    func optedToSaveCapturedImageToPhotos()
     
 }
 
@@ -46,6 +52,26 @@ import Photos
 
 
 class AddExpensePresenter: AddExpensePresenterProtocol{
+    func optedToSaveCapturedImageToPhotos() {
+                switch PHPhotoLibrary.authorizationStatus(for: .addOnly){
+                case .authorized:
+                    delegate?.saveToPhotos()
+                case .denied:
+                    delegate?.presentPhotoLibrarySettings()
+                case .notDetermined:
+                    PHPhotoLibrary.requestAuthorization(for: .addOnly) { [weak self] status in
+                        switch status{
+                        case .authorized:
+                            self?.delegate?.openPhotoLibrary()
+                        default:
+                            print("photo library access was denied")
+                        }
+                    }
+                default:
+                    print("unhandled authorization status")
+                }
+    }
+    
     
     
     func clipBtnTapped() {
@@ -53,23 +79,7 @@ class AddExpensePresenter: AddExpensePresenterProtocol{
         
         delegate?.openPhotoLibrary()
         
-//        switch PHPhotoLibrary.authorizationStatus(for: .addOnly){
-//        case .authorized:
-//            delegate?.openPhotoLibrary()
-//        case .denied:
-//            delegate?.presentPhotoLibrarySettings()
-//        case .notDetermined:
-//            PHPhotoLibrary.requestAuthorization(for: .addOnly) { [weak self] status in
-//                switch status{
-//                case .authorized:
-//                    self?.delegate?.openPhotoLibrary()
-//                default:
-//                    print("photo library access was denied")
-//                }
-//            }
-//        default:
-//            print("unhandled authorization status")
-//        }
+
     }
     
     
@@ -81,7 +91,7 @@ class AddExpensePresenter: AddExpensePresenterProtocol{
             case .denied:
                  delegate?.presentCameraSettings()
             case .restricted:
-                 delegate?.presentCameraSettings()
+                 print("access is restricted")
             case .authorized:
                  delegate?.openCamera()
             case .notDetermined:
@@ -396,17 +406,11 @@ class AddExpenseVC: UIViewController {
        
         applyColours()
         
-//        let keyBoardToolBar = UIToolbar()
-//        keyBoardToolBar.translatesAutoresizingMaskIntoConstraints = false
-//        let done = UIBarButtonItem.init(barButtonSystemItem: .done, target: self, action: #selector(amountField.resignFirstResponder))
-//
-//        keyBoardToolBar.items = [UIBarButtonItem.flexibleSpace(),done]
-//        keyBoardToolBar.sizeToFit()
-//        amountField.inputAccessoryView = keyBoardToolBar
-        amountField.doneAccessory = true
-        noteField.doneAccessory = true
-        titleField.doneAccessory = true
-        
+
+        amountField.addDoneButtonOnKeyboard()
+          noteField.addDoneButtonOnKeyboard()
+         titleField.addDoneButtonOnKeyboard()
+
     }
    
     
@@ -479,7 +483,7 @@ class AddExpenseVC: UIViewController {
     
     
     
-    
+    private var imageToBeSaved: UIImage?
     
 }
 
@@ -492,6 +496,7 @@ protocol AddExpenseViewDelegate: NSObject{
     func presentCameraSettings()
     func openPhotoLibrary()
     func presentPhotoLibrarySettings()
+    func saveToPhotos()
 }
 
 
@@ -508,6 +513,10 @@ protocol AddExpenseViewDelegate: NSObject{
 
 
 extension AddExpenseVC: AddExpenseViewDelegate{
+    func saveToPhotos() {
+        UIImageWriteToSavedPhotosAlbum(imageToBeSaved!, self, #selector(image(_:didFinishSavingWithError:contextInfo:)), nil)
+    }
+    
     
     func openPhotoLibrary(){
         var config = PHPickerConfiguration(photoLibrary: .shared())
@@ -603,7 +612,9 @@ extension AddExpenseVC: UIImagePickerControllerDelegate,UINavigationControllerDe
                 let alert = UIAlertController(title: "Save Image", message: "Would you like to save the image to photos", preferredStyle: .alert)
                 alert.addAction(UIAlertAction(title: "No", style: .default))
                 alert.addAction(UIAlertAction(title: "Yes", style: .default, handler: { [self] _ in
-                    UIImageWriteToSavedPhotosAlbum(image, self, #selector(image(_:didFinishSavingWithError:contextInfo:)), nil)
+                    imageToBeSaved = image
+                    presenter.optedToSaveCapturedImageToPhotos()
+                   
                 }))
                 
                 present(alert, animated: true)
@@ -633,7 +644,7 @@ extension AddExpenseVC: UIImagePickerControllerDelegate,UINavigationControllerDe
     @objc func image(_ image: UIImage, didFinishSavingWithError error: Error?, contextInfo: UnsafeRawPointer) {
         if let error = error {
             
-            let ac = UIAlertController(title: "Save error", message: error.localizedDescription, preferredStyle: .alert)
+            let ac = UIAlertController(title: "Image was not saved to photos due to an error while saving", message: error.localizedDescription, preferredStyle: .alert)
             ac.addAction(UIAlertAction(title: "OK", style: .default))
             present(ac, animated: true)
         } else {
@@ -664,7 +675,7 @@ extension AddExpenseVC: PHPickerViewControllerDelegate{
                     return
                 }
                 
-                let image = downsample(imageAt: url, to: .init(width: 100, height: 120)) ?? UIImage(systemName: "photo")
+                let image = downsample(imageAt: url) ?? UIImage(systemName: "photo")
                 DispatchQueue.main.async {
                     self.displayImage(image: image!)
                 }
@@ -684,14 +695,16 @@ extension AddExpenseVC: UITextFieldDelegate{
         textField.resignFirstResponder()
         return true
     }
-//    func textFieldDidBeginEditing(_ textField: UITextField){
-//        textField.layer.borderColor = UIColor.systemGreen.cgColor
-//
-//    }
-//
-//    func textFieldDidEndEditing(_ textField: UITextField) {
-//        textField.layer.borderColor = UIColor.systemTeal.cgColor
-//    }
+    func textFieldDidBeginEditing(_ textField: UITextField){
+        textField.layer.borderColor = UIColor.systemGreen.cgColor
+
+    }
+
+    func textFieldDidEndEditing(_ textField: UITextField) {
+        textField.layer.borderColor = UIColor.systemTeal.cgColor
+    }
+    
+    
 }
 
 
@@ -790,80 +803,6 @@ class SelectionViewController: UIViewController,UITableViewDataSource,UITableVie
 
 
 
-
-
-
-extension UITextField{
-    
-    @IBInspectable var doneAccessory: Bool{
-        get{
-            return self.doneAccessory
-        }
-        set (hasDone) {
-            if hasDone{
-                addDoneButtonOnKeyboard()
-            }
-        }
-    }
-    
-    func addDoneButtonOnKeyboard()
-    {
-        let doneToolbar: UIToolbar = UIToolbar(frame: CGRect.init(x: 0, y: 0, width: UIScreen.main.bounds.width, height: 50))
-        doneToolbar.barStyle = .default
-        
-        let flexSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
-        let done: UIBarButtonItem = UIBarButtonItem(title: "Done", style: .done, target: self, action: #selector(self.doneButtonAction))
-        
-        let items = [flexSpace, done]
-        doneToolbar.items = items
-        doneToolbar.sizeToFit()
-        
-        self.inputAccessoryView = doneToolbar
-    }
-    
-    @objc func doneButtonAction()
-    {
-        self.resignFirstResponder()
-    }
-}
-
-
-
-
-
-extension UITextView{
-    
-    @IBInspectable var doneAccessory: Bool{
-        get{
-            return self.doneAccessory
-        }
-        set (hasDone) {
-            if hasDone{
-                addDoneButtonOnKeyboard()
-            }
-        }
-    }
-    
-    func addDoneButtonOnKeyboard()
-    {
-        let doneToolbar: UIToolbar = UIToolbar(frame: CGRect.init(x: 0, y: 0, width: UIScreen.main.bounds.width, height: 50))
-        doneToolbar.barStyle = .default
-        
-        let flexSpace = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
-        let done: UIBarButtonItem = UIBarButtonItem(title: "Done", style: .done, target: self, action: #selector(self.doneButtonAction))
-        
-        let items = [flexSpace, done]
-        doneToolbar.items = items
-        doneToolbar.sizeToFit()
-        
-        self.inputAccessoryView = doneToolbar
-    }
-    
-    @objc func doneButtonAction()
-    {
-        self.resignFirstResponder()
-    }
-}
 
 
 
