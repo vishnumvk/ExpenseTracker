@@ -241,7 +241,7 @@ class AddExpenseVC: UIViewController {
         note.translatesAutoresizingMaskIntoConstraints = false
         note.font = .systemFont(ofSize: 20)
         note.textColor = .label
-
+        note.delegate = self
         note.textAlignment = .left
         note.isScrollEnabled = false
 
@@ -357,7 +357,7 @@ class AddExpenseVC: UIViewController {
         AttachmentsVC()
     }()
     
-    
+    private var imageToBeSaved: UIImage?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -483,7 +483,7 @@ class AddExpenseVC: UIViewController {
     
     
     
-    private var imageToBeSaved: UIImage?
+   
     
 }
 
@@ -514,7 +514,9 @@ protocol AddExpenseViewDelegate: NSObject{
 
 extension AddExpenseVC: AddExpenseViewDelegate{
     func saveToPhotos() {
-        UIImageWriteToSavedPhotosAlbum(imageToBeSaved!, self, #selector(image(_:didFinishSavingWithError:contextInfo:)), nil)
+        if let imageToBeSaved{
+            UIImageWriteToSavedPhotosAlbum(imageToBeSaved, self, #selector(image(_:didFinishSavingWithError:contextInfo:)), nil)
+        }
     }
     
     
@@ -708,6 +710,63 @@ extension AddExpenseVC: UITextFieldDelegate{
 }
 
 
+extension AddExpenseVC: UITextViewDelegate{
+    
+    
+    func textViewDidBeginEditing(_ textView: UITextView) {
+        textView.layer.borderColor = UIColor.systemGreen.cgColor
+    }
+    
+    func textViewDidEndEditing(_ textView: UITextView) {
+        textView.layer.borderColor = UIColor.systemTeal.cgColor
+    }
+    
+    
+}
+
+
+extension AddExpenseVC{
+    
+    
+    func updateUserActivity(){
+        let activity = view.window?.windowScene?.userActivity
+        if let activity{
+            activity.addUserInfoEntries(from: [SceneDelegate.presentedAddExpenseKey : true])
+        }else{
+            let current = NSUserActivity(activityType: SceneDelegate.MainSceneActivityType())
+            current.addUserInfoEntries(from: [SceneDelegate.presentedAddExpenseKey : true])
+            view.window?.windowScene?.userActivity = current
+        }
+    }
+    
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -785,18 +844,6 @@ class SelectionViewController: UIViewController,UITableViewDataSource,UITableVie
     
     
 }
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

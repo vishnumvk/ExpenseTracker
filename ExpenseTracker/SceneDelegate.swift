@@ -18,8 +18,15 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
         guard let windowScene = (scene as? UIWindowScene) else { return }
         window = UIWindow(windowScene: windowScene)
-        window?.makeKeyAndVisible()
+        
         window?.rootViewController = UINavigationController(rootViewController: RecordsVC())
+        
+        if let userActivity = connectionOptions.userActivities.first ?? scene.session.stateRestorationActivity {
+                // Restore the user interface from the state restoration activity.
+            setupScene(with: userActivity)
+            }
+        
+        window?.makeKeyAndVisible()
         
     }
 
@@ -49,8 +56,47 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // Called as the scene transitions from the foreground to the background.
         // Use this method to save data, release shared resources, and store enough scene-specific state information
         // to restore the scene back to its current state.
+        
+        
     }
 
 
 }
 
+extension SceneDelegate{
+    
+    func stateRestorationActivity(for scene: UIScene) -> NSUserActivity? {
+        
+        
+        if let vc = window?.rootViewController as? UINavigationController,
+           let aevc = vc.topViewController as? AddExpenseVC{
+            aevc.updateUserActivity()
+        }
+        
+        
+        
+        return scene.userActivity
+    }
+    
+    static let MainSceneActivityType = { () -> String in
+        // Load the activity type from the Info.plist.
+        let activityTypes = Bundle.main.infoDictionary?["NSUserActivityTypes"] as? [String]
+//        print(activityTypes)
+        return "com.ExpenseTracker.mainActivity"
+    }
+    
+    static let presentedAddExpenseKey = "presentedAddExpense"
+    
+    func setupScene(with userActivity: NSUserActivity){
+        if userActivity.activityType == SceneDelegate.MainSceneActivityType(){
+            if let presentedAddExpenseVC = userActivity.userInfo?[SceneDelegate.presentedAddExpenseKey] as? Bool{
+                if presentedAddExpenseVC{
+                    if let navVC = window?.rootViewController as? UINavigationController{
+                        navVC.pushViewController(AddExpenseVC(), animated: false)
+                        print("hello testing state restoration")
+                    }
+                }
+            }
+        }
+    }
+}
