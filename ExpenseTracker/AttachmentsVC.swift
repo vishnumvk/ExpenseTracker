@@ -111,11 +111,11 @@ extension AttachmentsVC: UICollectionViewDelegateFlowLayout,UICollectionViewData
         let vc = SlideShowViewController()
         vc.attachments = attachments
         vc.selectedIndex = indexPath
-//        navigationController?.pushViewController(vc, animated: true)
+
         vc.modalPresentationStyle = .fullScreen
         vc.modalTransitionStyle = .crossDissolve
         navigationController?.pushViewController(vc, animated: true)
-//        present(vc, animated: true)
+
     }
     
     
@@ -134,7 +134,6 @@ class AttachmentCell: UICollectionViewCell{
         
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.contentMode = .scaleToFill
-        imageView.image = UIImage(systemName: "arrow.triangle.2.circlepath")
         return imageView
     }()
     
@@ -154,7 +153,6 @@ class AttachmentCell: UICollectionViewCell{
         imageView.layer.borderWidth = 0.5
         imageView.layer.cornerRadius = 8
         imageView.clipsToBounds = true
-//        imageView.layer.borderColor = UIColor.black.cgColor
         NSLayoutConstraint.activate([
             imageView.topAnchor.constraint(equalTo: contentView.topAnchor),
             imageView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
@@ -167,7 +165,6 @@ class AttachmentCell: UICollectionViewCell{
     
     override func prepareForReuse() {
         super.prepareForReuse()
-//        print(#function)
         imageView.image = nil
     }
     
@@ -208,22 +205,13 @@ class SlideShowViewController: UIViewController{
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-//        if needsToScroll{
-//            DispatchQueue.main.async {
-//                [weak self] in
-//                self?.collectionView.scrollToItem(at: self?.selectedIndex ?? .init(row: 0, section: 0), at: .centeredHorizontally, animated: false)
-//            }
-//        }
-        
+
         DispatchQueue.main.async {
                         [weak self] in
                         self?.collectionView.scrollToItem(at: self?.selectedIndex ?? .init(row: 0, section: 0), at: .centeredHorizontally, animated: false)
                     }
 
 }
-
-
-    
 
 
     private func configCollectionView(){
@@ -246,8 +234,6 @@ class SlideShowViewController: UIViewController{
 
 
     }
-
-
 
 }
 
@@ -308,38 +294,11 @@ extension SlideShowViewController:UICollectionViewDelegate,UICollectionViewDataS
 
 
 
-    override func willTransition(to newCollection: UITraitCollection, with coordinator: UIViewControllerTransitionCoordinator) {
-        super.willTransition(to: newCollection, with: coordinator)
-////        print(#function)
-////
-////        print(collectionView.indexPathsForVisibleItems)
-//
-//        if let index = collectionView.indexPathForItem(at: view.center){
-//            selectedIndex = index
-//        }
-//        if needsToScroll{
-//            DispatchQueue.main.async {
-//                [weak self] in
-//                self?.collectionView.scrollToItem(at: self?.selectedIndex ?? .init(row: 0, section: 0), at: .centeredHorizontally, animated: false)
-//            }
-//        }
-//
-//        collectionView.collectionViewLayout.invalidateLayout()
-////
-////        if let index = collectionView.indexPathsForVisibleItems.first{
-////            selectedIndex = index
-////        }
-////        print(collectionView.indexPathForItem(at: view.center))
-//        print(selectedIndex)
-    }
     
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         super.viewWillTransition(to: size, with: coordinator)
         
-        //        print(#function)
-        //
-        //        print(collectionView.indexPathsForVisibleItems)
-
+        
                 if let index = collectionView.indexPathForItem(at: view.center){
                     selectedIndex = index
                 }
@@ -351,14 +310,8 @@ extension SlideShowViewController:UICollectionViewDelegate,UICollectionViewDataS
                 }
 
                 collectionView.collectionViewLayout.invalidateLayout()
-        //
-        //        if let index = collectionView.indexPathsForVisibleItems.first{
-        //            selectedIndex = index
-        //        }
-        //        print(collectionView.indexPathForItem(at: view.center))
-               
-        
-        
+       
+            
     }
      
 }
