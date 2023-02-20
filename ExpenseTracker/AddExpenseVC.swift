@@ -412,6 +412,48 @@ class AddExpenseVC: UIViewController {
          titleField.addDoneButtonOnKeyboard()
 
     }
+    
+    
+//    override func viewWillAppear(_ animated: Bool) {
+//        super.viewWillAppear(animated)
+//        if restorationValues != nil{
+//            restoreView(with: restorationValues)
+//        }
+//
+//        restorationValues = nil
+//    }
+//
+    
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        if restorationValues != nil{
+            restoreView(with: restorationValues)
+        }
+
+        restorationValues = nil
+        updateUserActivity()
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        if let currentUserActivity = view.window?.windowScene?.userActivity {
+            print("removing resotation on add expense ")
+            currentUserActivity.userInfo?.removeValue(forKey: SceneDelegate.presentedAddExpenseKey)
+            currentUserActivity.userInfo?.removeValue(forKey: SceneDelegate.amountKey)
+            currentUserActivity.userInfo?.removeValue(forKey: SceneDelegate.titleKey)
+            currentUserActivity.userInfo?.removeValue(forKey: SceneDelegate.categoryKey)
+            currentUserActivity.userInfo?.removeValue(forKey: SceneDelegate.dateKey)
+            currentUserActivity.userInfo?.removeValue(forKey: SceneDelegate.attachmentsKey)
+            currentUserActivity.userInfo?.removeValue(forKey: SceneDelegate.presentSaveImageToCameraAlertKey)
+            currentUserActivity.userInfo?.removeValue(forKey: SceneDelegate.capturedImageKey)
+        }
+    }
+    
+    
+    
+    
    
     
     @objc func categoryButtonTapped(){
@@ -482,7 +524,7 @@ class AddExpenseVC: UIViewController {
     }
     
     
-    
+    var restorationValues: [AnyHashable: Any]!
    
     
 }
@@ -517,6 +559,7 @@ extension AddExpenseVC: AddExpenseViewDelegate{
         if let imageToBeSaved{
             UIImageWriteToSavedPhotosAlbum(imageToBeSaved, self, #selector(image(_:didFinishSavingWithError:contextInfo:)), nil)
         }
+        imageToBeSaved = nil
     }
     
     
@@ -650,6 +693,7 @@ extension AddExpenseVC: UIImagePickerControllerDelegate,UINavigationControllerDe
             ac.addAction(UIAlertAction(title: "OK", style: .default))
             present(ac, animated: true)
         } else {
+            imageToBeSaved = nil
             let ac = UIAlertController(title: "Saved!", message: " Image has been saved to your photos.", preferredStyle: .alert)
             ac.addAction(UIAlertAction(title: "OK", style: .default))
             present(ac, animated: true)
@@ -725,19 +769,85 @@ extension AddExpenseVC: UITextViewDelegate{
 }
 
 
+
+
+
 extension AddExpenseVC{
     
     
     func updateUserActivity(){
-        let activity = view.window?.windowScene?.userActivity
-        if let activity{
-            activity.addUserInfoEntries(from: [SceneDelegate.presentedAddExpenseKey : true])
-        }else{
-            let current = NSUserActivity(activityType: SceneDelegate.MainSceneActivityType())
-            current.addUserInfoEntries(from: [SceneDelegate.presentedAddExpenseKey : true])
-            view.window?.windowScene?.userActivity = current
+        var activity = view.window?.windowScene?.userActivity
+        if activity == nil{
+            activity = NSUserActivity(activityType: SceneDelegate.MainSceneActivityType())
         }
+        
+        var presentSaveImageToCamera = false
+        if imageToBeSaved != nil{
+            presentSaveImageToCamera = true
+        }
+        
+        var attachments = [Data?]()
+
+        attachmentsVC.attachments.forEach { image in
+            let data = image.jpegData(compressionQuality: 1.0)
+            attachments.append(data)
+        }
+        
+        
+        let capturedImageData = imageToBeSaved?.jpegData(compressionQuality: 1.0)
+        
+        let entries: [AnyHashable : Any] = [
+            SceneDelegate.presentedAddExpenseKey : true,
+            SceneDelegate.amountKey : amountField.text as Any,
+            SceneDelegate.titleKey : titleField.text as Any,
+            SceneDelegate.attachmentsKey : attachments as Any,
+            SceneDelegate.dateKey : datePicker.date,
+            SceneDelegate.noteKey : noteField.text as Any,
+            SceneDelegate.categoryKey : categoryBtn.title(for: .normal) as Any,
+            SceneDelegate.capturedImageKey : capturedImageData as Any,
+            SceneDelegate.presentSaveImageToCameraAlertKey : presentSaveImageToCamera
+            
+        ]
+        
+        activity?.addUserInfoEntries(from: entries)
+        
+        
+        view.window?.windowScene?.userActivity = activity
     }
+    
+    func restoreView(with values: [AnyHashable: Any]){
+        
+        print(#function)
+        if let title = values[SceneDelegate.titleKey] as? String{
+            titleField.text = title
+        }
+        if let date = values[SceneDelegate.dateKey] as? Date{
+            datePicker.setDate(date, animated: false)
+        }
+        if let amount = values[SceneDelegate.amountKey] as?  String{
+            amountField.text = amount
+        }
+        if let category = values[SceneDelegate.categoryKey] as? String{
+            categoryBtn.setTitle(category, for: .normal)
+        }
+        if let note = values[SceneDelegate.noteKey] as? String{
+            noteField.text =  note
+        }
+        if let attachments = values[SceneDelegate.attachmentsKey] as? [Data?]{
+            
+            attachments.forEach { data in
+                attachmentsVC.attachments.append(UIImage(data: data!)!)
+            }
+            
+            
+        }
+        if let image = values[SceneDelegate.capturedImageKey] as? UIImage{
+            imageToBeSaved = image
+        }
+        
+    }
+    
+    
     
 }
 

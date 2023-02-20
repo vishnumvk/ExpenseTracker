@@ -67,33 +67,41 @@ extension SceneDelegate{
     
     func stateRestorationActivity(for scene: UIScene) -> NSUserActivity? {
         
-        
+        print(#function)
         if let vc = window?.rootViewController as? UINavigationController,
            let aevc = vc.topViewController as? AddExpenseVC{
             aevc.updateUserActivity()
+            
         }
-        
-        
-        
         return scene.userActivity
     }
     
     static let MainSceneActivityType = { () -> String in
         // Load the activity type from the Info.plist.
-        let activityTypes = Bundle.main.infoDictionary?["NSUserActivityTypes"] as? [String]
+//        let activityTypes = Bundle.main.infoDictionary?["NSUserActivityTypes"] as? [String]
 //        print(activityTypes)
-        return "com.ExpenseTracker.mainActivity"
+        return "com.ExpenseTracker.addExpenseRestoreation"
     }
     
     static let presentedAddExpenseKey = "presentedAddExpense"
+    static let presentSaveImageToCameraAlertKey = "presentSaveImageToCameraAlert"
+    static let amountKey = "amount"
+    static let titleKey = "title"
+    static let categoryKey = "category"
+    static let dateKey = "date"
+    static let noteKey = "note"
+    static let attachmentsKey = "attachments"
+    static let capturedImageKey = "capturedImage"
     
     func setupScene(with userActivity: NSUserActivity){
         if userActivity.activityType == SceneDelegate.MainSceneActivityType(){
             if let presentedAddExpenseVC = userActivity.userInfo?[SceneDelegate.presentedAddExpenseKey] as? Bool{
                 if presentedAddExpenseVC{
                     if let navVC = window?.rootViewController as? UINavigationController{
-                        navVC.pushViewController(AddExpenseVC(), animated: false)
-                        print("hello testing state restoration")
+                        let AddExpenseVC = AddExpenseVC()
+                        AddExpenseVC.restorationValues = userActivity.userInfo
+                        navVC.pushViewController(AddExpenseVC, animated: false)
+                        print("state restoration was successful!")
                     }
                 }
             }
