@@ -40,7 +40,6 @@ class RecordsVC: UIViewController{
         super.viewDidLoad()
         
         view.backgroundColor = .systemBackground
-        
         view.addSubview(table)
         view.addSubview(plusBtn)
         table.pinToSafeArea(view: view)
@@ -56,7 +55,12 @@ class RecordsVC: UIViewController{
     
     @objc func plusBtnTapped(){
         
-        navigationController?.pushViewController(AddExpenseVC(), animated: true)
+        let  addExpenseVC = AddExpenseVC()
+        let presenter = AddExpensePresenter()
+        presenter.view = addExpenseVC
+        addExpenseVC.presenter = presenter
+        
+        navigationController?.pushViewController(addExpenseVC, animated: true)
     }
     
 }

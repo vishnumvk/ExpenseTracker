@@ -37,92 +37,11 @@ enum TextFieldTag: Int{
 
 
 
-protocol AddExpensePresenterProtocol: AnyObject{
-    
-    
-    func camBtnTapped()
-    func clipBtnTapped()
-    func optedToSaveCapturedImageToPhotos()
-    
-}
 
 
-import AVFoundation
-import Photos
 
 
-class AddExpensePresenter: AddExpensePresenterProtocol{
-    func optedToSaveCapturedImageToPhotos() {
-                switch PHPhotoLibrary.authorizationStatus(for: .addOnly){
-                case .authorized:
-                    delegate?.saveToPhotos()
-                case .denied:
-                    delegate?.presentPhotoLibrarySettings()
-                case .notDetermined:
-                    PHPhotoLibrary.requestAuthorization(for: .addOnly) { [weak self] status in
-                        switch status{
-                        case .authorized:
-                            self?.delegate?.openPhotoLibrary()
-                        default:
-                            print("photo library access was denied")
-                        }
-                    }
-                default:
-                    print("unhandled authorization status")
-                }
-    }
-    
-    
-    
-    func clipBtnTapped() {
-        
-        
-        delegate?.openPhotoLibrary()
-        
 
-    }
-    
-    
-    
-    
-    func camBtnTapped() {
-        
-        switch AVCaptureDevice.authorizationStatus(for: .video) {
-            case .denied:
-                 delegate?.presentCameraSettings()
-            case .restricted:
-                 print("access is restricted")
-            case .authorized:
-                 delegate?.openCamera()
-            case .notDetermined:
-            AVCaptureDevice.requestAccess(for: .video) { [self] success in
-                    if success {
-                        delegate?.openCamera()
-                    } else {
-                        print("Permission denied")
-                    }
-                }
-        @unknown default:
-            print("Unknown case")
-        }
-        }
-        
-        
-        
-    
-    
-    
-    
-    
-    weak var delegate: AddExpenseViewDelegate?
-    
-    
-    
-    
-    
-    
-    
-}
 
 
 
@@ -131,12 +50,10 @@ class AddExpenseVC: UIViewController {
     
     
     
-    lazy var presenter = {
-       let presenter = AddExpensePresenter()
-        presenter.delegate = self
-        return presenter
-    }()
+
+    var presenter: AddExpensePresenter?
     
+    private let fieldBoarderWidth: CGFloat = 1.5
     
     private lazy var datePicker = {
         let datePicker = UIDatePicker()
@@ -152,7 +69,7 @@ class AddExpenseVC: UIViewController {
         stack.axis = .horizontal
         stack.distribution = .fillProportionally
         stack.layer.cornerRadius = 5
-        stack.layer.borderWidth = 1
+        stack.layer.borderWidth = fieldBoarderWidth
         stack.layer.borderColor = UIColor.placeholderText.cgColor
         stack.isLayoutMarginsRelativeArrangement = true
         stack.directionalLayoutMargins = .init(top: 5, leading: 5, bottom: 5, trailing: 5)
@@ -193,7 +110,7 @@ class AddExpenseVC: UIViewController {
         textfield.borderStyle = .roundedRect
         textfield.heightAnchor.constraint(equalToConstant: 44).isActive = true
         textfield.layer.cornerRadius = 5
-        textfield.layer.borderWidth = 1
+        textfield.layer.borderWidth = fieldBoarderWidth
         textfield.layer.borderColor = UIColor.placeholderText.cgColor
         
         
@@ -217,7 +134,7 @@ class AddExpenseVC: UIViewController {
         
         textfield.heightAnchor.constraint(equalToConstant: 44).isActive = true
         textfield.layer.cornerRadius = 5
-        textfield.layer.borderWidth = 1
+        textfield.layer.borderWidth = fieldBoarderWidth
         textfield.layer.borderColor = UIColor.placeholderText.cgColor
         
         
@@ -247,7 +164,7 @@ class AddExpenseVC: UIViewController {
 
         note.textColor = .label
         note.layer.cornerRadius = 5
-        note.layer.borderWidth = 1
+        note.layer.borderWidth = fieldBoarderWidth
         note.layer.borderColor = UIColor.placeholderText.cgColor
         return note
     }()
@@ -272,7 +189,6 @@ class AddExpenseVC: UIViewController {
         btn.addTarget(self, action: #selector(camButtonTapped), for: .touchUpInside)
         btn.imageView?.contentMode = .scaleAspectFit
         btn.imageView?.tintColor = .label
-//        btn.backgroundColor = .systemCyan
         btn.imageView?.translatesAutoresizingMaskIntoConstraints = false
         btn.imageView?.heightAnchor.constraint(equalToConstant: 44).isActive = true
         btn.imageView?.widthAnchor.constraint(equalToConstant: 44).isActive = true
@@ -285,7 +201,6 @@ class AddExpenseVC: UIViewController {
         btn.translatesAutoresizingMaskIntoConstraints = false
         btn.setImage(image, for: .normal)
         btn.addTarget(self, action: #selector(clipButtonTapped), for: .touchUpInside)
-//        btn.backgroundColor = .systemCyan
         btn.imageView?.contentMode = .scaleAspectFit
         btn.imageView?.tintColor = .label
         btn.imageView?.translatesAutoresizingMaskIntoConstraints = false
@@ -329,7 +244,7 @@ class AddExpenseVC: UIViewController {
        
         btn.layer.cornerRadius = 5
         btn.layer.borderColor = UIColor.placeholderText.cgColor
-        btn.layer.borderWidth = 1
+        btn.layer.borderWidth = fieldBoarderWidth
         btn.addTarget(self, action: #selector(categoryButtonTapped), for: .touchUpInside)
         btn.translatesAutoresizingMaskIntoConstraints = false
         btn.heightAnchor.constraint(equalToConstant: 44).isActive = true
@@ -345,7 +260,7 @@ class AddExpenseVC: UIViewController {
         stack.distribution = .fill
         stack.spacing = 15
         stack.layer.cornerRadius = 5
-        stack.layer.borderWidth = 1
+        stack.layer.borderWidth = fieldBoarderWidth
         stack.layer.borderColor = UIColor.placeholderText.cgColor
         stack.isLayoutMarginsRelativeArrangement = true
         stack.directionalLayoutMargins = .init(top: 5, leading: 5, bottom: 5, trailing: 5)
@@ -361,10 +276,13 @@ class AddExpenseVC: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .systemBackground
+        
         title = "Add Expense"
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "save", style: .plain, target: self, action: #selector(tappedSave))
+        
        
-       
+        
+        
         view.addSubview(scrollContainer)
         scrollContainer.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor).isActive = true
         scrollContainer.bottomAnchor.constraint(equalTo: view.keyboardLayoutGuide.topAnchor).isActive = true
@@ -374,9 +292,9 @@ class AddExpenseVC: UIViewController {
         scrollContainer.addSubview(stackView)
         stackView.topAnchor.constraint(equalTo: scrollContainer.contentLayoutGuide.topAnchor).isActive = true
         stackView.bottomAnchor.constraint(equalTo: scrollContainer.contentLayoutGuide.bottomAnchor).isActive = true
-        stackView.trailingAnchor.constraint(equalTo: scrollContainer.frameLayoutGuide.trailingAnchor).isActive = true
-        stackView.leadingAnchor.constraint(equalTo: scrollContainer.frameLayoutGuide.leadingAnchor).isActive = true
-//        stackView.widthAnchor.constraint(equalTo: scrollContainer.frameLayoutGuide.widthAnchor).isActive = true
+        stackView.trailingAnchor.constraint(equalTo: scrollContainer.contentLayoutGuide.trailingAnchor).isActive = true
+        stackView.leadingAnchor.constraint(equalTo: scrollContainer.contentLayoutGuide.leadingAnchor).isActive = true
+        stackView.widthAnchor.constraint(equalTo: scrollContainer.frameLayoutGuide.widthAnchor).isActive = true
         
         dateStack.addArrangedSubview(dateLabel)
 //        dateStack.addArrangedSubview(Spacer())
@@ -414,15 +332,7 @@ class AddExpenseVC: UIViewController {
     }
     
     
-//    override func viewWillAppear(_ animated: Bool) {
-//        super.viewWillAppear(animated)
-//        if restorationValues != nil{
-//            restoreView(with: restorationValues)
-//        }
-//
-//        restorationValues = nil
-//    }
-//
+
     
     
     override func viewDidAppear(_ animated: Bool) {
@@ -439,7 +349,7 @@ class AddExpenseVC: UIViewController {
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         if let currentUserActivity = view.window?.windowScene?.userActivity {
-            print("removing resotation on add expense ")
+            print("removing state restoration on add expense ")
             currentUserActivity.userInfo?.removeValue(forKey: SceneDelegate.presentedAddExpenseKey)
             currentUserActivity.userInfo?.removeValue(forKey: SceneDelegate.amountKey)
             currentUserActivity.userInfo?.removeValue(forKey: SceneDelegate.titleKey)
@@ -476,8 +386,8 @@ class AddExpenseVC: UIViewController {
   
     
     @objc func camButtonTapped(){
-        
-        presenter.camBtnTapped()
+        print(#function)
+        presenter?.camBtnTapped()
         
     }
     
@@ -485,9 +395,19 @@ class AddExpenseVC: UIViewController {
     @objc func clipButtonTapped(){
        
         
-        presenter.clipBtnTapped()
+        presenter?.clipBtnTapped()
         
     }
+    
+    @objc func tappedSave(){
+        
+        presenter?.tappedSave()
+    }
+    
+    
+    
+    
+    
     
     
     func applyColours(){
@@ -511,7 +431,12 @@ class AddExpenseVC: UIViewController {
   attachmentOptions.layer.borderColor = UIColor.systemTeal.cgColor
         
         navigationController?.navigationBar.tintColor = .systemTeal
-        navigationController?.toolbar.tintColor = .systemTeal
+//        navigationController?.navigationBar.barTintColor = .brown
+        navigationController?.navigationBar.scrollEdgeAppearance?.backgroundColor = .brown
+//        navigationController?.navigationBar.standardAppearance.backgroundColor = .brown
+//        navigationController?.navigationBar.compactAppearance?.backgroundColor = .brown
+        
+        
         
         
     }
@@ -532,34 +457,78 @@ class AddExpenseVC: UIViewController {
 
 
 
-protocol AddExpenseViewDelegate: NSObject{
+
+
+
+
+
+
+
+
+
+
+
+
+
+extension AddExpenseVC: AddExpenseView{
+    var attachments: [UIImage] {
+        get {
+            attachmentsVC.attachments
+        }
+        set {
+            attachmentsVC.attachments = newValue
+        }
+    }
     
-    func openCamera()
-    func presentCameraSettings()
-    func openPhotoLibrary()
-    func presentPhotoLibrarySettings()
-    func saveToPhotos()
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-extension AddExpenseVC: AddExpenseViewDelegate{
+    
+    var amount: String? {
+        get {
+            amountField.text
+        }
+        set {
+            amountField.text = newValue
+        }
+    }
+    
+    var category: String? {
+        get {
+            categoryBtn.currentTitle
+        }
+        set {
+            categoryBtn.setTitle(newValue, for: .normal)
+        }
+    }
+    
+    var note: String? {
+        get {
+            noteField.text
+        }
+        set {
+            noteField.text = newValue
+        }
+    }
+    
+    var date: Date {
+        get {
+            datePicker.date
+        }
+        set {
+            datePicker.setDate(newValue, animated: false)
+        }
+    }
+    
     func saveToPhotos() {
         if let imageToBeSaved{
             UIImageWriteToSavedPhotosAlbum(imageToBeSaved, self, #selector(image(_:didFinishSavingWithError:contextInfo:)), nil)
         }
         imageToBeSaved = nil
+    }
+    
+    
+    func showAlert(title: String) {
+        let alert = UIAlertController(title: title, message: nil, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
     }
     
     
@@ -576,6 +545,8 @@ extension AddExpenseVC: AddExpenseViewDelegate{
     
 
     func openCamera(){
+        
+        
         let pickerVC = UIImagePickerController()
         pickerVC.delegate = self
         
@@ -658,7 +629,7 @@ extension AddExpenseVC: UIImagePickerControllerDelegate,UINavigationControllerDe
                 alert.addAction(UIAlertAction(title: "No", style: .default))
                 alert.addAction(UIAlertAction(title: "Yes", style: .default, handler: { [self] _ in
                     imageToBeSaved = image
-                    presenter.optedToSaveCapturedImageToPhotos()
+                    presenter?.optedToSaveCapturedImageToPhotos()
                    
                 }))
                 

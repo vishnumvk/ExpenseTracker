@@ -70,7 +70,12 @@ class HomePageVC: UIViewController {
 
     @objc func plusBtnTapped(){
         
-        navigationController?.pushViewController(AddExpenseVC(), animated: true)
+        let  addExpenseVC = AddExpenseVC()
+        let presenter = AddExpensePresenter()
+        presenter.view = addExpenseVC
+        addExpenseVC.presenter = presenter
+        
+        navigationController?.pushViewController(addExpenseVC, animated: true)
     }
 
 }

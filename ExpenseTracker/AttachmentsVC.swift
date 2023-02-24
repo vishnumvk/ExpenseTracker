@@ -7,6 +7,26 @@
 
 import UIKit
 
+protocol AttachmentsVCDelegate: NSObject{
+    
+    
+   
+    
+    
+    
+}
+
+
+
+
+
+
+
+
+
+
+
+
 class AttachmentsVC: UIViewController{
     
     
@@ -66,7 +86,15 @@ class AttachmentsVC: UIViewController{
     }
 }
 
-extension AttachmentsVC: UICollectionViewDelegateFlowLayout,UICollectionViewDataSource{
+extension AttachmentsVC: UICollectionViewDelegateFlowLayout,UICollectionViewDataSource,SlideShowVCDelegate {
+    func image(for indexPath: IndexPath) -> UIImage {
+        attachments[indexPath.row]
+    }
+    
+    func noOfImages() -> Int {
+        attachments.count
+    }
+    
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
        
@@ -109,7 +137,7 @@ extension AttachmentsVC: UICollectionViewDelegateFlowLayout,UICollectionViewData
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let vc = SlideShowViewController()
-        vc.attachments = attachments
+        vc.delegate = self
         vc.selectedIndex = indexPath
 
         vc.modalPresentationStyle = .fullScreen
@@ -176,6 +204,9 @@ class AttachmentCell: UICollectionViewCell{
 class SlideShowViewController: UIViewController{
 
     let collectionView = UICollectionView(frame: .zero, collectionViewLayout: createLayout1())
+    
+    weak var delegate: SlideShowVCDelegate?
+    
 
     var selectedIndex: IndexPath = .init(row: 0, section: 0){
         didSet{
@@ -186,12 +217,6 @@ class SlideShowViewController: UIViewController{
     private var needsToScroll = false
 
     
-    var attachments = [UIImage](){
-        
-        didSet{
-            collectionView.reloadData()
-        }
-    }
     
     
     
@@ -242,6 +267,20 @@ class SlideShowViewController: UIViewController{
 
 
 
+protocol SlideShowVCDelegate: NSObject{
+    
+    
+    func image(for indexPath: IndexPath) -> UIImage
+    
+    func noOfImages()->Int
+    
+    
+}
+
+
+
+
+
 
 
 
@@ -259,13 +298,13 @@ extension SlideShowViewController:UICollectionViewDelegate,UICollectionViewDataS
         cell.imageView.contentMode = .scaleAspectFit
 
         
-        cell.imageView.image = attachments[indexPath.row]
+        cell.imageView.image = delegate?.image(for: indexPath)
 
         return cell
     }
 
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return attachments.count
+        return delegate?.noOfImages() ?? 0
     }
 
     private static func createLayout1()->UICollectionViewLayout{
@@ -353,7 +392,7 @@ class FullImageCell: UICollectionViewCell{
             imageView.topAnchor.constraint(equalTo: contentView.topAnchor),
             imageView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
             imageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            imageView.leadingAnchor.constraint(equalTo: leadingAnchor)
+            imageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor)
         ])
     }
 
