@@ -51,7 +51,7 @@ class AddExpenseVC: UIViewController {
     
     
 
-    var presenter: AddExpensePresenter?
+    var presenter: AddExpensePresenterProtocol?
     
     private let fieldBoarderWidth: CGFloat = 1.5
     
@@ -328,6 +328,8 @@ class AddExpenseVC: UIViewController {
         amountField.addDoneButtonOnKeyboard()
           noteField.addDoneButtonOnKeyboard()
          titleField.addDoneButtonOnKeyboard()
+        
+        presenter?.viewDidLoad()
 
     }
     
@@ -471,6 +473,18 @@ class AddExpenseVC: UIViewController {
 
 
 extension AddExpenseVC: AddExpenseView{
+    
+    
+    
+    var expenseTitle: String? {
+        get {
+            titleField.text
+        }
+        set {
+            titleField.text = newValue
+        }
+    }
+    
     var attachments: [UIImage] {
         get {
             attachmentsVC.attachments
@@ -525,14 +539,20 @@ extension AddExpenseVC: AddExpenseView{
     }
     
     
-    func showAlert(title: String) {
-        let alert = UIAlertController(title: title, message: nil, preferredStyle: .alert)
+    func dismissView() {
+        print(#function)
+        navigationController?.popViewController(animated: true)
+    }
+    
+    func showAlert(title: String,message: String? = nil) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .default))
         present(alert, animated: true)
     }
     
     
     func openPhotoLibrary(){
+        title = "open Photo Library"
         var config = PHPickerConfiguration(photoLibrary: .shared())
         config.filter = .images
         config.selectionLimit = 10

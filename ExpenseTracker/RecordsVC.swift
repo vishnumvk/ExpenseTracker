@@ -53,6 +53,44 @@ class RecordsVC: UIViewController{
        
     }
     
+    var expenses = [(amount: Double, category: String,title : String,date : Date,note: String, id : String)]()
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        do{
+            
+            
+            let rows = try DataBase.shared.sqlHelper.select(table: "Expenses", columns: ["title","amount","category","id","note","createdDate"])
+            expenses.removeAll()
+            for row in rows {
+                var expense: (amount: Double, category: String,title : String,date : Date,note: String,id : String)
+                expense.title = row["title"] as! String
+                expense.category = row["category"] as! String
+                expense.amount = row["amount"] as! Double
+                expense.id = row["id"] as! String
+                expense.note = row["note"] as! String
+                expense.date = Date(timeIntervalSince1970: row["createdDate"] as! Double)
+                expenses.append(expense)
+            }
+            table.reloadData()
+            
+        }catch let error as SQLiteError{
+            switch error{
+            case SQLiteError.sqliteError(message: let msg):
+                print(msg)
+            }
+
+        }catch{
+            print(error.localizedDescription)
+        }
+        
+    }
+    
+    
+    
+    
+    
     @objc func plusBtnTapped(){
         
         let  addExpenseVC = AddExpenseVC()
@@ -66,19 +104,77 @@ class RecordsVC: UIViewController{
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
 extension RecordsVC: UITableViewDataSource,UITableViewDelegate{
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        100
+        expenses.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = UITableViewCell(style: .subtitle, reuseIdentifier: "subtitle")
-        cell.textLabel?.text = "Title"
-        cell.detailTextLabel?.text = "subtitle"
+        cell.textLabel?.text = String(expenses[indexPath.row].amount)
+        cell.detailTextLabel?.text = expenses[indexPath.row].category
+        cell.selectionStyle = .none
         return cell
     }
     
-    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        
+        
+        let expense = expenses[indexPath.row]
+        var attachments = [Data]()
+        do{
+            let rows = try DataBase.shared.sqlHelper.select(table: "Attachments", columns: ["id","url"],whereClause: "expenseId = '\(expense.id)'")
+            let attchmentsDir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+            for row in rows {
+                let url = row["url"] as! String
+                let restoredUrl = attchmentsDir.appendingPathComponent(url)
+                print("url restored")
+                print(restoredUrl)
+                if let data = try? Data(contentsOf: restoredUrl){
+                    print("got data from the image url")
+                    attachments.append(data)
+                }
+            }
+            
+        }catch let error as SQLiteError{
+            switch error{
+            case SQLiteError.sqliteError(message: let msg):
+                print(msg)
+            }
+
+        }catch{
+            print(error.localizedDescription)
+        }
+        
+        
+        
+        
+        
+        let  addExpenseVC = AddExpenseVC()
+        let presenter = AddExpensePresenter()
+        presenter.expense = Expense(title: expense.title, amount: expense.amount, date: expense.date, note: expense.note, category: expense.category, attachments: attachments)
+        presenter.view = addExpenseVC
+        addExpenseVC.presenter = presenter
+        
+        navigationController?.pushViewController(addExpenseVC, animated: true)
+        
+        
+        
+    }
     
 }
 
@@ -119,255 +215,18 @@ extension RecordsVC: UITableViewDataSource,UITableViewDelegate{
 
 
 
-
-
-
-class DateBarController: UIViewController {
-
-    private var dateComponent = Calendar.Component.day
-    
-    
-    lazy var datePicker = {
-        let picker = UIDatePicker()
-        picker.translatesAutoresizingMaskIntoConstraints = false
-        picker.preferredDatePickerStyle = .compact
-        picker.datePickerMode = .date
-//        picker.isUserInteractionEnabled = false
-        picker.addTarget(self, action: #selector(dateChanged), for: .valueChanged)
-        picker.widthAnchor.constraint(equalToConstant: 100).isActive = true
-        
-       
-        return picker
-    }()
-    
-    
-    lazy var datePicker2 = {
-        let picker = UIDatePicker()
-        picker.translatesAutoresizingMaskIntoConstraints = false
-        picker.preferredDatePickerStyle = .compact
-        picker.datePickerMode = .date
-        picker.widthAnchor.constraint(equalToConstant: 100).isActive = true
-        picker.addTarget(self, action: #selector(dateChanged), for: .valueChanged)
-        return picker
-    }()
+class ExpenseTableViewCell: UITableViewCell{
     
     
     
-    lazy var forwardButton = {
-        let btn = UIButton()
-        btn.translatesAutoresizingMaskIntoConstraints = false
-        btn.addTarget(self, action: #selector(forwardButtonTapped), for: .touchUpInside)
-        btn.contentVerticalAlignment = .fill
-        btn.contentHorizontalAlignment = .fill
-        btn.setImage(UIImage(systemName: "chevron.right"), for: .normal)
-        btn.imageView?.contentMode = .scaleAspectFit
-        return btn
-    }()
-    lazy var backwardButton = {
-        let btn = UIButton()
-        btn.translatesAutoresizingMaskIntoConstraints = false
-        btn.addTarget(self, action: #selector(backwardButtonTapped), for: .touchUpInside)
-        btn.contentVerticalAlignment = .fill
-        btn.contentHorizontalAlignment = .fill
-        btn.imageView?.contentMode = .scaleAspectFit
-        btn.setImage(UIImage(systemName: "chevron.left"), for: .normal)
-        return btn
-    }()
-    lazy var filterButton = {
-        let btn = UIButton()
-        btn.translatesAutoresizingMaskIntoConstraints = false
-        btn.addTarget(self, action: #selector(filterButtonTapped), for: .touchUpInside)
-        btn.contentVerticalAlignment = .fill
-        btn.contentHorizontalAlignment = .fill
-//        btn.imageView?.contentMode = .scaleAspectFit
-        btn.setImage(UIImage(systemName: "line.3.horizontal.decrease"), for: .normal)
-        return btn
-    }()
-    
-    lazy var hypen = {
-       let img = UIImageView()
-        img.translatesAutoresizingMaskIntoConstraints = false
-        img.image = UIImage(systemName: "minus")
-        img.contentMode = .scaleAspectFit
-        return img
-    }()
-    
-    let calendar = {
-        var cal = Calendar(identifier: .gregorian)
-        cal.timeZone = .gmt
-        return cal
-    }()
-    
-    override func viewDidLoad() {
-        view.backgroundColor = .systemCyan
-        self.datePicker2.isHidden = true
-        self.hypen.isHidden = true
-        configView()
-    }
-    
-    
-    func configView(){
-        
-        view.addSubview(datePicker)
-        view.addSubview(forwardButton)
-        view.addSubview(backwardButton)
-        view.addSubview(filterButton)
-        
-        
-        let stack = UIStackView(arrangedSubviews: [backwardButton,datePicker,hypen,datePicker2,forwardButton,filterButton])
-        stack.axis = .horizontal
-        stack.distribution = .equalCentering
-        stack.alignment = .center
-        stack.spacing = 10
-        stack.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(stack)
-        
-        stack.backgroundColor = .systemBackground
-        stack.isLayoutMarginsRelativeArrangement = true
-        stack.layoutMargins = .init(top: 5, left: 20, bottom: 5, right: 10)
-        
-        NSLayoutConstraint.activate([
-            stack.heightAnchor.constraint(equalToConstant: 60),
-            
-            stack.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
-            stack.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
-            stack.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            forwardButton.heightAnchor.constraint(equalToConstant: 25),
-            forwardButton.widthAnchor.constraint(equalToConstant: 24),
-            filterButton.heightAnchor.constraint(equalToConstant: 20),
-            filterButton.widthAnchor.constraint(equalToConstant: 34),
-            backwardButton.heightAnchor.constraint(equalTo: forwardButton.heightAnchor),
-            backwardButton.widthAnchor.constraint(equalTo: forwardButton.widthAnchor)
-        ])
-        
-    }
-    
-    
-    
-
-    @objc func forwardButtonTapped() {
-        let newDate = calendar.date(byAdding: dateComponent, value: 1, to: datePicker.date)!
-        datePicker.date =  calendar.startingDate(of: dateComponent, for: newDate)
-        datePicker2.date = calendar.endingDate(of: dateComponent, for: newDate)
-    }
-
-    @objc func backwardButtonTapped() {
-        let newDate = calendar.date(byAdding: dateComponent, value: -1, to: datePicker.date)!
-        datePicker.date =  calendar.startingDate(of: dateComponent, for: newDate)
-        datePicker2.date = calendar.endingDate(of: dateComponent, for: newDate)
-    }
-
-    
-    @objc func filterButtonTapped() {
-        let alert = UIAlertController(title: "Select Option", message: nil, preferredStyle: .actionSheet)
-        alert.popoverPresentationController?.sourceView = filterButton
-        
-        let dayAction = UIAlertAction(title: "Day", style: .default) { (action) in
-            self.dateComponent = .day
-            self.datePicker2.isHidden = true
-            self.hypen.isHidden = true
-        }
-        let weekAction = UIAlertAction(title: "Week", style: .default) { [self](action) in
-            self.dateComponent = .weekOfYear
-           
-            
-            self.datePicker.date = calendar.startOfWeek(for: Date())!
-            self.datePicker2.date = calendar.date(byAdding: .day, value: -1, to: calendar.endOfWeek(for: Date())!)!
-            self.datePicker2.isHidden = false
-            self.hypen.isHidden = false
-        }
-        let monthAction = UIAlertAction(title: "Month", style: .default) { [self](action) in
-            self.dateComponent = .month
-            self.datePicker.date = calendar.startOfMonth(for: Date())!
-            self.datePicker2.date = calendar.date(byAdding: .day, value: -1, to: calendar.endOfMonth(for: Date())!)!
-            self.datePicker2.isHidden = false
-            self.hypen.isHidden = false
-        }
-        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
-        alert.addAction(dayAction)
-        alert.addAction(weekAction)
-        alert.addAction(monthAction)
-        alert.addAction(cancelAction)
-        present(alert, animated: true, completion: nil)
-    }
-    
-    
-    
-    @objc func dateChanged(sender: UIDatePicker){
-        print(sender.date)
-        
-    }
-    
-    
-    
-    
-}
-
-
-
-
-
-
-extension Calendar {
-    
-    func intervalOfDay(for date: Date)-> DateInterval?{
-       let interval = dateInterval(of: .day, for: date)
-        
-        return interval
-    }
-    
-    func intervalOfWeek(for date: Date) -> DateInterval? {
-        dateInterval(of: .weekOfYear, for: date)
-    }
-    func startOfWeek(for date: Date) -> Date? {
-       let startDate = intervalOfWeek(for: date)?.start
-        
-        return startDate
-    }
-    
-    func endOfWeek(for date: Date) -> Date? {
-        let endDate = intervalOfWeek(for: date)?.end
-       
-        return endDate
-    }
-    
-    
-    
-    func intervalOfMonth(for date: Date) -> DateInterval? {
-        let interval = dateInterval(of: .month, for: date)
-        return interval
-    }
-    func startOfMonth(for date: Date) -> Date? {
-        intervalOfMonth(for: date)?.start
-    }
-    
-    func endOfMonth(for date: Date) -> Date? {
-        intervalOfMonth(for: date)?.end
-    }
-    
-    func startingDate(of component: Calendar.Component, for date: Date)-> Date{
-        
-        let interval = dateInterval(of: component, for: date)
-        
-        return interval!.start
-        
-        
-        
-    }
-   
-    func endingDate(of component: Calendar.Component, for date: Date)-> Date{
-        
-        let interval = dateInterval(of: component, for: date)
-        
-        
-        let end = self.date(byAdding: .day, value: -1, to: interval!.end)!
-        
-        return end
-        
-        
-    }
    
     
+    
+    
+    
+    
 }
+
+
 
 

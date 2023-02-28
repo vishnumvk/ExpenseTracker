@@ -18,7 +18,7 @@ protocol AddExpensePresenterProtocol: AnyObject{
     func clipBtnTapped()
     func optedToSaveCapturedImageToPhotos()
     func tappedSave()
-    
+    func viewDidLoad()
     var view: AddExpenseView? {get set}
     
 }
@@ -32,8 +32,9 @@ protocol AddExpenseView: NSObject{
     func openPhotoLibrary()
     func presentPhotoLibrarySettings()
     func saveToPhotos()
-    func showAlert(title: String)
-    var title: String?{get set}
+    func showAlert(title: String,message: String?)
+    func dismissView()
+    var expenseTitle: String?{get set}
     var amount: String?{get set}
     var category: String?{get set}
     var note: String?{get set}
@@ -51,28 +52,56 @@ protocol AddExpenseView: NSObject{
 
 class AddExpensePresenter: AddExpensePresenterProtocol{
     
+    var expense: Expense?
+    
+    
+    func viewDidLoad() {
+        guard let expense else{
+            print("expense not configured")
+            return
+        }
+        print("expense configured")
+        view?.expenseTitle = expense.title
+        view?.amount = String(expense.amount)
+        view?.attachments = expense.attachments?.compactMap{UIImage(data: $0)} ?? [UIImage]()
+//        view?.attachments = (expense.attachments?.compactMap({ data in
+//            if let image = UIImage(data: data){
+//                print("image was obtained")
+//                return image
+//            }else{
+//                print("could not obtain image")
+//            }
+//            return nil
+//        }))!
+        view?.category = expense.category
+        view?.note = expense.note
+        view?.date = expense.date
+        
+    }
+    
+    
     
     func tappedSave() {
         
         guard let amount = view?.amount else {
-            view?.showAlert(title: "Enter amount")
+            view?.showAlert(title: "Enter amount", message: nil)
             return
         }
         guard let amount = Double(amount),amount > 0 else{
-            view?.showAlert(title: "Enter valid amount")
+            view?.showAlert(title: "Enter valid amount", message: nil)
             return
         }
         guard amount < 100000000 else{
-            view?.showAlert(title: "Enter an amount smaller than 1000,00,000")
+            view?.showAlert(title: "Enter an amount smaller than 1000,00,000", message: nil)
             return
         }
         guard let category = view?.category,category != "Category" else{
-            view?.showAlert(title: "Please select a Category")
+            view?.showAlert(title: "Please select a Category", message: nil)
             return
         }
         
-        db?.save(expense: Expense(title: view?.title, amount: amount, date: view?.date ?? Date(), note: view?.note, category: category, attachments: view?.attachments.compactMap({$0.jpegData(compressionQuality: 1.0)})))
-        
+        db?.save(expense: Expense(title: view?.expenseTitle, amount: amount, date: view?.date ?? Date(), note: view?.note, category: category, attachments: view?.attachments.compactMap({$0.jpegData(compressionQuality: 1.0)})))
+        view?.dismissView()
     }
     
     func optedToSaveCapturedImageToPhotos() {
@@ -139,7 +168,7 @@ class AddExpensePresenter: AddExpensePresenterProtocol{
     
     
     weak var view: AddExpenseView?
-    var db: ExpenseDBPr?
+    var db: ExpenseDBPr? = ExpenseDB()
     
     
     deinit {
@@ -162,6 +191,56 @@ protocol ExpenseDBPr{
 class ExpenseDB: ExpenseDBPr{
     
     func save(expense: Expense) {
+        
+        var imageUrls = [String]()
+        
+        let attchmentsDir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+//        let attchmentsDir = try! FileManager.default.url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
+//
+        if let attachments = expense.attachments{
+            for data in attachments{
+                let url = URL(filePath: "\(expense.date) \(expense.attachments?.firstIndex(of: data) ?? 1)", directoryHint: .inferFromPath, relativeTo: attchmentsDir).appendingPathExtension("jpeg")
+                do{
+                    try data.write(to: url)
+                    imageUrls.append(url.path(percentEncoded: false))
+                    print(url.path())
+                    
+                }catch{
+                    print("error while saving attachments")
+                }
+            }
+        }
+        
+        do{
+            let id = UUID().uuidString
+            try DataBase.shared.sqlHelper.insert(table: "Expenses", values: [
+                "title" : expense.title,
+                "amount" : expense.amount,
+                "id" : id,
+                "category" : expense.category,
+                "note" : expense.note,
+                "createdDate" : expense.date.timeIntervalSince1970
+            ])
+            
+            for imageUrl in imageUrls {
+                try DataBase.shared.sqlHelper.insert(table: "Attachments", values: [
+                    "url" : imageUrl,
+                    "expenseId" : id
+                ])
+            }
+            
+            
+            
+        }catch let error as SQLiteError{
+            switch error{
+            case SQLiteError.sqliteError(message: let msg):
+                print(msg)
+            }
+
+        }catch{
+            print(error.localizedDescription)
+        }
+
         
     }
     

@@ -227,7 +227,7 @@ class DataBase{
     let sqlHelper = try! SQLiteHelper(databasePath: dbfile.path)
     
     func setUpTables(){
-        
+        print(DataBase.dbfile)
         try! sqlHelper.execute(query: "CREATE  TABLE IF NOT EXISTS  Expenses(id TEXT PRIMARY KEY, amount DOUBLE, title TEXT, category TEXT,note TEXT, createdDate DOUBLE);")
         
         try! sqlHelper.execute(query: "CREATE TABLE IF NOT EXISTS  Attachments(id INTEGER PRIMARY KEY AUTOINCREMENT, url TEXT, expenseId TEXT, FOREIGN KEY(expenseId) REFERENCES Expenses(id));")
