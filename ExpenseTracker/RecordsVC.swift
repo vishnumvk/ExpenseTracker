@@ -19,9 +19,11 @@ class RecordsVC: UIViewController{
     private lazy var plusBtn = {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.setImage(UIImage(systemName: "plus.circle")?.applyingSymbolConfiguration(.init(paletteColors: [UIColor.systemTeal])), for: .normal)
+        button.setImage(UIImage(systemName: "plus.circle.fill")?.applyingSymbolConfiguration(.init(paletteColors: [UIColor.systemTeal])), for: .normal)
         button.addTarget(self, action: #selector(plusBtnTapped), for: .touchUpInside)
         button.layer.cornerRadius = 30
+        button.clipsToBounds = true
+        button.imageView?.backgroundColor = .systemBackground
         button.imageView?.contentMode = .scaleToFill
         button.imageView?.translatesAutoresizingMaskIntoConstraints = false
         button.imageView?.heightAnchor.constraint(equalTo: button.heightAnchor).isActive = true

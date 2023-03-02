@@ -48,10 +48,36 @@ class MainTabBarController: UITabBarController {
 
 class AnalysisVC: UIViewController {
 
+    let chart = PieChartView()
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .systemCyan
+        view.backgroundColor = .systemBackground
+        
+        
+        
        
+        
+
+        chart.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(chart)
+        chart.heightAnchor.constraint(equalTo: view.heightAnchor,multiplier: 0.5).isActive = true
+        chart.widthAnchor.constraint(equalTo: view.widthAnchor,multiplier: 0.5).isActive = true
+
+        
+        
+
+        chart.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        chart.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
+
+
+
+        chart.dataSet = [(0.10,.systemYellow),(0.20,.systemPink),(0.30,.systemMint),(0.40,.systemCyan)]
+
+
+
+        chart.radius = 150
+
     }
     
 
