@@ -19,7 +19,7 @@ class RecordsVC: UIViewController{
     private lazy var plusBtn = {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.setImage(UIImage(systemName: "plus.circle"), for: .normal)
+        button.setImage(UIImage(systemName: "plus.circle")?.applyingSymbolConfiguration(.init(paletteColors: [UIColor.systemTeal])), for: .normal)
         button.addTarget(self, action: #selector(plusBtnTapped), for: .touchUpInside)
         button.layer.cornerRadius = 30
         button.imageView?.contentMode = .scaleToFill
@@ -30,7 +30,7 @@ class RecordsVC: UIViewController{
     }()
     
     private lazy var table = {
-        let table = UITableView()
+        let table = UITableView(frame: .zero, style: .plain)
         table.translatesAutoresizingMaskIntoConstraints = false
         table.delegate = self
         table.dataSource = self
@@ -50,7 +50,7 @@ class RecordsVC: UIViewController{
             plusBtn.bottomAnchor.constraint(equalTo: view.keyboardLayoutGuide.topAnchor, constant: -20)
         ])
 
-       
+        table.register(ExpenseTableViewCell.self, forCellReuseIdentifier: ExpenseTableViewCell.reuseId)
     }
     
     var expenses = [(amount: Double, category: String,title : String,date : Date,note: String, id : String)]()
@@ -61,7 +61,7 @@ class RecordsVC: UIViewController{
         do{
             
             
-            let rows = try DataBase.shared.sqlHelper.select(table: "Expenses", columns: ["title","amount","category","id","note","createdDate"])
+            let rows = try DataBase.shared.sqlHelper.select(table: ExpensesTable.name, columns: ["title","amount","category","id","note","createdDate"])
             expenses.removeAll()
             for row in rows {
                 var expense: (amount: Double, category: String,title : String,date : Date,note: String,id : String)
@@ -124,10 +124,15 @@ extension RecordsVC: UITableViewDataSource,UITableViewDelegate{
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = UITableViewCell(style: .subtitle, reuseIdentifier: "subtitle")
-        cell.textLabel?.text = String(expenses[indexPath.row].amount)
-        cell.detailTextLabel?.text = expenses[indexPath.row].category
-        cell.selectionStyle = .none
+        let cell = tableView.dequeueReusableCell(withIdentifier: ExpenseTableViewCell.reuseId) as! ExpenseTableViewCell
+        let expense = expenses[indexPath.row]
+        
+        cell.title = expense.title
+        cell.amount = String(expense.amount)
+        cell.category = expense.category
+        cell.date = expense.date.formatted(date: .abbreviated, time: .shortened)
+        
+        
         return cell
     }
     
@@ -176,6 +181,43 @@ extension RecordsVC: UITableViewDataSource,UITableViewDelegate{
         
     }
     
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        if editingStyle == .delete{
+            let deletedExpense = expenses.remove(at: indexPath.row)
+            table.deleteRows(at: [indexPath], with: .fade)
+            
+            do{
+                
+                let imageUrls = try? DataBase.shared.sqlHelper.select(table: AttachmentsTable.name, columns: [AttachmentsTable.url],whereClause: "\(AttachmentsTable.expenseId) = '\(deletedExpense.id)'").map{$0[AttachmentsTable.url] as! String}
+                
+                if let imageUrls{
+                    imageUrls.forEach{
+                        let url = attachmentsDir.appendingPathComponent($0)
+                        if ((try? FileManager.default.removeItem(at: url)) != nil){
+                            print("image file deleted successfully")
+                        }else{
+                            print("error while deleting image file")
+                        }
+                    }
+                }
+                
+                try DataBase.shared.sqlHelper.delete(from: AttachmentsTable.name, where: "\(AttachmentsTable.expenseId) = '\(deletedExpense.id)'")
+                try DataBase.shared.sqlHelper.delete(from: ExpensesTable.name, where: "\(ExpensesTable.id) = '\(deletedExpense.id)'")
+                
+            }catch let error as SQLiteError{
+                
+                switch error{
+                case SQLiteError.sqliteError(message: let msg):
+                    print(msg)
+                }
+                
+            }catch{
+                print(error.localizedDescription)
+            }
+            
+        }
+    }
+    
 }
 
 
@@ -203,7 +245,7 @@ extension RecordsVC: UITableViewDataSource,UITableViewDelegate{
 
 
 
-
+let attachmentsDir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
 
 
 
@@ -216,11 +258,123 @@ extension RecordsVC: UITableViewDataSource,UITableViewDelegate{
 
 
 class ExpenseTableViewCell: UITableViewCell{
+    static let reuseId = "expenseCell"
+    
+    
+    var title: String?{
+        get{
+            mainTitleLabel.text
+        }
+        set{
+            mainTitleLabel.text = newValue
+        }
+    }
+    
+    var date: String?{
+        get{
+            dateLabel.text
+        }
+        set{
+            dateLabel.text = newValue
+        }
+    }
+    
+    var category: String?{
+        get{
+            categoryLabel.text
+        }
+        set{
+            categoryLabel.text = newValue
+        }
+    }
+    
+    var amount: String?{
+        get{
+            amountLabel.text
+        }
+        set{
+            amountLabel.text = newValue
+        }
+    }
     
     
     
-   
     
+    
+    
+    private lazy var mainTitleLabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.numberOfLines = 1
+        label.text = "Untitled"
+        label.font = .systemFont(ofSize: 20)
+        return label
+    }()
+    
+    private lazy var categoryLabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.numberOfLines = 1
+        label.font = .systemFont(ofSize: 16,weight: .thin)
+        return label
+    }()
+    
+    private lazy var amountLabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.numberOfLines = 1
+        label.font = .systemFont(ofSize: 20)
+        label.textAlignment = .right
+        return label
+    }()
+    
+    private lazy var dateLabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.numberOfLines = 1
+        label.textAlignment = .right
+        label.font = .systemFont(ofSize: 14,weight: .thin)
+        return label
+    }()
+    
+    
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
+        configView()
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    func configView(){
+        contentView.addSubview(mainTitleLabel)
+        contentView.addSubview(amountLabel)
+        contentView.addSubview(categoryLabel)
+        contentView.addSubview(dateLabel)
+        
+        
+        NSLayoutConstraint.activate([
+            mainTitleLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 10),
+            mainTitleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10),
+            mainTitleLabel.widthAnchor.constraint(equalToConstant: 100),
+            
+            amountLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 10),
+            amountLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10),
+            amountLabel.leadingAnchor.constraint(equalTo: mainTitleLabel.trailingAnchor, constant: 5),
+
+            categoryLabel.topAnchor.constraint(equalTo: mainTitleLabel.bottomAnchor, constant: 5),
+            categoryLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -10),
+            categoryLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10),
+
+            dateLabel.topAnchor.constraint(equalTo: amountLabel.bottomAnchor, constant: 5),
+            dateLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -10),
+            dateLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10),
+            dateLabel.leadingAnchor.constraint(equalTo: categoryLabel.trailingAnchor, constant: 5)
+        ])
+        
+        
+    }
     
     
     

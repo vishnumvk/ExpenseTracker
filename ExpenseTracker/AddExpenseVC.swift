@@ -147,7 +147,7 @@ class AddExpenseVC: UIViewController {
         let stack = UIStackView()
         stack.translatesAutoresizingMaskIntoConstraints = false
         stack.axis = .vertical
-        stack.distribution = .fillProportionally
+        stack.distribution = .equalSpacing
         stack.spacing = 5
         return stack
     }()
@@ -281,7 +281,7 @@ class AddExpenseVC: UIViewController {
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "save", style: .plain, target: self, action: #selector(tappedSave))
         
        
-        
+        presenter?.viewDidLoad()
         
         view.addSubview(scrollContainer)
         scrollContainer.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor).isActive = true
@@ -315,21 +315,20 @@ class AddExpenseVC: UIViewController {
         
         
         self.addChild(attachmentsVC)
-        
+
         attachmentsVC.view.translatesAutoresizingMaskIntoConstraints = false
         attachmentsVC.view.heightAnchor.constraint(equalToConstant: 310).isActive = true
         stackView.addArrangedSubview(attachmentsVC.view)
-        
+
         attachmentsVC.didMove(toParent: self)
        
         applyColours()
         
-
-        amountField.addDoneButtonOnKeyboard()
-          noteField.addDoneButtonOnKeyboard()
-         titleField.addDoneButtonOnKeyboard()
-        
-        presenter?.viewDidLoad()
+//        amountField.addDoneButtonOnKeyboard()
+//          noteField.addDoneButtonOnKeyboard()
+//         titleField.addDoneButtonOnKeyboard()
+//
+       hideKeyboardWhenTappedAround()
 
     }
     
@@ -352,14 +351,14 @@ class AddExpenseVC: UIViewController {
         super.viewWillDisappear(animated)
         if let currentUserActivity = view.window?.windowScene?.userActivity {
             print("removing state restoration on add expense ")
-            currentUserActivity.userInfo?.removeValue(forKey: SceneDelegate.presentedAddExpenseKey)
-            currentUserActivity.userInfo?.removeValue(forKey: SceneDelegate.amountKey)
-            currentUserActivity.userInfo?.removeValue(forKey: SceneDelegate.titleKey)
-            currentUserActivity.userInfo?.removeValue(forKey: SceneDelegate.categoryKey)
-            currentUserActivity.userInfo?.removeValue(forKey: SceneDelegate.dateKey)
-            currentUserActivity.userInfo?.removeValue(forKey: SceneDelegate.attachmentsKey)
-            currentUserActivity.userInfo?.removeValue(forKey: SceneDelegate.presentSaveImageToCameraAlertKey)
-            currentUserActivity.userInfo?.removeValue(forKey: SceneDelegate.capturedImageKey)
+            currentUserActivity.userInfo?.removeValue(forKey: StateRestorationConstants.presentedAddExpenseKey)
+            currentUserActivity.userInfo?.removeValue(forKey: StateRestorationConstants.amountKey)
+            currentUserActivity.userInfo?.removeValue(forKey: StateRestorationConstants.titleKey)
+            currentUserActivity.userInfo?.removeValue(forKey: StateRestorationConstants.categoryKey)
+            currentUserActivity.userInfo?.removeValue(forKey: StateRestorationConstants.dateKey)
+            currentUserActivity.userInfo?.removeValue(forKey: StateRestorationConstants.attachmentsKey)
+            currentUserActivity.userInfo?.removeValue(forKey: StateRestorationConstants.presentSaveImageToCameraAlertKey)
+            currentUserActivity.userInfo?.removeValue(forKey: StateRestorationConstants.capturedImageKey)
         }
     }
     
@@ -433,10 +432,7 @@ class AddExpenseVC: UIViewController {
   attachmentOptions.layer.borderColor = UIColor.systemTeal.cgColor
         
         navigationController?.navigationBar.tintColor = .systemTeal
-//        navigationController?.navigationBar.barTintColor = .brown
-        navigationController?.navigationBar.scrollEdgeAppearance?.backgroundColor = .brown
-//        navigationController?.navigationBar.standardAppearance.backgroundColor = .brown
-//        navigationController?.navigationBar.compactAppearance?.backgroundColor = .brown
+       
         
         
         
@@ -552,7 +548,6 @@ extension AddExpenseVC: AddExpenseView{
     
     
     func openPhotoLibrary(){
-        title = "open Photo Library"
         var config = PHPickerConfiguration(photoLibrary: .shared())
         config.filter = .images
         config.selectionLimit = 10
@@ -788,15 +783,15 @@ extension AddExpenseVC{
         let capturedImageData = imageToBeSaved?.jpegData(compressionQuality: 1.0)
         
         let entries: [AnyHashable : Any] = [
-            SceneDelegate.presentedAddExpenseKey : true,
-            SceneDelegate.amountKey : amountField.text as Any,
-            SceneDelegate.titleKey : titleField.text as Any,
-            SceneDelegate.attachmentsKey : attachments as Any,
-            SceneDelegate.dateKey : datePicker.date,
-            SceneDelegate.noteKey : noteField.text as Any,
-            SceneDelegate.categoryKey : categoryBtn.title(for: .normal) as Any,
-            SceneDelegate.capturedImageKey : capturedImageData as Any,
-            SceneDelegate.presentSaveImageToCameraAlertKey : presentSaveImageToCamera
+            StateRestorationConstants.presentedAddExpenseKey : true,
+            StateRestorationConstants.amountKey : amountField.text as Any,
+            StateRestorationConstants.titleKey : titleField.text as Any,
+            StateRestorationConstants.attachmentsKey : attachments as Any,
+            StateRestorationConstants.dateKey : datePicker.date,
+            StateRestorationConstants.noteKey : noteField.text as Any,
+            StateRestorationConstants.categoryKey : categoryBtn.title(for: .normal) as Any,
+            StateRestorationConstants.capturedImageKey : capturedImageData as Any,
+            StateRestorationConstants.presentSaveImageToCameraAlertKey : presentSaveImageToCamera
             
         ]
         
@@ -809,22 +804,22 @@ extension AddExpenseVC{
     func restoreView(with values: [AnyHashable: Any]){
         
         print(#function)
-        if let title = values[SceneDelegate.titleKey] as? String{
+        if let title = values[StateRestorationConstants.titleKey] as? String{
             titleField.text = title
         }
-        if let date = values[SceneDelegate.dateKey] as? Date{
+        if let date = values[StateRestorationConstants.dateKey] as? Date{
             datePicker.setDate(date, animated: false)
         }
-        if let amount = values[SceneDelegate.amountKey] as?  String{
+        if let amount = values[StateRestorationConstants.amountKey] as?  String{
             amountField.text = amount
         }
-        if let category = values[SceneDelegate.categoryKey] as? String{
+        if let category = values[StateRestorationConstants.categoryKey] as? String{
             categoryBtn.setTitle(category, for: .normal)
         }
-        if let note = values[SceneDelegate.noteKey] as? String{
+        if let note = values[StateRestorationConstants.noteKey] as? String{
             noteField.text =  note
         }
-        if let attachments = values[SceneDelegate.attachmentsKey] as? [Data?]{
+        if let attachments = values[StateRestorationConstants.attachmentsKey] as? [Data?]{
             
             attachments.forEach { data in
                 attachmentsVC.attachments.append(UIImage(data: data!)!)
@@ -832,7 +827,7 @@ extension AddExpenseVC{
             
             
         }
-        if let image = values[SceneDelegate.capturedImageKey] as? UIImage{
+        if let image = values[StateRestorationConstants.capturedImageKey] as? UIImage{
             imageToBeSaved = image
         }
         
@@ -898,7 +893,7 @@ class SelectionViewController: UIViewController,UITableViewDataSource,UITableVie
     var didSelectOption : ((_ selectedOption: String) -> ())?
     
     lazy var table = {
-        let table = UITableView()
+        let table = UITableView(frame: .zero, style: .insetGrouped)
         table.backgroundColor = .systemBackground
         table.separatorStyle = .singleLine
         table.translatesAutoresizingMaskIntoConstraints = false
@@ -954,3 +949,14 @@ class SelectionViewController: UIViewController,UITableViewDataSource,UITableVie
 
 
 
+extension UIViewController {
+    func hideKeyboardWhenTappedAround() {
+        let tap = UITapGestureRecognizer(target: self, action: #selector(UIViewController.dismissKeyboard))
+        tap.cancelsTouchesInView = false
+        view.addGestureRecognizer(tap)
+    }
+    
+    @objc func dismissKeyboard() {
+        view.endEditing(true)
+    }
+}

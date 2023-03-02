@@ -25,7 +25,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         window = UIWindow(windowScene: windowScene)
         
-        window?.rootViewController = UINavigationController(rootViewController: RecordsVC())
+//        window?.rootViewController = UINavigationController(rootViewController: RecordsVC())
+        window?.rootViewController = MainTabBarController()
         
 //        let ape = UINavigationBar.appearance()
 //        let navApe = UINavigationBarAppearance()
@@ -106,20 +107,12 @@ extension SceneDelegate{
         return "com.ExpenseTracker.addExpenseRestoreation"
     }
     
-    static let presentedAddExpenseKey = "presentedAddExpense"
-    static let presentSaveImageToCameraAlertKey = "presentSaveImageToCameraAlert"
-    static let amountKey = "amount"
-    static let titleKey = "title"
-    static let categoryKey = "category"
-    static let dateKey = "date"
-    static let noteKey = "note"
-    static let attachmentsKey = "attachments"
-    static let capturedImageKey = "capturedImage"
+   
     
     func setupScene(with userActivity: NSUserActivity){
         
         if userActivity.activityType == SceneDelegate.MainSceneActivityType(){
-            if let presentedAddExpenseVC = userActivity.userInfo?[SceneDelegate.presentedAddExpenseKey] as? Bool{
+            if let presentedAddExpenseVC = userActivity.userInfo?[StateRestorationConstants.presentedAddExpenseKey] as? Bool{
                 if presentedAddExpenseVC{
                     if let navVC = window?.rootViewController as? UINavigationController{
                         let addExpenseVC = AddExpenseVC()
@@ -135,4 +128,18 @@ extension SceneDelegate{
         }
         
     }
+}
+
+class StateRestorationConstants{
+    
+    static let presentedAddExpenseKey = "presentedAddExpense"
+    static let presentSaveImageToCameraAlertKey = "presentSaveImageToCameraAlert"
+    static let amountKey = "amount"
+    static let titleKey = "title"
+    static let categoryKey = "category"
+    static let dateKey = "date"
+    static let noteKey = "note"
+    static let attachmentsKey = "attachments"
+    static let capturedImageKey = "capturedImage"
+    
 }

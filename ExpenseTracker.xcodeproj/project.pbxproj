@@ -16,9 +16,11 @@
 		474220C4297FD1850030E036 /* SqliteHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 474220C3297FD1850030E036 /* SqliteHelper.swift */; };
 		474220C62983DE520030E036 /* HomePageVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 474220C52983DE520030E036 /* HomePageVC.swift */; };
 		477647A7298BD7A300D7B0B1 /* AttachmentsVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 477647A6298BD7A300D7B0B1 /* AttachmentsVC.swift */; };
+		477DE21229B06EE5006BA200 /* AnalysisVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 477DE21129B06EE5006BA200 /* AnalysisVC.swift */; };
 		4784E3A02992101B003BBB9F /* RecordsVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4784E39F2992101B003BBB9F /* RecordsVC.swift */; };
 		47C526FF299F98CB0054D56D /* ThemeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47C526FE299F98CA0054D56D /* ThemeManager.swift */; };
 		47D21D2B29AC7CB80098C81F /* DateController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47D21D2A29AC7CB80098C81F /* DateController.swift */; };
+		47D21D2D29AE32300098C81F /* Sqlite Tables.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47D21D2C29AE32300098C81F /* Sqlite Tables.swift */; };
 		47FFBE8B299CAF3B008E196F /* Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47FFBE8A299CAF3B008E196F /* Helpers.swift */; };
 		74E7D38031C5258D53ADCA61 /* Pods_ExpenseTracker.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C5694D47FDA51B9988D5AB6D /* Pods_ExpenseTracker.framework */; };
 /* End PBXBuildFile section */
@@ -36,9 +38,11 @@
 		474220C3297FD1850030E036 /* SqliteHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SqliteHelper.swift; sourceTree = "<group>"; };
 		474220C52983DE520030E036 /* HomePageVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomePageVC.swift; sourceTree = "<group>"; };
 		477647A6298BD7A300D7B0B1 /* AttachmentsVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AttachmentsVC.swift; sourceTree = "<group>"; };
+		477DE21129B06EE5006BA200 /* AnalysisVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisVC.swift; sourceTree = "<group>"; };
 		4784E39F2992101B003BBB9F /* RecordsVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordsVC.swift; sourceTree = "<group>"; };
 		47C526FE299F98CA0054D56D /* ThemeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeManager.swift; sourceTree = "<group>"; };
 		47D21D2A29AC7CB80098C81F /* DateController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DateController.swift; path = ExpenseTracker/DateController.swift; sourceTree = SOURCE_ROOT; };
+		47D21D2C29AE32300098C81F /* Sqlite Tables.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Sqlite Tables.swift"; sourceTree = "<group>"; };
 		47FFBE8A299CAF3B008E196F /* Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Helpers.swift; sourceTree = "<group>"; };
 		C5694D47FDA51B9988D5AB6D /* Pods_ExpenseTracker.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ExpenseTracker.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D9A9E06B5B6F96BFB4B82A84 /* Pods-ExpenseTracker.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ExpenseTracker.debug.xcconfig"; path = "Target Support Files/Pods-ExpenseTracker/Pods-ExpenseTracker.debug.xcconfig"; sourceTree = "<group>"; };
@@ -86,6 +90,7 @@
 				474220C52983DE520030E036 /* HomePageVC.swift */,
 				4784E39F2992101B003BBB9F /* RecordsVC.swift */,
 				47D21D2A29AC7CB80098C81F /* DateController.swift */,
+				477DE21129B06EE5006BA200 /* AnalysisVC.swift */,
 				474220B5297902CD0030E036 /* Assets.xcassets */,
 				474220BA297902CD0030E036 /* Info.plist */,
 			);
@@ -99,6 +104,7 @@
 				474220C3297FD1850030E036 /* SqliteHelper.swift */,
 				47FFBE8A299CAF3B008E196F /* Helpers.swift */,
 				47C526FE299F98CA0054D56D /* ThemeManager.swift */,
+				47D21D2C29AE32300098C81F /* Sqlite Tables.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -233,6 +239,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				47D21D2D29AE32300098C81F /* Sqlite Tables.swift in Sources */,
 				477647A7298BD7A300D7B0B1 /* AttachmentsVC.swift in Sources */,
 				47D21D2B29AC7CB80098C81F /* DateController.swift in Sources */,
 				474220B1297902CC0030E036 /* AddExpenseVC.swift in Sources */,
@@ -240,6 +247,7 @@
 				474220C2297FD0800030E036 /* PieChart.swift in Sources */,
 				474220C62983DE520030E036 /* HomePageVC.swift in Sources */,
 				47FFBE8B299CAF3B008E196F /* Helpers.swift in Sources */,
+				477DE21229B06EE5006BA200 /* AnalysisVC.swift in Sources */,
 				474220C4297FD1850030E036 /* SqliteHelper.swift in Sources */,
 				4784E3A02992101B003BBB9F /* RecordsVC.swift in Sources */,
 				47C526FF299F98CB0054D56D /* ThemeManager.swift in Sources */,

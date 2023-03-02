@@ -25,6 +25,10 @@ class SQLiteHelper {
             throw SQLiteError.sqliteError(message: String(cString: sqlite3_errmsg(db)))
         }
         self.db = db!
+        guard (try? self.execute(query: "PRAGMA foreign_keys = ON")) != nil else{
+            throw SQLiteError.sqliteError(message: String(cString: sqlite3_errmsg(db)))
+        }
+        
         print("db connected!")
     }
     
@@ -143,6 +147,7 @@ class SQLiteHelper {
     
     func delete(from table: String, where condition: String) throws {
         let query = "DELETE FROM \(table) WHERE \(condition)"
+        print(query)
         var statement: OpaquePointer?
         guard sqlite3_prepare_v2(db, query, -1, &statement, nil) == SQLITE_OK else {
             throw SQLiteError.sqliteError(message: String(cString: sqlite3_errmsg(db)))
