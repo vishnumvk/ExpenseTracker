@@ -92,7 +92,7 @@ extension SceneDelegate{
     func stateRestorationActivity(for scene: UIScene) -> NSUserActivity? {
         
         print(#function)
-        if let vc = window?.rootViewController as? UINavigationController,
+        if let root = window?.rootViewController as? UITabBarController ,let vc = root.selectedViewController as? UINavigationController,
            let aevc = vc.topViewController as? AddExpenseVC{
             aevc.updateUserActivity()
             
@@ -114,7 +114,7 @@ extension SceneDelegate{
         if userActivity.activityType == SceneDelegate.MainSceneActivityType(){
             if let presentedAddExpenseVC = userActivity.userInfo?[StateRestorationConstants.presentedAddExpenseKey] as? Bool{
                 if presentedAddExpenseVC{
-                    if let navVC = window?.rootViewController as? UINavigationController{
+                    if let rootVC = window?.rootViewController as? UITabBarController, let navVC = rootVC.selectedViewController as? UINavigationController{
                         let addExpenseVC = AddExpenseVC()
                         let presenter = AddExpensePresenter()
                         presenter.view = addExpenseVC

@@ -637,7 +637,7 @@ extension AddExpenseVC: UIImagePickerControllerDelegate,UINavigationControllerDe
            
             
             if let image = info[UIImagePickerController.InfoKey.originalImage] as? UIImage{
-                displayImage(image: image)
+                displayImage(image: downsample(image: image)!)
                 
                 
                 let alert = UIAlertController(title: "Save Image", message: "Would you like to save the image to photos", preferredStyle: .alert)
@@ -762,6 +762,9 @@ extension AddExpenseVC{
     
     
     func updateUserActivity(){
+        print(#function)
+        
+        
         var activity = view.window?.windowScene?.userActivity
         if activity == nil{
             activity = NSUserActivity(activityType: SceneDelegate.MainSceneActivityType())

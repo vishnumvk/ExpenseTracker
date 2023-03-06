@@ -86,36 +86,93 @@ func downsample(imageAt imageURL: URL,
     return UIImage(cgImage: downsampledImage)
 }
 
-//    lazy var noteField = {
-//        let note = UITextField()
-//        note.translatesAutoresizingMaskIntoConstraints = false
-//        note.font = .systemFont(ofSize: 20)
-//        note.textColor = .label
-//        note.placeholder = "Note"
-//        note.borderStyle = .roundedRect
-//        note.textAlignment = .left
-//        note.delegate = self
-//        note.heightAnchor.constraint(equalToConstant: 44).isActive = true
-//        note.layer.cornerRadius = 5
-//        note.layer.borderWidth = 1
-//        note.layer.borderColor = UIColor.placeholderText.cgColor
-//        return note
-//    }()
+func downsample(image: UIImage,
+                to pointSize: CGSize = .init(width: 200, height: 200),
+                scale: CGFloat = UIScreen.main.scale) -> UIImage? {
+    
+   
+    
+    
+    // Create an CGImageSource that represent an image
+    let imageSourceOptions = [kCGImageSourceShouldCache: false] as CFDictionary
+    guard let imageSource = CGImageSourceCreateWithData(image.jpegData(compressionQuality: 1.0)! as CFData, imageSourceOptions) else {
+        print("source error")
+        return nil
+    }
+    
+    // Calculate the desired dimension
+//    let maxDimensionInPixels = max(pointSize.width, pointSize.height) * scale
+    
+    // Perform downsampling
+    let downsampleOptions = [
+        kCGImageSourceCreateThumbnailFromImageAlways: true,
+        kCGImageSourceShouldCacheImmediately: true,
+        kCGImageSourceCreateThumbnailWithTransform: true,
+        kCGImageSourceThumbnailMaxPixelSize: 2_000
+    ] as CFDictionary
+    
+    guard let downsampledImage = CGImageSourceCreateThumbnailAtIndex(imageSource, 0, downsampleOptions) else {
+        print("down sampling error")
+        return nil
+    }
+    
+    // Return the downsampled image as UIImage
+    return UIImage(cgImage: downsampledImage)
+}
+
+func downsample(imageData: Data,
+                to pointSize: CGSize = .init(width: 200, height: 200),
+                scale: CGFloat = UIScreen.main.scale) -> UIImage? {
+    
+   
+    
+    
+    // Create an CGImageSource that represent an image
+    let imageSourceOptions = [kCGImageSourceShouldCache: false] as CFDictionary
+    guard let imageSource = CGImageSourceCreateWithData(imageData as CFData, imageSourceOptions) else {
+        print("source error")
+        return nil
+    }
+    
+    // Calculate the desired dimension
+//    let maxDimensionInPixels = max(pointSize.width, pointSize.height) * scale
+    
+    // Perform downsampling
+    let downsampleOptions = [
+        kCGImageSourceCreateThumbnailFromImageAlways: true,
+        kCGImageSourceShouldCacheImmediately: true,
+        kCGImageSourceCreateThumbnailWithTransform: true,
+        kCGImageSourceThumbnailMaxPixelSize: 2_000
+    ] as CFDictionary
+    
+    guard let downsampledImage = CGImageSourceCreateThumbnailAtIndex(imageSource, 0, downsampleOptions) else {
+        print("down sampling error")
+        return nil
+    }
+    
+    // Return the downsampled image as UIImage
+    return UIImage(cgImage: downsampledImage)
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 extension UITextField{
     
-//    @IBInspectable var doneAccessory: Bool{
-//        get{
-//            return self.doneAccessory
-//        }
-//        set (hasDone) {
-//            if hasDone{
-//                addDoneButtonOnKeyboard()
-//            }
-//        }
-//    }
+
     
     func addDoneButtonOnKeyboard()
     {
@@ -144,16 +201,7 @@ extension UITextField{
 
 extension UITextView{
     
-//    @IBInspectable var doneAccessory: Bool{
-//        get{
-//            return self.doneAccessory
-//        }
-//        set (hasDone) {
-//            if hasDone{
-//                addDoneButtonOnKeyboard()
-//            }
-//        }
-//    }
+
     
     func addDoneButtonOnKeyboard()
     {

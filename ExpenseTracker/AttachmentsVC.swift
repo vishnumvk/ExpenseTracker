@@ -140,10 +140,10 @@ extension AttachmentsVC: UICollectionViewDelegateFlowLayout,UICollectionViewData
         vc.delegate = self
         vc.selectedIndex = indexPath
 
-        vc.modalPresentationStyle = .fullScreen
+        vc.modalPresentationStyle = .overCurrentContext
         vc.modalTransitionStyle = .crossDissolve
         navigationController?.pushViewController(vc, animated: true)
-
+//        self.present(vc, animated: true)
     }
     
     
@@ -251,7 +251,7 @@ class SlideShowViewController: UIViewController{
         collectionView.register(FullImageCell.self, forCellWithReuseIdentifier: FullImageCell.reuseID)
         NSLayoutConstraint.activate([
             collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 5),
-            collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: 0),
+            collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: 0),
             collectionView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -5),
             collectionView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 5)
 

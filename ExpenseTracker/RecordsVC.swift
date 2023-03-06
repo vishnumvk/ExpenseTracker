@@ -75,7 +75,7 @@ class RecordsVC: UIViewController{
                 expense.date = Date(timeIntervalSince1970: row["createdDate"] as! Double)
                 expenses.append(expense)
             }
-            table.reloadData()
+            
             
         }catch let error as SQLiteError{
             switch error{
@@ -86,11 +86,14 @@ class RecordsVC: UIViewController{
         }catch{
             print(error.localizedDescription)
         }
-        
+        expenses = expenses.sorted { $0.date > $1.date}
     }
     
     
-    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        table.reloadData()
+    }
     
     
     @objc func plusBtnTapped(){
@@ -133,7 +136,7 @@ extension RecordsVC: UITableViewDataSource,UITableViewDelegate{
         cell.amount = String(expense.amount)
         cell.category = expense.category
         cell.date = expense.date.formatted(date: .abbreviated, time: .shortened)
-        
+        cell.selectionStyle = .none
         
         return cell
     }

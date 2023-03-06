@@ -207,6 +207,50 @@ class SQLiteHelper {
             
         }
     }
+    
+    
+    func executeSelect(query: String) throws -> [[String: Any]] {
+
+        var statement: OpaquePointer?
+        guard sqlite3_prepare_v2(db, query, -1, &statement, nil) == SQLITE_OK else {
+            throw SQLiteError.sqliteError(message: String(cString: sqlite3_errmsg(db)))
+        }
+        defer {
+            sqlite3_finalize(statement)
+        }
+        var results: [[String: Any]] = []
+        while sqlite3_step(statement) == SQLITE_ROW {
+            var row: [String: Any] = [:]
+            for i in 0..<sqlite3_column_count(statement) {
+                let name = String(cString: sqlite3_column_name(statement, i))
+                switch sqlite3_column_type(statement, i) {
+                case SQLITE_INTEGER:
+                    row[name] = sqlite3_column_int64(statement, i)
+                case SQLITE_FLOAT:
+                    row[name] = sqlite3_column_double(statement, i)
+                case SQLITE_TEXT:
+                    row[name] = String(cString: sqlite3_column_text(statement, i))
+                case SQLITE_BLOB:
+                    if let bytes = sqlite3_column_blob(statement, i) {
+                        let data = Data(bytes: bytes, count: Int(sqlite3_column_bytes(statement, i)))
+                        row[name] = data
+                    }
+                    else {
+                        row[name] = nil
+                    }
+                default:
+                    row[name] = nil
+                }
+            }
+            results.append(row)
+        }
+        return results
+    }
+    
+    
+    
+    
+    
     func closeDB(){
         if sqlite3_close(db) == SQLITE_OK {
             print("CLOSED db")

@@ -15,7 +15,7 @@ class MainTabBarController: UITabBarController {
     override func viewDidLoad() {
         
         
-        tabBar.backgroundColor = .white
+        tabBar.backgroundColor = .secondarySystemBackground
         tabBar.tintColor = .systemTeal
         tabBar.isTranslucent = false
         tabBar.unselectedItemTintColor = .systemGray3
@@ -23,9 +23,9 @@ class MainTabBarController: UITabBarController {
         let recordVC = RecordsVC()
         let analysisVC = AnalysisVC()
         
-        recordVC.tabBarItem.image = UIImage(systemName: "photo.stack.fill")
+        recordVC.tabBarItem.image = UIImage(systemName: "list.clipboard")
         recordVC.title = "Records"
-        analysisVC.tabBarItem.image = UIImage(systemName: "square.and.arrow.down.on.square")
+        analysisVC.tabBarItem.image = UIImage(systemName: "chart.pie.fill")
         analysisVC.title = "Analysis"
         
         
@@ -61,8 +61,8 @@ class AnalysisVC: UIViewController {
 
         chart.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(chart)
-        chart.heightAnchor.constraint(equalTo: view.heightAnchor,multiplier: 0.5).isActive = true
-        chart.widthAnchor.constraint(equalTo: view.widthAnchor,multiplier: 0.5).isActive = true
+        chart.heightAnchor.constraint(equalTo: view.heightAnchor,multiplier: 1).isActive = true
+        chart.widthAnchor.constraint(equalTo: view.widthAnchor,multiplier: 1).isActive = true
 
         
         
@@ -72,14 +72,41 @@ class AnalysisVC: UIViewController {
 
 
 
-        chart.dataSet = [(0.10,.systemYellow),(0.20,.systemPink),(0.30,.systemMint),(0.40,.systemCyan)]
+        chart.dataSet = [(0.10,.systemYellow,nil),(0.20,.systemPink,nil),(0.30,.systemMint,nil),(0.40,.systemCyan,nil)]
 
 
 
-        chart.radius = 150
+        chart.radius = 120
 
     }
     
-
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        let colours: [UIColor] = [.systemTeal,.systemRed,.systemCyan,.systemMint,.systemBlue,.systemPink,.systemBrown,.systemYellow,.systemOrange,.systemPurple,.systemGreen,.systemIndigo]
+        
+        do{
+            let results = try DataBase.shared.sqlHelper.executeSelect(query: "SELECT \(ExpensesTable.category),SUM(\(ExpensesTable.amount)) FROM \(ExpensesTable.name) GROUP BY \(ExpensesTable.category)")
+            var pieChartData = [(Double,UIColor,String?)]()
+            var x = 0
+            print(results)
+            for result in results {
+                
+                pieChartData.append((result["SUM(\(ExpensesTable.amount))"] as! Double, colours[x], result[ExpensesTable.category] as? String ))
+                
+               x = x == colours.count - 1 ?  0 : x+1
+            }
+            chart.dataSet = pieChartData
+        }catch let error as SQLiteError{
+            switch error{
+            case SQLiteError.sqliteError(message: let msg):
+                print(msg)
+            }
+            
+        }catch{
+            print(error.localizedDescription)
+        }
+        
+    }
     
 }

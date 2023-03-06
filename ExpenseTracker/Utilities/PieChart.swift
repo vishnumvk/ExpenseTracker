@@ -173,7 +173,7 @@ class PieChartView: UIView{
 
 
 
-    var dataSet = [(sample: Double , colour: UIColor)](){
+    var dataSet = [(sample: Double , colour: UIColor , label: String?)](){
         didSet{
             self.setNeedsDisplay()
         }
@@ -190,7 +190,7 @@ class PieChartView: UIView{
 
     var shapeLayers = [CAShapeLayer]()
 
-
+    var holeLayer = CAShapeLayer()
 
 
     override init(frame: CGRect) {
@@ -223,7 +223,7 @@ class PieChartView: UIView{
             let shapeLayer = CAShapeLayer()
             shapeLayer.path = sector.cgPath
             shapeLayer.fillColor = data.1.cgColor
-            shapeLayer.strokeColor = UIColor.white.cgColor
+            shapeLayer.strokeColor = UIColor.systemBackground.cgColor
 
             self.layer.addSublayer(shapeLayer)
             shapeLayers.append(shapeLayer)
@@ -233,21 +233,24 @@ class PieChartView: UIView{
             
 
 
-            let center = calculatePosition(angle: arcCenterMidAngle, p: center, offset: (radius * 0.75))
+            let center = calculatePosition(angle: arcCenterMidAngle, p: center, offset: (radius * 0.85))
             centers.append(center)
-
+            
             currentAngle += delta
+            
+            
+            
         }
 
         let hole = UIBezierPath(ovalIn: .init(x: center.x - radius/2, y: center.y - radius/2, width: radius, height: radius))
-        let holeLayer = CAShapeLayer()
+        
         holeLayer.strokeColor = UIColor.systemBackground.withAlphaComponent(0.5).cgColor
         holeLayer.lineWidth = 10
         holeLayer.fillColor = UIColor.systemBackground.cgColor
         holeLayer.path = hole.cgPath
 
         self.layer.addSublayer(holeLayer)
-        shapeLayers.append(holeLayer)
+//        shapeLayers.append(holeLayer)
 
     }
 
@@ -272,10 +275,21 @@ class PieChartView: UIView{
         samplePie(center: CGPoint(x: rect.midX, y: rect.midY), radius: radius)
         
         for x in 0..<dataSet.count{
+            
+            let para = NSMutableParagraphStyle()
+            para.alignment = .center
+            
+            let plainTextAttributes: [NSAttributedString.Key : Any] = [
+                
+                .font            : UIFont.systemFont(ofSize: 18, weight: .light),
+                .foregroundColor : UIColor.label,
+                .paragraphStyle  : para
+            ]
+            
 
             let textLayer = CATextLayer()
-            textLayer.string = String(dataSet[x].sample)
-            textLayer.fontSize = 25
+            textLayer.string = NSAttributedString(string: "\(String(dataSet[x].sample)) \n \(dataSet[x].label ?? "")", attributes: plainTextAttributes)
+            textLayer.fontSize = 16
 //            textLayer.backgroundColor = UIColor.black.cgColor
             textLayer.foregroundColor = UIColor.label.cgColor
             
@@ -287,7 +301,7 @@ class PieChartView: UIView{
             textLayer.frame = .init(x: 0, y: 0, width: width, height: height)
             textLayer.position = centers[x]
             
-            
+//            textLayer.allowsFontSubpixelQuantization = true
             
             
             textLayers.append(textLayer)
@@ -315,5 +329,33 @@ class PieChartView: UIView{
     public func calculatePosition(angle: CGFloat, p: CGPoint, offset: CGFloat) -> CGPoint {
         return CGPoint(x: p.x + offset * cos(angle), y: p.y + offset * sin(angle))
     }
+    
+    
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        super.touchesBegan(touches, with: event)
+        if let touch = touches.first{
+            for layer in shapeLayers {
+                if layer.path!.contains(touch.location(in: self)) && !(holeLayer.path!.contains(touch.location(in: self))){
+                    if let index = shapeLayers.firstIndex(of: layer){
+                         let textlayer = textLayers[index]
+                        textlayer.position = offsetPointRadially(from: CGPoint(x: bounds.midX, y: bounds.midY), to: textlayer.position, distance: 40)
+                        
+                        
+                    }
+                }else{
+//                    print(touch.location(in: self))
+                }
+            }
+        }
+        
+    }
+    
+    func offsetPointRadially(from startPoint: CGPoint, to endPoint: CGPoint, distance: CGFloat) -> CGPoint {
+        let angle = atan2(endPoint.y - startPoint.y, endPoint.x - startPoint.x)
+        let x = endPoint.x + cos(angle) * distance
+        let y = endPoint.y + sin(angle) * distance
+        return CGPoint(x: x, y: y)
+    }
 
+    
 }
