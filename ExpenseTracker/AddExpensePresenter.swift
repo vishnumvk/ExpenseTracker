@@ -39,7 +39,7 @@ protocol AddExpenseView: NSObject{
     var category: String?{get set}
     var note: String?{get set}
     var date: Date{get set}
-    var attachments: [UIImage]{get set}
+    var attachments: [Data]{get set}
     
 }
 
@@ -54,6 +54,10 @@ class AddExpensePresenter: AddExpensePresenterProtocol{
     
     var expense: Expense?
     
+    weak var view: AddExpenseView?
+    var db: ExpenseDBPr? = ExpenseDB()
+    
+    
     
     func viewDidLoad() {
         guard let expense else{
@@ -63,7 +67,7 @@ class AddExpensePresenter: AddExpensePresenterProtocol{
         print("expense configured")
         view?.expenseTitle = expense.title
         view?.amount = String(expense.amount)
-        view?.attachments = expense.attachments?.compactMap{downsample(imageData: $0)} ?? [UIImage]()
+        view?.attachments = expense.attachments?.compactMap{try? Data(contentsOf: $0)} ?? [Data]()
 //        view?.attachments = (expense.attachments?.compactMap({ data in
 //            if let image = UIImage(data: data){
 //                print("image was obtained")
@@ -100,7 +104,7 @@ class AddExpensePresenter: AddExpensePresenterProtocol{
             return
         }
         
-        db?.save(expense: Expense(title: view?.expenseTitle, amount: amount, date: view?.date ?? Date(), note: view?.note, category: category, attachments: view?.attachments.compactMap({$0.jpegData(compressionQuality: 1.0)})))
+        db?.save(expense: ExpenseWithAttachmentsData(title: view?.expenseTitle, amount: amount, date: view?.date ?? Date(), note: view?.note, category: category, attachments: view?.attachments.compactMap({$0})))
         view?.dismissView()
     }
     
@@ -162,14 +166,7 @@ class AddExpensePresenter: AddExpensePresenterProtocol{
         
         
         
-    
-    
-    
-    
-    
-    weak var view: AddExpenseView?
-    var db: ExpenseDBPr? = ExpenseDB()
-    
+
     
     deinit {
         print("presenter deinit called")
@@ -182,7 +179,7 @@ class AddExpensePresenter: AddExpensePresenterProtocol{
 
 
 protocol ExpenseDBPr{
-    func save(expense: Expense)
+    func save(expense: ExpenseWithAttachmentsData)
 }
 
 
@@ -190,7 +187,7 @@ protocol ExpenseDBPr{
 
 class ExpenseDB: ExpenseDBPr{
     
-    func save(expense: Expense) {
+    func save(expense: ExpenseWithAttachmentsData) {
         
         var imageUrls = [String]()
         
@@ -262,6 +259,19 @@ class ExpenseDB: ExpenseDBPr{
 
 
 struct Expense{
+    
+    var title: String?
+    var amount: Double
+    var date: Date
+    var note: String?
+    var category: String
+    var attachments: [URL]?
+    
+    
+    
+}
+
+struct ExpenseWithAttachmentsData{
     
     var title: String?
     var amount: Double

@@ -264,7 +264,7 @@ class SQLiteHelper {
 
 class DataBase{
     
-    static let dbfile = try! FileManager.default.url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true).appendingPathComponent("ExpenseTracker.sqlite")
+    static let dbfile = try! FileManager.default.url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true).appendingPathComponent("ExpenseTracker1.sqlite")
     
     
     private init(){

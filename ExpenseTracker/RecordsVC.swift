@@ -38,22 +38,41 @@ class RecordsVC: UIViewController{
         table.dataSource = self
         return table
     }()
+    
+    private lazy var noRecordsView = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.textAlignment = .center
+        label.textColor = .placeholderText
+        label.font = .italicSystemFont(ofSize: 20)
+        label.text = "No Records !"
+        return label
+    }()
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         view.backgroundColor = .systemBackground
         view.addSubview(table)
         view.addSubview(plusBtn)
+        view.addSubview(noRecordsView)
+        
         table.pinToSafeArea(view: view)
         NSLayoutConstraint.activate([
             plusBtn.heightAnchor.constraint(equalToConstant: 60),
             plusBtn.widthAnchor.constraint(equalToConstant: 60),
-            plusBtn.trailingAnchor.constraint(equalTo: view.trailingAnchor,constant: -20),
-            plusBtn.bottomAnchor.constraint(equalTo: view.keyboardLayoutGuide.topAnchor, constant: -20)
+            plusBtn.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor,constant: -10),
+            plusBtn.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
+            
+            noRecordsView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            noRecordsView.centerYAnchor.constraint(equalTo: view.centerYAnchor)
         ])
 
         table.register(ExpenseTableViewCell.self, forCellReuseIdentifier: ExpenseTableViewCell.reuseId)
     }
+    
+    
     
     var expenses = [(amount: Double, category: String,title : String,date : Date,note: String, id : String)]()
     
@@ -146,6 +165,7 @@ extension RecordsVC: UITableViewDataSource,UITableViewDelegate{
         
         let expense = expenses[indexPath.row]
         var attachments = [Data]()
+        var attachmentURLs = [URL]()
         do{
             let rows = try DataBase.shared.sqlHelper.select(table: "Attachments", columns: ["id","url"],whereClause: "expenseId = '\(expense.id)'")
             let attchmentsDir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
@@ -156,6 +176,7 @@ extension RecordsVC: UITableViewDataSource,UITableViewDelegate{
                 print(restoredUrl)
                 if let data = try? Data(contentsOf: restoredUrl){
                     print("got data from the image url")
+                    attachmentURLs.append(restoredUrl)
                     attachments.append(data)
                 }
             }
@@ -176,7 +197,7 @@ extension RecordsVC: UITableViewDataSource,UITableViewDelegate{
         
         let  addExpenseVC = AddExpenseVC()
         let presenter = AddExpensePresenter()
-        presenter.expense = Expense(title: expense.title, amount: expense.amount, date: expense.date, note: expense.note, category: expense.category, attachments: attachments)
+        presenter.expense = Expense(title: expense.title, amount: expense.amount, date: expense.date, note: expense.note, category: expense.category, attachments: attachmentURLs)
         presenter.view = addExpenseVC
         addExpenseVC.presenter = presenter
         
@@ -389,3 +410,20 @@ class ExpenseTableViewCell: UITableViewCell{
 
 
 
+class NoRecordsView: UIView{
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        setUpView()
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    
+    func setUpView(){
+        
+    }
+    
+}

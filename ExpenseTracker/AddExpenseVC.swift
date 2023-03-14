@@ -272,7 +272,7 @@ class AddExpenseVC: UIViewController {
         AttachmentsVC()
     }()
     
-    private var imageToBeSaved: UIImage?
+//    private var imageToBeSaved: UIImage?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -431,7 +431,7 @@ class AddExpenseVC: UIViewController {
           noteField.layer.borderColor = UIColor.systemTeal.cgColor
   attachmentOptions.layer.borderColor = UIColor.systemTeal.cgColor
         
-        navigationController?.navigationBar.tintColor = .systemTeal
+//        navigationController?.navigationBar.tintColor = .systemTeal
        
         
         
@@ -481,7 +481,7 @@ extension AddExpenseVC: AddExpenseView{
         }
     }
     
-    var attachments: [UIImage] {
+    var attachments: [Data] {
         get {
             attachmentsVC.attachments
         }
@@ -528,10 +528,11 @@ extension AddExpenseVC: AddExpenseView{
     }
     
     func saveToPhotos() {
-        if let imageToBeSaved{
-            UIImageWriteToSavedPhotosAlbum(imageToBeSaved, self, #selector(image(_:didFinishSavingWithError:contextInfo:)), nil)
-        }
-        imageToBeSaved = nil
+//        if let imageToBeSaved{
+//            UIImageWriteToSavedPhotosAlbum(imageToBeSaved, self, #selector(image(_:didFinishSavingWithError:contextInfo:)), nil)
+//        }
+//        imageToBeSaved = nil
+        
     }
     
     
@@ -643,7 +644,7 @@ extension AddExpenseVC: UIImagePickerControllerDelegate,UINavigationControllerDe
                 let alert = UIAlertController(title: "Save Image", message: "Would you like to save the image to photos", preferredStyle: .alert)
                 alert.addAction(UIAlertAction(title: "No", style: .default))
                 alert.addAction(UIAlertAction(title: "Yes", style: .default, handler: { [self] _ in
-                    imageToBeSaved = image
+//                    imageToBeSaved = image
                     presenter?.optedToSaveCapturedImageToPhotos()
                    
                 }))
@@ -666,7 +667,7 @@ extension AddExpenseVC: UIImagePickerControllerDelegate,UINavigationControllerDe
     
     func displayImage(image: UIImage){
 
-        attachmentsVC.attachments.append(image)
+        attachmentsVC.attachments.append(image.jpegData(compressionQuality: 1.0)!)
 
     }
     
@@ -679,7 +680,7 @@ extension AddExpenseVC: UIImagePickerControllerDelegate,UINavigationControllerDe
             ac.addAction(UIAlertAction(title: "OK", style: .default))
             present(ac, animated: true)
         } else {
-            imageToBeSaved = nil
+//            imageToBeSaved = nil
             let ac = UIAlertController(title: "Saved!", message: " Image has been saved to your photos.", preferredStyle: .alert)
             ac.addAction(UIAlertAction(title: "OK", style: .default))
             present(ac, animated: true)
@@ -706,7 +707,7 @@ extension AddExpenseVC: PHPickerViewControllerDelegate{
                     
                     return
                 }
-                
+                print(url)
                 let image = downsample(imageAt: url) ?? UIImage(systemName: "photo")
                 DispatchQueue.main.async {
                     self.displayImage(image: image!)
@@ -771,19 +772,19 @@ extension AddExpenseVC{
         }
         
         var presentSaveImageToCamera = false
-        if imageToBeSaved != nil{
-            presentSaveImageToCamera = true
-        }
-        
+//        if imageToBeSaved != nil{
+//            presentSaveImageToCamera = true
+//        }
+//
         var attachments = [Data?]()
 
         attachmentsVC.attachments.forEach { image in
-            let data = image.jpegData(compressionQuality: 1.0)
-            attachments.append(data)
+//            let data = image.jpegData(compressionQuality: 1.0)
+            attachments.append(image)
         }
         
         
-        let capturedImageData = imageToBeSaved?.jpegData(compressionQuality: 1.0)
+//        let capturedImageData = imageToBeSaved?.jpegData(compressionQuality: 1.0)
         
         let entries: [AnyHashable : Any] = [
             StateRestorationConstants.presentedAddExpenseKey : true,
@@ -793,7 +794,7 @@ extension AddExpenseVC{
             StateRestorationConstants.dateKey : datePicker.date,
             StateRestorationConstants.noteKey : noteField.text as Any,
             StateRestorationConstants.categoryKey : categoryBtn.title(for: .normal) as Any,
-            StateRestorationConstants.capturedImageKey : capturedImageData as Any,
+//            StateRestorationConstants.capturedImageKey : capturedImageData as Any,
             StateRestorationConstants.presentSaveImageToCameraAlertKey : presentSaveImageToCamera
             
         ]
@@ -825,13 +826,13 @@ extension AddExpenseVC{
         if let attachments = values[StateRestorationConstants.attachmentsKey] as? [Data?]{
             
             attachments.forEach { data in
-                attachmentsVC.attachments.append(UIImage(data: data!)!)
+                attachmentsVC.attachments.append(data!)
             }
             
             
         }
         if let image = values[StateRestorationConstants.capturedImageKey] as? UIImage{
-            imageToBeSaved = image
+//            imageToBeSaved = image
         }
         
     }
