@@ -45,8 +45,8 @@ class RecordsPresenter: RecordsPresenterProtocol{
                 }
             }
             
-            try DataBase.shared.sqlHelper.delete(from: AttachmentsTable.name, where: "\(AttachmentsTable.expenseId) = '\(deletedExpense.id)'")
-            try DataBase.shared.sqlHelper.delete(from: ExpensesTable.name, where: "\(ExpensesTable.id) = '\(deletedExpense.id)'")
+            try DataBase.shared.sqlHelper.delete(from: AttachmentsTable.name, whereClause: "\(AttachmentsTable.expenseId) = '\(deletedExpense.id)'")
+            try DataBase.shared.sqlHelper.delete(from: ExpensesTable.name, whereClause: "\(ExpensesTable.id) = '\(deletedExpense.id)'")
             
         }catch let error as SQLiteError{
             

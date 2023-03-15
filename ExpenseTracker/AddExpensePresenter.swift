@@ -68,15 +68,6 @@ class AddExpensePresenter: AddExpensePresenterProtocol{
         view?.expenseTitle = expense.title
         view?.amount = String(expense.amount)
         view?.attachments = expense.attachments?.compactMap{try? Data(contentsOf: $0)} ?? [Data]()
-//        view?.attachments = (expense.attachments?.compactMap({ data in
-//            if let image = UIImage(data: data){
-//                print("image was obtained")
-//                return image
-//            }else{
-//                print("could not obtain image")
-//            }
-//            return nil
-//        }))!
         view?.category = expense.category
         view?.note = expense.note
         view?.date = expense.date
