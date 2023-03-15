@@ -21,6 +21,11 @@ class MainTabBarController: UITabBarController {
         tabBar.unselectedItemTintColor = .systemGray3
         
         let recordVC = RecordsVC()
+        let recordsPresenter = RecordsPresenter()
+        recordsPresenter.view = recordVC
+        recordVC.presenter = recordsPresenter
+        
+        
         let analysisVC = AnalysisVC()
         
         recordVC.tabBarItem.image = UIImage(systemName: "list.clipboard")

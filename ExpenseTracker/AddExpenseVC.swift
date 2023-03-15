@@ -329,7 +329,7 @@ class AddExpenseVC: UIViewController {
 //         titleField.addDoneButtonOnKeyboard()
 //
        hideKeyboardWhenTappedAround()
-
+        hidesBottomBarWhenPushed = true
     }
     
     
@@ -771,7 +771,7 @@ extension AddExpenseVC{
             activity = NSUserActivity(activityType: SceneDelegate.MainSceneActivityType())
         }
         
-        var presentSaveImageToCamera = false
+//        var presentSaveImageToCamera = false
 //        if imageToBeSaved != nil{
 //            presentSaveImageToCamera = true
 //        }
@@ -795,7 +795,7 @@ extension AddExpenseVC{
             StateRestorationConstants.noteKey : noteField.text as Any,
             StateRestorationConstants.categoryKey : categoryBtn.title(for: .normal) as Any,
 //            StateRestorationConstants.capturedImageKey : capturedImageData as Any,
-            StateRestorationConstants.presentSaveImageToCameraAlertKey : presentSaveImageToCamera
+//            StateRestorationConstants.presentSaveImageToCameraAlertKey : presentSaveImageToCamera
             
         ]
         
@@ -831,9 +831,9 @@ extension AddExpenseVC{
             
             
         }
-        if let image = values[StateRestorationConstants.capturedImageKey] as? UIImage{
-//            imageToBeSaved = image
-        }
+//        if let image = values[StateRestorationConstants.capturedImageKey] as? UIImage{
+////            imageToBeSaved = image
+//        }
         
     }
     

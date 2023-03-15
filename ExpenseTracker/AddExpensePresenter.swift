@@ -259,7 +259,7 @@ class ExpenseDB: ExpenseDBPr{
 
 
 struct Expense{
-    
+    var id: String
     var title: String?
     var amount: Double
     var date: Date
