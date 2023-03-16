@@ -15,6 +15,8 @@ protocol RecordsPresenterProtocol: AnyObject{
     func loadExpenses()
     func didSelectCellAt(indexPath: IndexPath,cellData: RecordsTableCellData)
     func deleteCellAt(indexPath: IndexPath)
+    func sortByAmount()
+    func sortByCreatedDate()
 }
 
 
@@ -27,6 +29,16 @@ protocol RecordsView: NSObject{
 
 
 class RecordsPresenter: RecordsPresenterProtocol{
+    func sortByCreatedDate() {
+        expenses = expenses.sorted{$0.date > $1.date}
+        view?.refreshView()
+    }
+    
+    func sortByAmount() {
+        expenses = expenses.sorted{$0.amount > $1.amount}
+        view?.refreshView()
+    }
+    
     
     func deleteCellAt(indexPath: IndexPath) {
         let deletedExpense = expenses.remove(at: indexPath.row)

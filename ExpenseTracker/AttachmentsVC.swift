@@ -65,7 +65,7 @@ class AttachmentsVC: UIViewController{
 
         collectionView.register(AttachmentCell.self, forCellWithReuseIdentifier: AttachmentCell.reuseID)
         
-        hidesBottomBarWhenPushed = true
+//        hidesBottomBarWhenPushed = true
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -294,8 +294,8 @@ protocol SlideShowVCDelegate: NSObject{
 extension SlideShowViewController:UICollectionViewDelegate,UICollectionViewDataSource{
 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        dismiss(animated: true)
-        print(indexPath)
+//        dismiss(animated: true)
+//        print(indexPath)
     }
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {

@@ -22,6 +22,8 @@
 		47C526FF299F98CB0054D56D /* ThemeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47C526FE299F98CA0054D56D /* ThemeManager.swift */; };
 		47D21D2B29AC7CB80098C81F /* DateController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47D21D2A29AC7CB80098C81F /* DateController.swift */; };
 		47D21D2D29AE32300098C81F /* Sqlite Tables.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47D21D2C29AE32300098C81F /* Sqlite Tables.swift */; };
+		47E41C2129C317AF0008DA9D /* AnalysisPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47E41C2029C317AF0008DA9D /* AnalysisPresenter.swift */; };
+		47E41C2329C318700008DA9D /* TabBarVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47E41C2229C318700008DA9D /* TabBarVC.swift */; };
 		47FFBE8B299CAF3B008E196F /* Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47FFBE8A299CAF3B008E196F /* Helpers.swift */; };
 /* End PBXBuildFile section */
 
@@ -43,6 +45,8 @@
 		47C526FE299F98CA0054D56D /* ThemeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeManager.swift; sourceTree = "<group>"; };
 		47D21D2A29AC7CB80098C81F /* DateController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = DateController.swift; path = ExpenseTracker/Utilities/DateController.swift; sourceTree = SOURCE_ROOT; };
 		47D21D2C29AE32300098C81F /* Sqlite Tables.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Sqlite Tables.swift"; sourceTree = "<group>"; };
+		47E41C2029C317AF0008DA9D /* AnalysisPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisPresenter.swift; sourceTree = "<group>"; };
+		47E41C2229C318700008DA9D /* TabBarVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarVC.swift; sourceTree = "<group>"; };
 		47FFBE8A299CAF3B008E196F /* Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Helpers.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -85,6 +89,8 @@
 				4784E39F2992101B003BBB9F /* RecordsVC.swift */,
 				4739327F29C049AC0026879F /* RecordsPresenter.swift */,
 				477DE21129B06EE5006BA200 /* AnalysisVC.swift */,
+				47E41C2029C317AF0008DA9D /* AnalysisPresenter.swift */,
+				47E41C2229C318700008DA9D /* TabBarVC.swift */,
 				474220B5297902CD0030E036 /* Assets.xcassets */,
 				474220BA297902CD0030E036 /* Info.plist */,
 			);
@@ -188,6 +194,8 @@
 				4784E3A02992101B003BBB9F /* RecordsVC.swift in Sources */,
 				47C526FF299F98CB0054D56D /* ThemeManager.swift in Sources */,
 				474220AD297902CC0030E036 /* AppDelegate.swift in Sources */,
+				47E41C2329C318700008DA9D /* TabBarVC.swift in Sources */,
+				47E41C2129C317AF0008DA9D /* AnalysisPresenter.swift in Sources */,
 				474220AF297902CC0030E036 /* SceneDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -273,7 +273,15 @@ class AddExpenseVC: UIViewController {
     }()
     
 //    private var imageToBeSaved: UIImage?
+    init(){
+        
+        super.init(nibName: nil, bundle: nil)
+        hidesBottomBarWhenPushed = true
+    }
     
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -329,7 +337,7 @@ class AddExpenseVC: UIViewController {
 //         titleField.addDoneButtonOnKeyboard()
 //
        hideKeyboardWhenTappedAround()
-        hidesBottomBarWhenPushed = true
+        
     }
     
     

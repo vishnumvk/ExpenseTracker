@@ -58,7 +58,7 @@ class RecordsVC: UIViewController{
         view.addSubview(table)
         view.addSubview(plusBtn)
         view.addSubview(noRecordsView)
-        
+//        hidesBottomBarWhenPushed = true
         table.pinToSafeArea(view: view)
         NSLayoutConstraint.activate([
             plusBtn.heightAnchor.constraint(equalToConstant: 60),
@@ -71,11 +71,36 @@ class RecordsVC: UIViewController{
         ])
 
         table.register(ExpenseTableViewCell.self, forCellReuseIdentifier: ExpenseTableViewCell.reuseId)
+        
+        
+        let sortByAmount = UIAction(title: "Sort by amount"){ [weak self] _ in self?.presenter?.sortByAmount()}
+        
+        
+        
+        let sortByCreatedDate = UIAction(title: "Sort by created date"){ [weak self] _ in self?.presenter?.sortByCreatedDate()}
+        
+        sortByCreatedDate.state = .on
+        
+        let menu = UIMenu(options: .singleSelection, children: [sortByAmount,sortByCreatedDate])
+        
+        
+        let sortButton = UIBarButtonItem(title: nil, image: UIImage(systemName: "line.3.horizontal.decrease"), primaryAction: nil, menu: menu)
+        
+        navigationItem.rightBarButtonItems = [sortButton]
+        
+        
+        
     }
     
     
-    
-   
+//    @objc func sortByAmount(){
+//        presenter?.sortByAmount()
+//    }
+//
+//    @objc func sortByCreatedDate(){
+//        presenter?.sortByCreatedDate()
+//    }
+//
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)

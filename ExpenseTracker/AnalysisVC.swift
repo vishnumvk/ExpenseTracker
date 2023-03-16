@@ -8,40 +8,6 @@
 import UIKit
 
 
-class MainTabBarController: UITabBarController {
-
-    
-    
-    override func viewDidLoad() {
-        
-        
-        tabBar.backgroundColor = .secondarySystemBackground
-        tabBar.tintColor = .systemTeal
-        tabBar.isTranslucent = false
-        tabBar.unselectedItemTintColor = .systemGray3
-        
-        let recordVC = RecordsVC()
-        let recordsPresenter = RecordsPresenter()
-        recordsPresenter.view = recordVC
-        recordVC.presenter = recordsPresenter
-        
-        
-        let analysisVC = AnalysisVC()
-        
-        recordVC.tabBarItem.image = UIImage(systemName: "list.clipboard")
-        recordVC.title = "Records"
-        analysisVC.tabBarItem.image = UIImage(systemName: "chart.pie.fill")
-        analysisVC.title = "Analysis"
-        
-        
-        
-        setViewControllers([UINavigationController(rootViewController: recordVC),analysisVC], animated: true)
-        
-        
-    }
-
-}
-
 
 
 
@@ -54,7 +20,9 @@ class MainTabBarController: UITabBarController {
 class AnalysisVC: UIViewController {
 
     let chart = PieChartView()
-
+    
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
@@ -91,7 +59,7 @@ class AnalysisVC: UIViewController {
         let colours: [UIColor] = [.systemTeal,.systemRed,.systemCyan,.systemMint,.systemBlue,.systemPink,.systemBrown,.systemYellow,.systemOrange,.systemPurple,.systemGreen,.systemIndigo]
         
         do{
-            let results = try DataBase.shared.sqlHelper.executeSelect(query: "SELECT \(ExpensesTable.category),SUM(\(ExpensesTable.amount)) FROM \(ExpensesTable.name) GROUP BY \(ExpensesTable.category)")
+            let results = try DataBase.shared.sqlHelper.executeSelect(query: "SELECT \(ExpensesTable.category),SUM(\(ExpensesTable.amount)) FROM \(ExpensesTable.name) GROUP BY \(ExpensesTable.category) ORDER BY SUM(\(ExpensesTable.amount)) ASC")
             var pieChartData = [(Double,UIColor,String?)]()
             var x = 0
             print(results)
