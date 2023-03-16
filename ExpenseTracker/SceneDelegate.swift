@@ -28,14 +28,19 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 //        window?.rootViewController = UINavigationController(rootViewController: RecordsVC())
         window?.rootViewController = MainTabBarController()
         
-//        let ape = UINavigationBar.appearance()
-//        let navApe = UINavigationBarAppearance()
-//        navApe.configureWithOpaqueBackground()
-//        navApe.backgroundColor = .blue
-//        ape.standardAppearance = navApe
-//        ape.compactAppearance = navApe
-//        ape.scrollEdgeAppearance = navApe
-//        
+        let ape = UINavigationBar.appearance()
+        let navApe = UINavigationBarAppearance()
+        navApe.configureWithOpaqueBackground()
+        navApe.backgroundColor = .systemBackground
+        ape.tintColor = .systemTeal
+        
+        ape.standardAppearance = navApe
+        ape.compactAppearance = navApe
+        ape.scrollEdgeAppearance = navApe
+        
+        
+        
+        
         
         
         if let userActivity = connectionOptions.userActivities.first ?? scene.session.stateRestorationActivity {
