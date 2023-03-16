@@ -8,7 +8,7 @@
 import Foundation
 
 
-class ExpensesTable{
+enum ExpensesTable{
     static let name = "Expenses"
     static let id = "id"
     static let date = "createdDate"
@@ -19,7 +19,7 @@ class ExpensesTable{
 }
 
 
-class AttachmentsTable{
+enum AttachmentsTable{
     static let name = "Attachments"
     static let id = "id"
     static let url = "url"

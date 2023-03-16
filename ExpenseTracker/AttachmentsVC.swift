@@ -30,8 +30,9 @@ protocol AttachmentsVCDelegate: NSObject{
 class AttachmentsVC: UIViewController{
     
     
-    var attachments = [UIImage](){
+    var attachments = [Data](){
         didSet{
+            print(attachments)
             DispatchQueue.main.async {[weak self] in
                 self?.collectionView.reloadData()
                 self?.hasNoAttachments = self?.attachments.count == 0 ? true : false
@@ -64,7 +65,7 @@ class AttachmentsVC: UIViewController{
 
         collectionView.register(AttachmentCell.self, forCellWithReuseIdentifier: AttachmentCell.reuseID)
         
-        
+//        hidesBottomBarWhenPushed = true
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -88,7 +89,7 @@ class AttachmentsVC: UIViewController{
 
 extension AttachmentsVC: UICollectionViewDelegateFlowLayout,UICollectionViewDataSource,SlideShowVCDelegate {
     func image(for indexPath: IndexPath) -> UIImage {
-        attachments[indexPath.row]
+        downsample(imageData: attachments[indexPath.row])!
     }
     
     func noOfImages() -> Int {
@@ -104,7 +105,7 @@ extension AttachmentsVC: UICollectionViewDelegateFlowLayout,UICollectionViewData
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: AttachmentCell.reuseID, for: indexPath) as! AttachmentCell
         
-        cell.imageView.image = attachments[indexPath.row]
+        cell.imageView.image = downsample(imageData: attachments[indexPath.row])!
         
         
         return cell
@@ -139,11 +140,11 @@ extension AttachmentsVC: UICollectionViewDelegateFlowLayout,UICollectionViewData
         let vc = SlideShowViewController()
         vc.delegate = self
         vc.selectedIndex = indexPath
-
-        vc.modalPresentationStyle = .overCurrentContext
-        vc.modalTransitionStyle = .crossDissolve
-        navigationController?.pushViewController(vc, animated: true)
-//        self.present(vc, animated: true)
+        let navVC = UINavigationController(rootViewController: vc)
+        navVC.modalPresentationStyle = .overFullScreen
+        navVC.modalTransitionStyle = .crossDissolve
+//        navigationController?.pushViewController(vc, animated: true)
+        self.present(navVC, animated: true)
     }
     
     
@@ -245,21 +246,25 @@ class SlideShowViewController: UIViewController{
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.dataSource = self
         collectionView.delegate = self
-
+        collectionView.bounces = false
         view.addSubview(collectionView)
+//        hidesBottomBarWhenPushed = true
+        navigationItem.leftBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "multiply"), style: .done, target: self, action: #selector(dismissView))
 
         collectionView.register(FullImageCell.self, forCellWithReuseIdentifier: FullImageCell.reuseID)
         NSLayoutConstraint.activate([
-            collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 5),
-            collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: 0),
-            collectionView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -5),
-            collectionView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 5)
+            collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
+            collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -10),
+            collectionView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -10),
+            collectionView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 10)
 
         ])
 
 
     }
-
+    @objc func dismissView(){
+        self.dismiss(animated: true)
+    }
 }
 
 
@@ -289,8 +294,8 @@ protocol SlideShowVCDelegate: NSObject{
 extension SlideShowViewController:UICollectionViewDelegate,UICollectionViewDataSource{
 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        dismiss(animated: true)
-        print(indexPath)
+//        dismiss(animated: true)
+//        print(indexPath)
     }
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {

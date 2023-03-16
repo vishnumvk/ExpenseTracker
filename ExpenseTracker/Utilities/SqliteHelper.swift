@@ -145,8 +145,11 @@ class SQLiteHelper {
 
     
     
-    func delete(from table: String, where condition: String) throws {
-        let query = "DELETE FROM \(table) WHERE \(condition)"
+    func delete(from table: String, whereClause: String?) throws {
+        var query = "DELETE FROM \(table)"
+        if let whereClause = whereClause {
+            query += " WHERE \(whereClause)"
+        }
         print(query)
         var statement: OpaquePointer?
         guard sqlite3_prepare_v2(db, query, -1, &statement, nil) == SQLITE_OK else {
@@ -162,9 +165,12 @@ class SQLiteHelper {
 
     
     
-    func update(table: String, values: [String: Any?], where condition: String) throws {
+    func update(table: String, values: [String: Any?], whereClause: String?) throws {
         let valueAssignments = values.map { "\($0.0) = ?" }.joined(separator: ",")
-        let query = "UPDATE \(table) SET \(valueAssignments) WHERE \(condition)"
+        var query = "UPDATE \(table) SET \(valueAssignments)"
+        if let whereClause = whereClause {
+            query += " WHERE \(whereClause)"
+        }
         var statement: OpaquePointer?
         guard sqlite3_prepare_v2(db, query, -1, &statement, nil) == SQLITE_OK else {
             throw SQLiteError.sqliteError(message: String(cString: sqlite3_errmsg(db)))
