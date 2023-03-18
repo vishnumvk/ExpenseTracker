@@ -34,7 +34,7 @@ class MainTabBarController: UITabBarController {
         
         
         
-        setViewControllers([UINavigationController(rootViewController: recordsVC),analysisVC], animated: true)
+        setViewControllers([UINavigationController(rootViewController: recordsVC),UINavigationController(rootViewController: analysisVC)], animated: true)
         
         
     }

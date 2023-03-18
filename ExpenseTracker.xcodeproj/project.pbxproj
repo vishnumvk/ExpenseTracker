@@ -24,6 +24,7 @@
 		47D21D2D29AE32300098C81F /* Sqlite Tables.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47D21D2C29AE32300098C81F /* Sqlite Tables.swift */; };
 		47E41C2129C317AF0008DA9D /* AnalysisPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47E41C2029C317AF0008DA9D /* AnalysisPresenter.swift */; };
 		47E41C2329C318700008DA9D /* TabBarVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47E41C2229C318700008DA9D /* TabBarVC.swift */; };
+		47E41C2529C64EA60008DA9D /* PlaceHolderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47E41C2429C64EA60008DA9D /* PlaceHolderView.swift */; };
 		47FFBE8B299CAF3B008E196F /* Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47FFBE8A299CAF3B008E196F /* Helpers.swift */; };
 /* End PBXBuildFile section */
 
@@ -47,6 +48,7 @@
 		47D21D2C29AE32300098C81F /* Sqlite Tables.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Sqlite Tables.swift"; sourceTree = "<group>"; };
 		47E41C2029C317AF0008DA9D /* AnalysisPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisPresenter.swift; sourceTree = "<group>"; };
 		47E41C2229C318700008DA9D /* TabBarVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarVC.swift; sourceTree = "<group>"; };
+		47E41C2429C64EA60008DA9D /* PlaceHolderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceHolderView.swift; sourceTree = "<group>"; };
 		47FFBE8A299CAF3B008E196F /* Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Helpers.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -107,6 +109,7 @@
 				47D21D2C29AE32300098C81F /* Sqlite Tables.swift */,
 				47D21D2A29AC7CB80098C81F /* DateController.swift */,
 				474220C52983DE520030E036 /* HomePageVC.swift */,
+				47E41C2429C64EA60008DA9D /* PlaceHolderView.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -196,6 +199,7 @@
 				474220AD297902CC0030E036 /* AppDelegate.swift in Sources */,
 				47E41C2329C318700008DA9D /* TabBarVC.swift in Sources */,
 				47E41C2129C317AF0008DA9D /* AnalysisPresenter.swift in Sources */,
+				47E41C2529C64EA60008DA9D /* PlaceHolderView.swift in Sources */,
 				474220AF297902CC0030E036 /* SceneDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

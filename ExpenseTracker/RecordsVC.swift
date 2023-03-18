@@ -41,13 +41,11 @@ class RecordsVC: UIViewController{
     }()
     
     private lazy var noRecordsView = {
-        let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.textAlignment = .center
-        label.textColor = .placeholderText
-        label.font = .italicSystemFont(ofSize: 20)
-        label.text = "No Records !"
-        return label
+        let view = PlaceHolderView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.text = "No Records !"
+        view.image = UIImage(systemName: "doc.text.magnifyingglass")?.applyingSymbolConfiguration(.init(paletteColors: [.placeholderText]))
+        return view
     }()
     
     
@@ -60,14 +58,19 @@ class RecordsVC: UIViewController{
         view.addSubview(noRecordsView)
 //        hidesBottomBarWhenPushed = true
         table.pinToSafeArea(view: view)
+        noRecordsView.backgroundColor = .tertiarySystemBackground
+        noRecordsView.pinToSafeArea(view: view)
+        
+        
         NSLayoutConstraint.activate([
             plusBtn.heightAnchor.constraint(equalToConstant: 60),
             plusBtn.widthAnchor.constraint(equalToConstant: 60),
             plusBtn.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor,constant: -10),
             plusBtn.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
             
-            noRecordsView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            noRecordsView.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+//            noRecordsView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+//            noRecordsView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            
         ])
 
         table.register(ExpenseTableViewCell.self, forCellReuseIdentifier: ExpenseTableViewCell.reuseId)
@@ -88,7 +91,7 @@ class RecordsVC: UIViewController{
         
         navigationItem.rightBarButtonItems = [sortButton]
         
-        
+        navigationController?.navigationBar.prefersLargeTitles = true
         
     }
     
@@ -211,10 +214,12 @@ extension RecordsVC: RecordsView{
     }
     
     func showNoRecordsView() {
+        print(#function)
         noRecordsView.isHidden = false
     }
     
     func hideNoRecordsView() {
+        print(#function)
         noRecordsView.isHidden = true
     }
     
@@ -366,7 +371,7 @@ class ExpenseTableViewCell: UITableViewCell{
             
             amountLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 10),
             amountLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10),
-            amountLabel.leadingAnchor.constraint(equalTo: mainTitleLabel.trailingAnchor, constant: 5),
+            amountLabel.leadingAnchor.constraint(equalTo: mainTitleLabel.trailingAnchor, constant: 15),
 
             categoryLabel.topAnchor.constraint(equalTo: mainTitleLabel.bottomAnchor, constant: 5),
             categoryLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -10),
@@ -388,24 +393,6 @@ class ExpenseTableViewCell: UITableViewCell{
 
 
 
-
-class NoRecordsView: UIView{
-    
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        setUpView()
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
-    
-    func setUpView(){
-        
-    }
-    
-}
 
 
 struct RecordsTableCellData{

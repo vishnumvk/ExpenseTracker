@@ -236,7 +236,7 @@ class PieChartView: UIView{
             
 
 
-            let center = calculatePosition(angle: arcCenterMidAngle, p: center, offset: (radius * 1.15))
+            let center = calculatePosition(angle: arcCenterMidAngle, p: center, offset: (radius * 1.25))
             centers.append(center)
             
             currentAngle += delta

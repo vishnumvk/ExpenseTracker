@@ -115,7 +115,7 @@ extension SceneDelegate{
    
     
     func setupScene(with userActivity: NSUserActivity){
-        
+//        print(userActivity.userInfo)
         if userActivity.activityType == SceneDelegate.MainSceneActivityType(){
             if let presentedAddExpenseVC = userActivity.userInfo?[StateRestorationConstants.presentedAddExpenseKey] as? Bool{
                 if presentedAddExpenseVC{
