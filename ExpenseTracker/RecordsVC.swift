@@ -61,7 +61,7 @@ class RecordsVC: UIViewController{
         noRecordsView.backgroundColor = .tertiarySystemBackground
         noRecordsView.pinToSafeArea(view: view)
         
-        
+        view.bringSubviewToFront(plusBtn)
         NSLayoutConstraint.activate([
             plusBtn.heightAnchor.constraint(equalToConstant: 60),
             plusBtn.widthAnchor.constraint(equalToConstant: 60),

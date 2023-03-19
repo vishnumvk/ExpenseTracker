@@ -62,7 +62,7 @@ class PlaceHolderView: UIView{
         let stack = UIStackView(arrangedSubviews: [imageView,textLabel])
         stack.translatesAutoresizingMaskIntoConstraints = false
         stack.axis = .vertical
-        stack.alignment = .fill
+        stack.alignment = .center
         stack.distribution = .fill
         stack.spacing = 20
         
@@ -72,6 +72,7 @@ class PlaceHolderView: UIView{
         stack.centerYAnchor.constraint(equalTo: centerYAnchor).isActive = true
         imageView.heightAnchor.constraint(equalToConstant: 100).isActive = true
         imageView.widthAnchor.constraint(equalToConstant: 100).isActive = true
+        textLabel.widthAnchor.constraint(equalTo: widthAnchor,multiplier: 0.5).isActive = true
         
     }
     
