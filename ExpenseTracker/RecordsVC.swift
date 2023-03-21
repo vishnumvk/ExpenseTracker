@@ -16,7 +16,7 @@ import UIKit
 class RecordsVC: UIViewController{
     
     var presenter: RecordsPresenterProtocol?
-    
+    private(set) var sortClue: RecordsSortClue = .sortByCreatedDate
     private lazy var plusBtn = {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -48,6 +48,7 @@ class RecordsVC: UIViewController{
         return view
     }()
     
+    private var sortMenu: UIMenu?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -58,7 +59,7 @@ class RecordsVC: UIViewController{
         view.addSubview(noRecordsView)
 //        hidesBottomBarWhenPushed = true
         table.pinToSafeArea(view: view)
-        noRecordsView.backgroundColor = .tertiarySystemBackground
+//        noRecordsView.backgroundColor = .tertiarySystemBackground
         noRecordsView.pinToSafeArea(view: view)
         
         view.bringSubviewToFront(plusBtn)
@@ -76,23 +77,29 @@ class RecordsVC: UIViewController{
         table.register(ExpenseTableViewCell.self, forCellReuseIdentifier: ExpenseTableViewCell.reuseId)
         
         
-        let sortByAmount = UIAction(title: "Sort by amount"){ [weak self] _ in self?.presenter?.sortByAmount()}
+        let sortByAmount = UIAction(title: "Sort by amount"){ [weak self] _ in
+            self?.presenter?.sortByAmount()
+            self?.sortClue = .sortByCreatedDate
+        }
         
         
         
-        let sortByCreatedDate = UIAction(title: "Sort by created date"){ [weak self] _ in self?.presenter?.sortByCreatedDate()}
+        let sortByCreatedDate = UIAction(title: "Sort by created date"){ [weak self] _ in
+            self?.presenter?.sortByCreatedDate()
+            self?.sortClue = .sortByCreatedDate
+        }
         
         sortByCreatedDate.state = .on
         
-        let menu = UIMenu(options: .singleSelection, children: [sortByAmount,sortByCreatedDate])
+        sortMenu = UIMenu(options: .singleSelection, children: [sortByAmount,sortByCreatedDate])
         
         
-        let sortButton = UIBarButtonItem(title: nil, image: UIImage(systemName: "line.3.horizontal.decrease"), primaryAction: nil, menu: menu)
+        let sortButton = UIBarButtonItem(title: nil, image: UIImage(systemName: "line.3.horizontal.decrease"), primaryAction: nil, menu: sortMenu!)
         
         navigationItem.rightBarButtonItems = [sortButton]
         
         navigationController?.navigationBar.prefersLargeTitles = true
-        
+        print()
     }
     
     
@@ -131,7 +138,7 @@ class RecordsVC: UIViewController{
         navigationController?.pushViewController(addExpenseVC, animated: true)
     }
     
-     
+    
     
 }
 
@@ -199,6 +206,9 @@ extension RecordsVC: UITableViewDataSource,UITableViewDelegate{
 
 
 extension RecordsVC: RecordsView{
+    
+    
+    
     func showExpense(expense: Expense) {
         let  addExpenseVC = AddExpenseVC()
         let presenter = AddExpensePresenter()
@@ -211,6 +221,7 @@ extension RecordsVC: RecordsView{
     
     func refreshView() {
         table.reloadData()
+//        UIView.transition(with: table, duration: 1.0, options: .transitionCrossDissolve, animations: {self.table.reloadData()}, completion: nil)
     }
     
     func showNoRecordsView() {

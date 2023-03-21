@@ -284,7 +284,7 @@ class AddExpenseVC: UIViewController {
     }
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        navigationController?.navigationBar.prefersLargeTitles = true
         title = "Add Expense"
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "save", style: .plain, target: self, action: #selector(tappedSave))
         
@@ -367,6 +367,7 @@ class AddExpenseVC: UIViewController {
             currentUserActivity.userInfo?.removeValue(forKey: StateRestorationConstants.attachmentsKey)
             currentUserActivity.userInfo?.removeValue(forKey: StateRestorationConstants.presentSaveImageToCameraAlertKey)
             currentUserActivity.userInfo?.removeValue(forKey: StateRestorationConstants.capturedImageKey)
+            currentUserActivity.userInfo?.removeValue(forKey: StateRestorationConstants.noteKey)
         }
     }
     

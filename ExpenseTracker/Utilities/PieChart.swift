@@ -226,7 +226,7 @@ class PieChartView: UIView{
             let shapeLayer = CAShapeLayer()
             shapeLayer.path = sector.cgPath
             shapeLayer.fillColor = data.1.cgColor
-            shapeLayer.strokeColor = UIColor.systemBackground.cgColor
+//            shapeLayer.strokeColor = UIColor.systemBackground.cgColor
 
             self.layer.addSublayer(shapeLayer)
             shapeLayers.append(shapeLayer)

@@ -25,6 +25,7 @@
 		47E41C2129C317AF0008DA9D /* AnalysisPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47E41C2029C317AF0008DA9D /* AnalysisPresenter.swift */; };
 		47E41C2329C318700008DA9D /* TabBarVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47E41C2229C318700008DA9D /* TabBarVC.swift */; };
 		47E41C2529C64EA60008DA9D /* PlaceHolderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47E41C2429C64EA60008DA9D /* PlaceHolderView.swift */; };
+		47FA90AF29C9CAD90074041C /* Cells.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47FA90AE29C9CAD90074041C /* Cells.swift */; };
 		47FFBE8B299CAF3B008E196F /* Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47FFBE8A299CAF3B008E196F /* Helpers.swift */; };
 /* End PBXBuildFile section */
 
@@ -49,6 +50,7 @@
 		47E41C2029C317AF0008DA9D /* AnalysisPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisPresenter.swift; sourceTree = "<group>"; };
 		47E41C2229C318700008DA9D /* TabBarVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarVC.swift; sourceTree = "<group>"; };
 		47E41C2429C64EA60008DA9D /* PlaceHolderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceHolderView.swift; sourceTree = "<group>"; };
+		47FA90AE29C9CAD90074041C /* Cells.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cells.swift; sourceTree = "<group>"; };
 		47FFBE8A299CAF3B008E196F /* Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Helpers.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -93,6 +95,7 @@
 				477DE21129B06EE5006BA200 /* AnalysisVC.swift */,
 				47E41C2029C317AF0008DA9D /* AnalysisPresenter.swift */,
 				47E41C2229C318700008DA9D /* TabBarVC.swift */,
+				47FA90AE29C9CAD90074041C /* Cells.swift */,
 				474220B5297902CD0030E036 /* Assets.xcassets */,
 				474220BA297902CD0030E036 /* Info.plist */,
 			);
@@ -200,6 +203,7 @@
 				47E41C2329C318700008DA9D /* TabBarVC.swift in Sources */,
 				47E41C2129C317AF0008DA9D /* AnalysisPresenter.swift in Sources */,
 				47E41C2529C64EA60008DA9D /* PlaceHolderView.swift in Sources */,
+				47FA90AF29C9CAD90074041C /* Cells.swift in Sources */,
 				474220AF297902CC0030E036 /* SceneDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

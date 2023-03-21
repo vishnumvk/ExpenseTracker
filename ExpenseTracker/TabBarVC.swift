@@ -26,6 +26,9 @@ class MainTabBarController: UITabBarController {
         
         
         let analysisVC = AnalysisVC()
+        let analysisPresenter = AnalysisPresenter()
+        analysisPresenter.view = analysisVC
+        analysisVC.presenter = analysisPresenter
         
         recordsVC.tabBarItem.image = UIImage(systemName: "list.clipboard")
         recordsVC.title = "Records"

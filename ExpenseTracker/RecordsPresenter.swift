@@ -25,6 +25,14 @@ protocol RecordsView: NSObject{
     func hideNoRecordsView()
     func showExpense(expense: Expense)
     func refreshView()
+    var sortClue: RecordsSortClue {get}
+    
+}
+
+enum RecordsSortClue: Int{
+    case sortByAmount
+    case sortByCreatedDate
+    func callAsFunction() -> Int { rawValue }
 }
 
 
@@ -154,7 +162,16 @@ class RecordsPresenter: RecordsPresenterProtocol{
         }catch{
             print(error.localizedDescription)
         }
-        expenses = expenses.sorted { $0.date > $1.date}
+        
+        switch (view?.sortClue){
+        case .sortByCreatedDate:
+            sortByCreatedDate()
+        case .sortByAmount:
+            sortByAmount()
+        case .none:
+            sortByCreatedDate()
+            
+        }
         
         configureView()
         

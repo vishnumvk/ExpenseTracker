@@ -19,7 +19,7 @@ protocol AddExpensePresenterProtocol: AnyObject{
     func optedToSaveCapturedImageToPhotos()
     func tappedSave()
     func viewDidLoad()
-    var view: AddExpenseView? {get set}
+//    var view: AddExpenseView? {get set}
     
 }
 
