@@ -88,7 +88,7 @@ class RecordsPresenter: RecordsPresenterProtocol{
         var attachments = [Data]()
         var attachmentURLs = [URL]()
         do{
-            let rows = try DataBase.shared.sqlHelper.select(table: "Attachments", columns: ["id","url"],whereClause: "expenseId = '\(expense.id)'")
+            let rows = try DataBase.shared.sqlHelper.select(table: "\(AttachmentsTable.name)", columns: ["\(AttachmentsTable.id)","\(AttachmentsTable.url)"],whereClause: "\(AttachmentsTable.expenseId) = '\(expense.id)'")
             let attchmentsDir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
             for row in rows {
                 let url = row["url"] as! String

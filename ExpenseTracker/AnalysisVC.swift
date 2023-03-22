@@ -36,6 +36,7 @@ class AnalysisVC: UIViewController {
     private var pieChartData = [(Double,UIColor,String?)](){
         didSet{
             total = pieChartData.reduce(0.0){$0 + $1.0}
+            refreshView()
         }
     }
     
@@ -53,8 +54,8 @@ class AnalysisVC: UIViewController {
         button.addTarget(self, action: #selector(forwardBtnTapped), for: .touchUpInside)
         button.clipsToBounds = true
         button.setContentHuggingPriority(.required, for: .horizontal)
-        button.imageView?.backgroundColor = .systemBackground
-        button.imageView?.contentMode = .scaleToFill
+        
+        button.imageView?.contentMode = .scaleAspectFit
         button.imageView?.translatesAutoresizingMaskIntoConstraints = false
         button.imageView?.heightAnchor.constraint(equalTo: button.heightAnchor).isActive = true
         button.imageView?.widthAnchor.constraint(equalTo: button.widthAnchor).isActive = true
@@ -67,8 +68,8 @@ class AnalysisVC: UIViewController {
         button.addTarget(self, action: #selector(backwardBtnTapped), for: .touchUpInside)
         button.setContentHuggingPriority(.required, for: .horizontal)
         button.clipsToBounds = true
-        button.imageView?.backgroundColor = .systemBackground
-        button.imageView?.contentMode = .scaleToFill
+        
+        button.imageView?.contentMode = .scaleAspectFit
         button.imageView?.translatesAutoresizingMaskIntoConstraints = false
         button.imageView?.heightAnchor.constraint(equalTo: button.heightAnchor).isActive = true
         button.imageView?.widthAnchor.constraint(equalTo: button.widthAnchor).isActive = true
@@ -78,7 +79,7 @@ class AnalysisVC: UIViewController {
     private lazy var dateLabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = .systemFont(ofSize: 18, weight: .bold)
+        label.font = .systemFont(ofSize: 16, weight: .medium)
         label.textAlignment = .center
         label.numberOfLines = 1
         return label
@@ -102,7 +103,7 @@ class AnalysisVC: UIViewController {
         }else{
             showDateNavigator()
         }
-        presenter?.didChangeDateSegment(dateSegment: DateSegment(rawValue: segmentedControl.selectedSegmentIndex)!)
+        presenter?.didChangeDateSegment(dateSegment: TimePeriod(rawValue: segmentedControl.selectedSegmentIndex)!)
     }
     
     
@@ -183,6 +184,9 @@ class AnalysisVC: UIViewController {
             forwardBtn.heightAnchor.constraint(equalToConstant: 30),
             backwardBtn.heightAnchor.constraint(equalToConstant: 30),
             
+             forwardBtn.widthAnchor.constraint(equalToConstant: 30),
+            backwardBtn.widthAnchor.constraint(equalToConstant: 30),
+            
             
             table.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor,constant: -5),
             table.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor,constant: 5),
@@ -198,8 +202,11 @@ class AnalysisVC: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 //        navigationController?.navigationBar.prefersLargeTitles = false
-        pieChartData.removeAll()
-        
+        presenter?.viewWillAppear()
+    }
+    
+    func refreshView(){
+//        UIView.transition(with: table, duration: 0.35, options: .transitionCrossDissolve, animations: {self.table.reloadData()}, completion: nil)
         table.reloadData()
     }
     
@@ -213,7 +220,7 @@ protocol AnalysisPresenterProctocol: AnyObject{
     func viewDidLoad()
     func viewWillAppear()
     func pieChart() -> [(Double,UIColor,String?)]
-    func didChangeDateSegment(dateSegment: DateSegment)
+    func didChangeDateSegment(dateSegment: TimePeriod)
     func dateNavigatorForwardClicked()
     func dateNavigatorBackWardClicked()
 }
@@ -268,9 +275,9 @@ extension AnalysisVC: AnalysisView{
         self.pieChartData = pieChartData
     }
     
-    var selectedDateInterval: DateSegment {
+    var selectedDateInterval: TimePeriod {
         get {
-            DateSegment(rawValue: segmentedControl.selectedSegmentIndex)!
+            TimePeriod(rawValue: segmentedControl.selectedSegmentIndex)!
         }
         set {
             segmentedControl.selectedSegmentIndex = newValue.rawValue

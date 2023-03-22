@@ -201,19 +201,19 @@ class ExpenseDB: ExpenseDBPr{
         
         do{
             let id = UUID().uuidString
-            try DataBase.shared.sqlHelper.insert(table: "Expenses", values: [
-                "title" : expense.title,
-                "amount" : expense.amount,
-                "id" : id,
-                "category" : expense.category,
-                "note" : expense.note,
-                "createdDate" : expense.date.timeIntervalSince1970
+            try DataBase.shared.sqlHelper.insert(table: "\(ExpensesTable.name)", values: [
+                "\(ExpensesTable.title)" : expense.title,
+                "\(ExpensesTable.amount)" : expense.amount,
+                "\(ExpensesTable.id)" : id,
+                "\(ExpensesTable.category)" : expense.category,
+                "\(ExpensesTable.note)" : expense.note,
+                "\(ExpensesTable.date)" : expense.date.timeIntervalSince1970
             ])
-            
+            print(expense.date.timeIntervalSince1970)
             for imageUrl in imageUrls {
-                try DataBase.shared.sqlHelper.insert(table: "Attachments", values: [
-                    "url" : imageUrl,
-                    "expenseId" : id
+                try DataBase.shared.sqlHelper.insert(table: "\(AttachmentsTable.name)", values: [
+                    "\(AttachmentsTable.url)" : imageUrl,
+                    "\(AttachmentsTable.id)" : id
                 ])
             }
             
@@ -270,7 +270,7 @@ struct ExpenseWithAttachmentsData{
     var note: String?
     var category: String
     var attachments: [Data]?
-    
+    var id: String?
     
     
 }

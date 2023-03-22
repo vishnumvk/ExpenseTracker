@@ -220,8 +220,8 @@ extension RecordsVC: RecordsView{
     }
     
     func refreshView() {
-        table.reloadData()
-//        UIView.transition(with: table, duration: 1.0, options: .transitionCrossDissolve, animations: {self.table.reloadData()}, completion: nil)
+//        table.reloadData()
+        UIView.transition(with: table, duration: 0.35, options: .transitionCrossDissolve, animations: {self.table.reloadData()}, completion: nil)
     }
     
     func showNoRecordsView() {
