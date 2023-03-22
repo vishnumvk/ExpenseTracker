@@ -226,7 +226,7 @@ class PieChartView: UIView{
             let shapeLayer = CAShapeLayer()
             shapeLayer.path = sector.cgPath
             shapeLayer.fillColor = data.1.cgColor
-            shapeLayer.strokeColor = UIColor.systemBackground.cgColor
+//            shapeLayer.strokeColor = UIColor.systemBackground.cgColor
 
             self.layer.addSublayer(shapeLayer)
             shapeLayers.append(shapeLayer)
@@ -236,7 +236,7 @@ class PieChartView: UIView{
             
 
 
-            let center = calculatePosition(angle: arcCenterMidAngle, p: center, offset: (radius * 1.15))
+            let center = calculatePosition(angle: arcCenterMidAngle, p: center, offset: (radius * 1.25))
             centers.append(center)
             
             currentAngle += delta

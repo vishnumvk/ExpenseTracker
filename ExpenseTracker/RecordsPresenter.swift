@@ -25,6 +25,14 @@ protocol RecordsView: NSObject{
     func hideNoRecordsView()
     func showExpense(expense: Expense)
     func refreshView()
+    var sortClue: RecordsSortClue {get}
+    
+}
+
+enum RecordsSortClue: Int{
+    case sortByAmount
+    case sortByCreatedDate
+    func callAsFunction() -> Int { rawValue }
 }
 
 
@@ -80,7 +88,7 @@ class RecordsPresenter: RecordsPresenterProtocol{
         var attachments = [Data]()
         var attachmentURLs = [URL]()
         do{
-            let rows = try DataBase.shared.sqlHelper.select(table: "Attachments", columns: ["id","url"],whereClause: "expenseId = '\(expense.id)'")
+            let rows = try DataBase.shared.sqlHelper.select(table: "\(AttachmentsTable.name)", columns: ["\(AttachmentsTable.id)","\(AttachmentsTable.url)"],whereClause: "\(AttachmentsTable.expenseId) = '\(expense.id)'")
             let attchmentsDir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
             for row in rows {
                 let url = row["url"] as! String
@@ -154,7 +162,16 @@ class RecordsPresenter: RecordsPresenterProtocol{
         }catch{
             print(error.localizedDescription)
         }
-        expenses = expenses.sorted { $0.date > $1.date}
+        
+        switch (view?.sortClue){
+        case .sortByCreatedDate:
+            sortByCreatedDate()
+        case .sortByAmount:
+            sortByAmount()
+        case .none:
+            sortByCreatedDate()
+            
+        }
         
         configureView()
         

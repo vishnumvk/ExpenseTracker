@@ -11,6 +11,8 @@
 			<key>UIWindowSceneSessionRoleApplication</key>
 			<array>
 				<dict>
+					<key>UISceneClassName</key>
+					<string>UIWindowScene</string>
 					<key>UISceneConfigurationName</key>
 					<string>Default Configuration</string>
 					<key>UISceneDelegateClassName</key>
@@ -21,6 +23,10 @@
 	</dict>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>Allow access to save this picture to photo library</string>
+	<key>NSUserActivityTypes</key>
+	<array>
+		<string>com.ExpenseTracker.addExpenseRestoreation</string>
+	</array>
 	<key>NSCameraUsageDescription</key>
 	<string>Allow access to take a picture</string>
 </dict>

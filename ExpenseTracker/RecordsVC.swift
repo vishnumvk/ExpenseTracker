@@ -16,7 +16,7 @@ import UIKit
 class RecordsVC: UIViewController{
     
     var presenter: RecordsPresenterProtocol?
-    
+    private(set) var sortClue: RecordsSortClue = .sortByCreatedDate
     private lazy var plusBtn = {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -41,15 +41,14 @@ class RecordsVC: UIViewController{
     }()
     
     private lazy var noRecordsView = {
-        let label = UILabel()
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.textAlignment = .center
-        label.textColor = .placeholderText
-        label.font = .italicSystemFont(ofSize: 20)
-        label.text = "No Records !"
-        return label
+        let view = PlaceHolderView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.text = "No Records !"
+        view.image = UIImage(systemName: "doc.text.magnifyingglass")?.applyingSymbolConfiguration(.init(paletteColors: [.placeholderText]))
+        return view
     }()
     
+    private var sortMenu: UIMenu?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -60,36 +59,47 @@ class RecordsVC: UIViewController{
         view.addSubview(noRecordsView)
 //        hidesBottomBarWhenPushed = true
         table.pinToSafeArea(view: view)
+//        noRecordsView.backgroundColor = .tertiarySystemBackground
+        noRecordsView.pinToSafeArea(view: view)
+        
+        view.bringSubviewToFront(plusBtn)
         NSLayoutConstraint.activate([
             plusBtn.heightAnchor.constraint(equalToConstant: 60),
             plusBtn.widthAnchor.constraint(equalToConstant: 60),
             plusBtn.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor,constant: -10),
             plusBtn.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
             
-            noRecordsView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            noRecordsView.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+//            noRecordsView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+//            noRecordsView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            
         ])
 
         table.register(ExpenseTableViewCell.self, forCellReuseIdentifier: ExpenseTableViewCell.reuseId)
         
         
-        let sortByAmount = UIAction(title: "Sort by amount"){ [weak self] _ in self?.presenter?.sortByAmount()}
+        let sortByAmount = UIAction(title: "Sort by amount"){ [weak self] _ in
+            self?.presenter?.sortByAmount()
+            self?.sortClue = .sortByCreatedDate
+        }
         
         
         
-        let sortByCreatedDate = UIAction(title: "Sort by created date"){ [weak self] _ in self?.presenter?.sortByCreatedDate()}
+        let sortByCreatedDate = UIAction(title: "Sort by created date"){ [weak self] _ in
+            self?.presenter?.sortByCreatedDate()
+            self?.sortClue = .sortByCreatedDate
+        }
         
         sortByCreatedDate.state = .on
         
-        let menu = UIMenu(options: .singleSelection, children: [sortByAmount,sortByCreatedDate])
+        sortMenu = UIMenu(options: .singleSelection, children: [sortByAmount,sortByCreatedDate])
         
         
-        let sortButton = UIBarButtonItem(title: nil, image: UIImage(systemName: "line.3.horizontal.decrease"), primaryAction: nil, menu: menu)
+        let sortButton = UIBarButtonItem(title: nil, image: UIImage(systemName: "line.3.horizontal.decrease"), primaryAction: nil, menu: sortMenu!)
         
         navigationItem.rightBarButtonItems = [sortButton]
         
-        
-        
+        navigationController?.navigationBar.prefersLargeTitles = true
+        print()
     }
     
     
@@ -128,7 +138,7 @@ class RecordsVC: UIViewController{
         navigationController?.pushViewController(addExpenseVC, animated: true)
     }
     
-     
+    
     
 }
 
@@ -196,6 +206,9 @@ extension RecordsVC: UITableViewDataSource,UITableViewDelegate{
 
 
 extension RecordsVC: RecordsView{
+    
+    
+    
     func showExpense(expense: Expense) {
         let  addExpenseVC = AddExpenseVC()
         let presenter = AddExpensePresenter()
@@ -207,14 +220,17 @@ extension RecordsVC: RecordsView{
     }
     
     func refreshView() {
-        table.reloadData()
+//        table.reloadData()
+        UIView.transition(with: table, duration: 0.35, options: .transitionCrossDissolve, animations: {self.table.reloadData()}, completion: nil)
     }
     
     func showNoRecordsView() {
+        print(#function)
         noRecordsView.isHidden = false
     }
     
     func hideNoRecordsView() {
+        print(#function)
         noRecordsView.isHidden = true
     }
     
@@ -366,7 +382,7 @@ class ExpenseTableViewCell: UITableViewCell{
             
             amountLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 10),
             amountLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10),
-            amountLabel.leadingAnchor.constraint(equalTo: mainTitleLabel.trailingAnchor, constant: 5),
+            amountLabel.leadingAnchor.constraint(equalTo: mainTitleLabel.trailingAnchor, constant: 15),
 
             categoryLabel.topAnchor.constraint(equalTo: mainTitleLabel.bottomAnchor, constant: 5),
             categoryLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -10),
@@ -388,24 +404,6 @@ class ExpenseTableViewCell: UITableViewCell{
 
 
 
-
-class NoRecordsView: UIView{
-    
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        setUpView()
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
-    
-    func setUpView(){
-        
-    }
-    
-}
 
 
 struct RecordsTableCellData{

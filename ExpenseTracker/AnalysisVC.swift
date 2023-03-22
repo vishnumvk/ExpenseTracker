@@ -18,68 +18,283 @@ import UIKit
 
 
 class AnalysisVC: UIViewController {
+    
+    var presenter: AnalysisPresenterProctocol?
 
-    let chart = PieChartView()
+    private lazy var table = {
+        let table = UITableView(frame: .zero, style: .plain)
+        table.translatesAutoresizingMaskIntoConstraints = false
+        table.dataSource = self
+        table.delegate = self
+        table.bounces = true
+        table.register(PieChartCell.self, forCellReuseIdentifier: PieChartCell.reuseID)
+        table.register(CategoryCell.self, forCellReuseIdentifier: CategoryCell.reuseID)
+        table.separatorInset = .zero
+        return table
+    }()
+    
+    private var pieChartData = [(Double,UIColor,String?)](){
+        didSet{
+            total = pieChartData.reduce(0.0){$0 + $1.0}
+            refreshView()
+        }
+    }
+    
+    private var total: Double = 0.0
+    private lazy var segmentedControl = {
+        let segmentedControl = UISegmentedControl(items: ["Day","Week","Month","Year","All"])
+        segmentedControl.selectedSegmentIndex = 2
+        segmentedControl.addTarget(self, action: #selector(segmentedControlValueChanged), for: .valueChanged)
+        return segmentedControl
+    }()
+    private lazy var forwardBtn = {
+        let button = UIButton()
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setImage(UIImage(systemName: "chevron.right")?.applyingSymbolConfiguration(.init(paletteColors: [UIColor.systemTeal])), for: .normal)
+        button.addTarget(self, action: #selector(forwardBtnTapped), for: .touchUpInside)
+        button.clipsToBounds = true
+        button.setContentHuggingPriority(.required, for: .horizontal)
+        
+        button.imageView?.contentMode = .scaleAspectFit
+        button.imageView?.translatesAutoresizingMaskIntoConstraints = false
+        button.imageView?.heightAnchor.constraint(equalTo: button.heightAnchor).isActive = true
+        button.imageView?.widthAnchor.constraint(equalTo: button.widthAnchor).isActive = true
+        return button
+    }()
+    private lazy var backwardBtn = {
+        let button = UIButton()
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setImage(UIImage(systemName: "chevron.left")?.applyingSymbolConfiguration(.init(paletteColors: [UIColor.systemTeal])), for: .normal)
+        button.addTarget(self, action: #selector(backwardBtnTapped), for: .touchUpInside)
+        button.setContentHuggingPriority(.required, for: .horizontal)
+        button.clipsToBounds = true
+        
+        button.imageView?.contentMode = .scaleAspectFit
+        button.imageView?.translatesAutoresizingMaskIntoConstraints = false
+        button.imageView?.heightAnchor.constraint(equalTo: button.heightAnchor).isActive = true
+        button.imageView?.widthAnchor.constraint(equalTo: button.widthAnchor).isActive = true
+        return button
+    }()
+    
+    private lazy var dateLabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.font = .systemFont(ofSize: 16, weight: .medium)
+        label.textAlignment = .center
+        label.numberOfLines = 1
+        return label
+    }()
     
     
+    let dateStack = UIStackView()
+    
+    let stack = UIStackView()
+    
+    
+    @objc func forwardBtnTapped(){
+        presenter?.dateNavigatorForwardClicked()
+    }
+    @objc func backwardBtnTapped(){
+        presenter?.dateNavigatorBackWardClicked()
+    }
+    @objc func segmentedControlValueChanged(sender: UISegmentedControl){
+        if sender.selectedSegmentIndex == 4 {
+            hideDateNavigator()
+        }else{
+            showDateNavigator()
+        }
+        presenter?.didChangeDateSegment(dateSegment: TimePeriod(rawValue: segmentedControl.selectedSegmentIndex)!)
+    }
+    
+    
+    
+    private func showDateNavigator(){
+        if dateStack.isHidden {
+            
+            UIView.animate(withDuration: 0.35) { [unowned self] in
+                
+                self.dateStack.isHidden = false
+                self.dateStack.alpha = 1
+                self.stack.layoutIfNeeded()
+            }
+        }
+    }
+    
+    
+    private func hideDateNavigator(){
+        if !dateStack.isHidden {
+            UIView.animate(withDuration: 0.35) { [unowned self] in
+                
+                self.dateStack.isHidden = true
+                self.dateStack.alpha = 0
+            }
+            
+        }
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
+//        navigationController?.navigationBar.prefersLargeTitles = true
+        view.addSubview(stack)
+        view.addSubview(table)
+//        view.addSubview(stack)
+        
+//        table.pinToSafeArea(view: view)
         
         
+        segmentedControl.selectedSegmentIndex = 2
+//        table.tableHeaderView = segmentedControl
+        dateStack.translatesAutoresizingMaskIntoConstraints = false
+        dateStack.addArrangedSubview(backwardBtn)
+        dateStack.addArrangedSubview(dateLabel)
+        dateStack.addArrangedSubview(forwardBtn)
         
-       
+        dateStack.axis = .horizontal
+        dateStack.alignment = .center
+        dateStack.distribution = .equalCentering
+        dateStack.spacing = 10
         
-
-        chart.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(chart)
-        chart.heightAnchor.constraint(equalTo: view.heightAnchor,multiplier: 1).isActive = true
-        chart.widthAnchor.constraint(equalTo: view.widthAnchor,multiplier: 1).isActive = true
-
+        dateStack.isLayoutMarginsRelativeArrangement = true
+        dateStack.layoutMargins = .init(top: 5, left: 10, bottom: 5, right: 10)
         
         
-
-        chart.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        chart.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
-
-
-
-        chart.dataSet = [(0.10,.systemYellow,nil),(0.20,.systemPink,nil),(0.30,.systemMint,nil),(0.40,.systemCyan,nil)]
-
-
-
-        chart.radius = 120
+        stack.addArrangedSubview(segmentedControl)
+        stack.addArrangedSubview(dateStack)
+        
+        
+        stack.axis = .vertical
+        stack.alignment = .fill
+        stack.distribution = .fill
+        stack.spacing = 10
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        
+        
+        let stackTopConstraint = stack.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor,constant: 5)
+        let stackBottomConstraint = stack.bottomAnchor.constraint(equalTo: table.topAnchor,constant: -5)
+        
+//        table.contentInset = .init(top: 400, left: 0, bottom: 0, right: 0)
+//        stackBottomConstraint.priority = UILayoutPriority(800)
+        NSLayoutConstraint.activate([
+            stackTopConstraint,
+            stack.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor,constant: -15),
+            stack.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor,constant: 15),
+            stackBottomConstraint,
+            
+            forwardBtn.heightAnchor.constraint(equalToConstant: 30),
+            backwardBtn.heightAnchor.constraint(equalToConstant: 30),
+            
+             forwardBtn.widthAnchor.constraint(equalToConstant: 30),
+            backwardBtn.widthAnchor.constraint(equalToConstant: 30),
+            
+            
+            table.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor,constant: -5),
+            table.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor,constant: 5),
+            table.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
+            
+        ])
+        dateLabel.text = "Monthly Analysis"
+        
+        
 
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+//        navigationController?.navigationBar.prefersLargeTitles = false
+        presenter?.viewWillAppear()
+    }
+    
+    func refreshView(){
+//        UIView.transition(with: table, duration: 0.35, options: .transitionCrossDissolve, animations: {self.table.reloadData()}, completion: nil)
+        table.reloadData()
+    }
+    
+}
+
+
+
+
+
+protocol AnalysisPresenterProctocol: AnyObject{
+    func viewDidLoad()
+    func viewWillAppear()
+    func pieChart() -> [(Double,UIColor,String?)]
+    func didChangeDateSegment(dateSegment: TimePeriod)
+    func dateNavigatorForwardClicked()
+    func dateNavigatorBackWardClicked()
+}
+
+
+
+extension AnalysisVC: UITableViewDataSource,UITableViewDelegate{
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+//        return pieChartData.count + 1 == 1 ? 0 : pieChartData.count + 1
+        return pieChartData.count + 1
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        if indexPath.row == 0 {
+            let cell = table.dequeueReusableCell(withIdentifier: PieChartCell.reuseID, for: indexPath) as! PieChartCell
+            cell.pieChartData = pieChartData
+            cell.selectionStyle = .none
+           
+            return cell
+        }else{
+            let cell = table.dequeueReusableCell(withIdentifier: CategoryCell.reuseID, for: indexPath) as! CategoryCell
+            cell.selectionStyle = .none
+            let data = pieChartData[indexPath.row - 1]
+            cell.setTitle(data.2 ?? "")
+            cell.setTotal(String(data.0))
+            let percentage = (data.0 * 1000 / total).rounded() / 10
+            cell.setPercentage("\(String(percentage)) %")
+            cell.setIconColor(colour: data.1)
+            return cell
+        }
         
-        let colours: [UIColor] = [.systemTeal,.systemRed,.systemCyan,.systemMint,.systemBlue,.systemPink,.systemBrown,.systemYellow,.systemOrange,.systemPurple,.systemGreen,.systemIndigo]
-        
-        do{
-            let results = try DataBase.shared.sqlHelper.executeSelect(query: "SELECT \(ExpensesTable.category),SUM(\(ExpensesTable.amount)) FROM \(ExpensesTable.name) GROUP BY \(ExpensesTable.category) ORDER BY SUM(\(ExpensesTable.amount)) ASC")
-            var pieChartData = [(Double,UIColor,String?)]()
-            var x = 0
-            print(results)
-            for result in results {
-                
-                pieChartData.append((result["SUM(\(ExpensesTable.amount))"] as! Double, colours[x], result[ExpensesTable.category] as? String ))
-                
-               x = x == colours.count - 1 ?  0 : x+1
-            }
-            chart.dataSet = pieChartData
-        }catch let error as SQLiteError{
-            switch error{
-            case SQLiteError.sqliteError(message: let msg):
-                print(msg)
-            }
-            
-        }catch{
-            print(error.localizedDescription)
+    }
+    
+    
+
+    
+    func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        if section == 0{
+            return "Category wise spending"
+        }else{
+            return nil
         }
         
     }
     
 }
+
+
+
+extension AnalysisVC: AnalysisView{
+    func updatePieChart(with pieChartData: [(Double, UIColor, String?)]) {
+        self.pieChartData = pieChartData
+    }
+    
+    var selectedDateInterval: TimePeriod {
+        get {
+            TimePeriod(rawValue: segmentedControl.selectedSegmentIndex)!
+        }
+        set {
+            segmentedControl.selectedSegmentIndex = newValue.rawValue
+        }
+    }
+    
+    var dateTitle: String {
+        get {
+            dateLabel.text ?? ""
+        }
+        set {
+            dateLabel.text = newValue
+        }
+    }
+    
+    
+    
+    
+}
+
