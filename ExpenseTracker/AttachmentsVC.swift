@@ -49,7 +49,7 @@ class AttachmentsVC: UIViewController{
             }
         }
     }
-    
+    var allowsDelete = true
     
     let collectionView = UICollectionView(frame: .zero, collectionViewLayout: getLayout())
     
@@ -117,7 +117,7 @@ extension AttachmentsVC: UICollectionViewDelegateFlowLayout,UICollectionViewData
     
     
     func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
-            configureContextMenu(index: indexPath)
+        return allowsDelete ? configureContextMenu(index: indexPath) : nil
         }
      
     func configureContextMenu(index: IndexPath) -> UIContextMenuConfiguration{
@@ -235,7 +235,10 @@ class SlideShowViewController: UIViewController{
         DispatchQueue.main.async {
                         [weak self] in
                         self?.collectionView.scrollToItem(at: self?.selectedIndex ?? .init(row: 0, section: 0), at: .centeredHorizontally, animated: false)
+                        self?.collectionView.layoutIfNeeded()
                     }
+//        collectionView.scrollToItem(at: self.selectedIndex ?? .init(row: 0, section: 0), at: .centeredHorizontally, animated: false)
+//        collectionView.layoutIfNeeded()
 
 }
 

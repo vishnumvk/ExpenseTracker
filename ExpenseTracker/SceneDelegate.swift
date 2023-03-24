@@ -114,7 +114,6 @@ extension SceneDelegate{
             aevc.updateUserActivity()
             
         }
-        print(scene.userActivity?.userInfo as Any)
         return scene.userActivity
     }
     
@@ -159,5 +158,6 @@ class StateRestorationConstants{
     static let noteKey = "note"
     static let attachmentsKey = "attachments"
     static let capturedImageKey = "capturedImage"
+    static let expenseIDKey = "expense id"
     
 }

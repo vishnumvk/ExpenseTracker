@@ -31,7 +31,7 @@ class MainTabBarController: UITabBarController {
         analysisVC.presenter = analysisPresenter
         
         recordsVC.tabBarItem.image = UIImage(systemName: "list.clipboard")
-        recordsVC.title = "Records"
+        recordsVC.title = "Expenses"
         analysisVC.tabBarItem.image = UIImage(systemName: "chart.pie.fill")
         analysisVC.title = "Analysis"
         

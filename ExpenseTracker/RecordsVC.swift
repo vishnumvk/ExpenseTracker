@@ -95,13 +95,19 @@ class RecordsVC: UIViewController{
         
         
         let sortButton = UIBarButtonItem(title: nil, image: UIImage(systemName: "line.3.horizontal.decrease"), primaryAction: nil, menu: sortMenu!)
-        
+       
         navigationItem.rightBarButtonItems = [sortButton]
+//
+//        navigationItem.rightBarButtonItems = [sortButton]
         
         navigationController?.navigationBar.prefersLargeTitles = true
-        print()
+       
     }
     
+    @objc func tappedEdit(){
+        navigationController?.pushViewController(ExpenseDetailVC(), animated: true)
+    }
+
     
 //    @objc func sortByAmount(){
 //        presenter?.sortByAmount()
@@ -210,13 +216,13 @@ extension RecordsVC: RecordsView{
     
     
     func showExpense(expense: Expense) {
-        let  addExpenseVC = AddExpenseVC()
-        let presenter = AddExpensePresenter()
+        let detailVC =  ExpenseDetailVC()
+        let presenter = ExpenseDetailPresenter(expense: expense)
         presenter.expense = expense
-        presenter.view = addExpenseVC
-        addExpenseVC.presenter = presenter
+        presenter.view = detailVC
+        detailVC.presenter = presenter
         
-        navigationController?.pushViewController(addExpenseVC, animated: true)
+        navigationController?.pushViewController(detailVC, animated: true)
     }
     
     func refreshView() {
