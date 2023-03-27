@@ -40,6 +40,14 @@ protocol AddExpenseView: NSObject{
     var note: String?{get set}
     var date: Date{get set}
     var attachments: [Data]{get set}
+    var navTitle: String? {get set}
+    var expenseID: String? {get set}
+    
+}
+
+protocol AddExpensePresenterDelegate: AnyObject{
+    
+    func expenseDidChange(editedExpense: ExpenseWithAttachmentsData)
     
 }
 
@@ -48,29 +56,30 @@ protocol AddExpenseView: NSObject{
 
 
 
-
-
 class AddExpensePresenter: AddExpensePresenterProtocol{
     
-    var expense: Expense?
+    var expense: ExpenseWithAttachmentsData?
     
     weak var view: AddExpenseView?
     var db: ExpenseDBPr? = ExpenseDB()
     
-    
+    weak var delegate: AddExpensePresenterDelegate?
     
     func viewDidLoad() {
         guard let expense else{
             print("expense not configured")
+            view?.navTitle = "Add Expense"
             return
         }
         print("expense configured")
         view?.expenseTitle = expense.title
         view?.amount = String(expense.amount)
-        view?.attachments = expense.attachments?.compactMap{try? Data(contentsOf: $0)} ?? [Data]()
+        view?.attachments = expense.attachments ?? [Data]()
         view?.category = expense.category
         view?.note = expense.note
         view?.date = expense.date
+        view?.navTitle = "Edit Expense"
+        view?.expenseID = expense.id
        
     }
     
@@ -95,7 +104,16 @@ class AddExpensePresenter: AddExpensePresenterProtocol{
             return
         }
         
-        db?.save(expense: ExpenseWithAttachmentsData(title: view?.expenseTitle, amount: amount, date: view?.date ?? Date(), note: view?.note, category: category, attachments: view?.attachments.compactMap({$0})))
+        if let id = view?.expenseID{
+            let expense = ExpenseWithAttachmentsData(title: view?.expenseTitle, amount: amount, date: view?.date ?? Date(), note: view?.note, category: category, attachments: view?.attachments.compactMap({$0}),id: id)
+            db?.update(expense: expense)
+            delegate?.expenseDidChange(editedExpense: expense)
+
+        }else{
+            db?.save(expense: ExpenseWithAttachmentsData(title: view?.expenseTitle, amount: amount, date: view?.date ?? Date(), note: view?.note, category: category, attachments: view?.attachments.compactMap({$0})))
+        }
+//        db?.save(expense: ExpenseWithAttachmentsData(title: view?.expenseTitle, amount: amount, date: view?.date ?? Date(), note: view?.note, category: category, attachments: view?.attachments.compactMap({$0})))
+        
         view?.dismissView()
     }
     
@@ -171,12 +189,78 @@ class AddExpensePresenter: AddExpensePresenterProtocol{
 
 protocol ExpenseDBPr{
     func save(expense: ExpenseWithAttachmentsData)
+    func update(expense: ExpenseWithAttachmentsData)
 }
 
 
 
 
+
+
+
+
+
+
+
+
+
+
 class ExpenseDB: ExpenseDBPr{
+    func update(expense: ExpenseWithAttachmentsData) {
+        
+        var imageUrls = [String]()
+        
+        let attchmentsDir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+//        let attchmentsDir = try! FileManager.default.url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
+//
+        deleteExpense(expense: expense)
+        if let attachments = expense.attachments{
+            for data in attachments{
+                let url = URL(filePath: "\(expense.date) \(expense.attachments?.firstIndex(of: data) ?? 1)", directoryHint: .inferFromPath, relativeTo: attchmentsDir).appendingPathExtension("jpeg")
+                do{
+                    try data.write(to: url)
+                    imageUrls.append(url.path(percentEncoded: false))
+                    print(url.path())
+                    
+                }catch{
+                    print("error while saving attachments")
+                }
+            }
+        }
+        
+        do{
+            
+            try DataBase.shared.sqlHelper.update(table: "\(ExpensesTable.name)", values: [
+                "\(ExpensesTable.title)" : expense.title,
+                "\(ExpensesTable.amount)" : expense.amount,
+//                "\(ExpensesTable.id)" : id,
+                "\(ExpensesTable.category)" : expense.category,
+                "\(ExpensesTable.note)" : expense.note,
+                "\(ExpensesTable.date)" : expense.date.timeIntervalSince1970
+            ], whereClause: "\(ExpensesTable.id) = '\(expense.id!)'")
+           
+            for imageUrl in imageUrls {
+                try DataBase.shared.sqlHelper.insert(table: "\(AttachmentsTable.name)", values: [
+                    "\(AttachmentsTable.url)" : imageUrl,
+                    "\(AttachmentsTable.expenseId)" : expense.id
+                ])
+            }
+            
+            
+            
+        }catch let error as SQLiteError{
+            switch error{
+            case SQLiteError.sqliteError(message: let msg):
+                print(msg)
+                print("error while updating")
+            }
+
+        }catch{
+            print(error.localizedDescription)
+        }
+
+    }
+    
     
     func save(expense: ExpenseWithAttachmentsData) {
         
@@ -209,11 +293,11 @@ class ExpenseDB: ExpenseDBPr{
                 "\(ExpensesTable.note)" : expense.note,
                 "\(ExpensesTable.date)" : expense.date.timeIntervalSince1970
             ])
-            print(expense.date.timeIntervalSince1970)
+           
             for imageUrl in imageUrls {
                 try DataBase.shared.sqlHelper.insert(table: "\(AttachmentsTable.name)", values: [
                     "\(AttachmentsTable.url)" : imageUrl,
-                    "\(AttachmentsTable.id)" : id
+                    "\(AttachmentsTable.expenseId)" : id
                 ])
             }
             
@@ -223,6 +307,7 @@ class ExpenseDB: ExpenseDBPr{
             switch error{
             case SQLiteError.sqliteError(message: let msg):
                 print(msg)
+                print("error while saving")
             }
 
         }catch{
@@ -230,6 +315,39 @@ class ExpenseDB: ExpenseDBPr{
         }
 
         
+    }
+    
+    func deleteExpense(expense: ExpenseWithAttachmentsData){
+        do{
+            guard let deletedExpenseID = expense.id else{
+                return
+            }
+            let imageUrls = try? DataBase.shared.sqlHelper.select(table: AttachmentsTable.name, columns: [AttachmentsTable.url],whereClause: "\(AttachmentsTable.expenseId) = '\(deletedExpenseID)'").map{$0[AttachmentsTable.url] as! String}
+            
+            if let imageUrls{
+                imageUrls.forEach{
+                    let url = attachmentsDir.appendingPathComponent($0)
+                    if ((try? FileManager.default.removeItem(at: url)) != nil){
+                        print("image file deleted successfully")
+                    }else{
+                        print("error while deleting image file")
+                    }
+                }
+            }
+            
+            try DataBase.shared.sqlHelper.delete(from: AttachmentsTable.name, whereClause: "\(AttachmentsTable.expenseId) = '\(deletedExpenseID)'")
+           
+            
+        }catch let error as SQLiteError{
+            
+            switch error{
+            case SQLiteError.sqliteError(message: let msg):
+                print(msg)
+            }
+            
+        }catch{
+            print(error.localizedDescription)
+        }
     }
     
     

@@ -23,7 +23,7 @@ protocol RecordsPresenterProtocol: AnyObject{
 protocol RecordsView: NSObject{
     func showNoRecordsView()
     func hideNoRecordsView()
-    func showExpense(expense: Expense)
+    func showExpense(expense: ExpenseWithAttachmentsData)
     func refreshView()
     var sortClue: RecordsSortClue {get}
     
@@ -112,7 +112,7 @@ class RecordsPresenter: RecordsPresenterProtocol{
             print(error.localizedDescription)
         }
         expense.attachments = attachmentURLs
-        view?.showExpense(expense: expense)
+        view?.showExpense(expense: ExpenseWithAttachmentsData(title: expense.title, amount: expense.amount, date: expense.date, note: expense.note, category: expense.category, attachments: attachments, id: expense.id))
     }
 
     
@@ -139,16 +139,16 @@ class RecordsPresenter: RecordsPresenterProtocol{
         do{
             
             
-            let rows = try DataBase.shared.sqlHelper.select(table: ExpensesTable.name, columns: ["title","amount","category","id","note","createdDate"])
+            let rows = try DataBase.shared.sqlHelper.select(table: ExpensesTable.name, columns: ["\(ExpensesTable.title)","\(ExpensesTable.amount)","\(ExpensesTable.category)","\(ExpensesTable.id)","\(ExpensesTable.note)","\(ExpensesTable.date)"])
             expenses.removeAll()
             for row in rows {
                 
-                let title = row["title"] as! String
-                let category = row["category"] as! String
-                let amount = row["amount"] as! Double
-                let id = row["id"] as! String
-                let note = row["note"] as! String
-                let date = Date(timeIntervalSince1970: row["createdDate"] as! Double)
+                let title = row["\(ExpensesTable.title)"] as! String?
+                let category = row["\(ExpensesTable.category)"] as! String
+                let amount = row["\(ExpensesTable.amount)"] as! Double
+                let id = row["\(ExpensesTable.id)"] as! String
+                let note = row["\(ExpensesTable.note)"] as! String?
+                let date = Date(timeIntervalSince1970: row["\(ExpensesTable.date)"] as! Double)
                 expenses.append(Expense(id: id,title: title, amount: amount, date: date, note: note, category: category, attachments: nil))
             }
             
@@ -176,6 +176,7 @@ class RecordsPresenter: RecordsPresenterProtocol{
         configureView()
         
     }
+    
     func configureView(){
         if expenses.count == 0 {
             view?.showNoRecordsView()

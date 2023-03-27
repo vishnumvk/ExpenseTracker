@@ -37,13 +37,13 @@ class Spacer: UIView{
 
 
 extension UIView{
-    func pinToSafeArea(view: UIView){
+    func pinToSafeArea(view: UIView,insets: UIEdgeInsets = .init(top: 0, left: 0, bottom: 0, right: 0)){
         NSLayoutConstraint.activate([
             
-            self.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            self.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-            self.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
-            self.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor)
+            self.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor,constant: insets.top),
+            self.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor,constant: -insets.bottom),
+            self.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor,constant: insets.right),
+            self.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor,constant: -insets.left)
         
         ])
     }

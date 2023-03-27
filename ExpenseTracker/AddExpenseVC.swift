@@ -284,9 +284,9 @@ class AddExpenseVC: UIViewController {
     }
     override func viewDidLoad() {
         super.viewDidLoad()
-        navigationController?.navigationBar.prefersLargeTitles = true
+        navigationItem.largeTitleDisplayMode = .never
         title = "Add Expense"
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "save", style: .plain, target: self, action: #selector(tappedSave))
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Save", style: .plain, target: self, action: #selector(tappedSave))
         
        
         presenter?.viewDidLoad()
@@ -296,6 +296,8 @@ class AddExpenseVC: UIViewController {
         scrollContainer.bottomAnchor.constraint(equalTo: view.keyboardLayoutGuide.topAnchor).isActive = true
         scrollContainer.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor).isActive = true
         scrollContainer.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor).isActive = true
+        
+        scrollContainer.alwaysBounceVertical = true
         
         scrollContainer.addSubview(stackView)
         stackView.topAnchor.constraint(equalTo: scrollContainer.contentLayoutGuide.topAnchor).isActive = true
@@ -457,7 +459,10 @@ class AddExpenseVC: UIViewController {
     
     
     var restorationValues: [AnyHashable: Any]!
-   
+    
+    var expenseID: String? = nil
+    
+    
     
 }
 
@@ -481,9 +486,25 @@ extension AddExpenseVC: AddExpenseView{
     
     
     
+    
+    var navTitle: String? {
+        get {
+            return title
+        }
+        set {
+            title = newValue
+        }
+    }
+    
+    
+    
+    
     var expenseTitle: String? {
         get {
-            titleField.text
+            if let title = titleField.text?.trimmingCharacters(in: .whitespacesAndNewlines){
+               return title == "" ? nil : title
+            }
+            return titleField.text
         }
         set {
             titleField.text = newValue
@@ -520,7 +541,10 @@ extension AddExpenseVC: AddExpenseView{
     
     var note: String? {
         get {
-            noteField.text
+            if let title = noteField.text?.trimmingCharacters(in: .whitespacesAndNewlines){
+               return title == "" ? nil : title
+            }
+            return noteField.text
         }
         set {
             noteField.text = newValue
@@ -785,13 +809,13 @@ extension AddExpenseVC{
 //            presentSaveImageToCamera = true
 //        }
 //
-        var attachments = [Data?]()
-
-        attachmentsVC.attachments.forEach { image in
-//            let data = image.jpegData(compressionQuality: 1.0)
-            attachments.append(image)
-        }
-        
+//        var attachments = [Data?]()
+//
+//        attachmentsVC.attachments.forEach { image in
+////            let data = image.jpegData(compressionQuality: 1.0)
+//            attachments.append(image)
+//        }
+//
         
 //        let capturedImageData = imageToBeSaved?.jpegData(compressionQuality: 1.0)
         
@@ -799,10 +823,11 @@ extension AddExpenseVC{
             StateRestorationConstants.presentedAddExpenseKey : true,
             StateRestorationConstants.amountKey : amountField.text as Any,
             StateRestorationConstants.titleKey : titleField.text as Any,
-            StateRestorationConstants.attachmentsKey : attachments as Any,
+            StateRestorationConstants.attachmentsKey : attachmentsVC.attachments as Any,
             StateRestorationConstants.dateKey : datePicker.date,
             StateRestorationConstants.noteKey : noteField.text as Any,
             StateRestorationConstants.categoryKey : categoryBtn.title(for: .normal) as Any,
+            StateRestorationConstants.expenseIDKey : expenseID as Any
 //            StateRestorationConstants.capturedImageKey : capturedImageData as Any,
 //            StateRestorationConstants.presentSaveImageToCameraAlertKey : presentSaveImageToCamera
             
@@ -832,58 +857,29 @@ extension AddExpenseVC{
         if let note = values[StateRestorationConstants.noteKey] as? String{
             noteField.text =  note
         }
-        if let attachments = values[StateRestorationConstants.attachmentsKey] as? [Data?]{
+        if let attachments = values[StateRestorationConstants.attachmentsKey] as? [Data]{
             
-            attachments.forEach { data in
-                attachmentsVC.attachments.append(data!)
-            }
-            
+//            attachments.forEach { data in
+//                attachmentsVC.attachments.append(data!)
+//            }
+            attachmentsVC.attachments = attachments
             
         }
 //        if let image = values[StateRestorationConstants.capturedImageKey] as? UIImage{
 ////            imageToBeSaved = image
 //        }
+        if let expenseID = values[StateRestorationConstants.expenseIDKey] as? String{
+            self.expenseID = expenseID
+            self.navTitle = "Edit Expense"
+        }else{
+            self.navTitle = "Add Expense"
+        }
         
     }
     
     
     
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -973,3 +969,7 @@ extension UIViewController {
         view.endEditing(true)
     }
 }
+
+
+
+

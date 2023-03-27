@@ -101,7 +101,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
     }
 
-
+    func windowScene(_ windowScene: UIWindowScene, didUpdate previousCoordinateSpace: UICoordinateSpace, interfaceOrientation previousInterfaceOrientation: UIInterfaceOrientation, traitCollection previousTraitCollection: UITraitCollection) {
+        if windowScene.traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection){
+            print("Appearence change ----")
+        }
+    }
 }
 
 extension SceneDelegate{
@@ -114,7 +118,6 @@ extension SceneDelegate{
             aevc.updateUserActivity()
             
         }
-        print(scene.userActivity?.userInfo as Any)
         return scene.userActivity
     }
     
@@ -159,5 +162,6 @@ class StateRestorationConstants{
     static let noteKey = "note"
     static let attachmentsKey = "attachments"
     static let capturedImageKey = "capturedImage"
+    static let expenseIDKey = "expense id"
     
 }

@@ -22,13 +22,14 @@ class AnalysisVC: UIViewController {
     var presenter: AnalysisPresenterProctocol?
 
     private lazy var table = {
-        let table = UITableView(frame: .zero, style: .plain)
+        let table = UITableView(frame: .zero, style: .grouped)
         table.translatesAutoresizingMaskIntoConstraints = false
         table.dataSource = self
         table.delegate = self
         table.bounces = true
         table.register(PieChartCell.self, forCellReuseIdentifier: PieChartCell.reuseID)
         table.register(CategoryCell.self, forCellReuseIdentifier: CategoryCell.reuseID)
+        table.register(MoneySpentCell.self, forCellReuseIdentifier: MoneySpentCell.reuseID)
         table.separatorInset = .zero
         return table
     }()
@@ -219,7 +220,7 @@ class AnalysisVC: UIViewController {
 protocol AnalysisPresenterProctocol: AnyObject{
     func viewDidLoad()
     func viewWillAppear()
-    func pieChart() -> [(Double,UIColor,String?)]
+//    func pieChart() -> [(Double,UIColor,String?)]
     func didChangeDateSegment(dateSegment: TimePeriod)
     func dateNavigatorForwardClicked()
     func dateNavigatorBackWardClicked()
@@ -228,28 +229,53 @@ protocol AnalysisPresenterProctocol: AnyObject{
 
 
 extension AnalysisVC: UITableViewDataSource,UITableViewDelegate{
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        
+        if indexPath.section == 0 {
+            return 60
+        }
+        
+        return UITableView.automaticDimension
+    }
+    
+    func numberOfSections(in tableView: UITableView) -> Int {
+        2
+    }
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
 //        return pieChartData.count + 1 == 1 ? 0 : pieChartData.count + 1
-        return pieChartData.count + 1
+        return section == 0 ? 1 : pieChartData.count + 1
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        if indexPath.row == 0 {
-            let cell = table.dequeueReusableCell(withIdentifier: PieChartCell.reuseID, for: indexPath) as! PieChartCell
-            cell.pieChartData = pieChartData
+        if indexPath.section == 0{
+            let cell = table.dequeueReusableCell(withIdentifier: MoneySpentCell.reuseID, for: indexPath) as! MoneySpentCell
+            cell.setTitle("Total Expense")
+            cell.setTotal(String(total))
             cell.selectionStyle = .none
-           
+            
             return cell
         }else{
-            let cell = table.dequeueReusableCell(withIdentifier: CategoryCell.reuseID, for: indexPath) as! CategoryCell
-            cell.selectionStyle = .none
-            let data = pieChartData[indexPath.row - 1]
-            cell.setTitle(data.2 ?? "")
-            cell.setTotal(String(data.0))
-            let percentage = (data.0 * 1000 / total).rounded() / 10
-            cell.setPercentage("\(String(percentage)) %")
-            cell.setIconColor(colour: data.1)
-            return cell
+            
+            if indexPath.row == 0 {
+                let cell = table.dequeueReusableCell(withIdentifier: PieChartCell.reuseID, for: indexPath) as! PieChartCell
+                cell.pieChartData = pieChartData
+                cell.selectionStyle = .none
+               
+                return cell
+            }else{
+                let cell = table.dequeueReusableCell(withIdentifier: CategoryCell.reuseID, for: indexPath) as! CategoryCell
+                cell.selectionStyle = .none
+                let data = pieChartData[indexPath.row - 1]
+                cell.setTitle(data.2 ?? "")
+                cell.setTotal(String(data.0))
+                let percentage = (data.0 * 1000 / total).rounded() / 10
+                cell.setPercentage("\(String(percentage)) %")
+                cell.setIconColor(colour: data.1)
+                return cell
+            }
+            
         }
         
     }
@@ -258,7 +284,7 @@ extension AnalysisVC: UITableViewDataSource,UITableViewDelegate{
 
     
     func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        if section == 0{
+        if section == 1{
             return "Category wise spending"
         }else{
             return nil

@@ -80,6 +80,7 @@ class SQLiteHelper {
             sqlite3_finalize(statement)
         }
         bindValues(statement!, coloumValues)
+        print(coloumValues)
         guard sqlite3_step(statement) == SQLITE_DONE else {
             throw SQLiteError.sqliteError(message: String(cString: sqlite3_errmsg(db)))
         }
@@ -283,9 +284,20 @@ class DataBase{
     
     func setUpTables(){
         print(DataBase.dbfile)
+        
+        let userDefaults = UserDefaults.standard
+        if let requiresTableCreation = userDefaults.object(forKey: "Requires Table Creation") as? Bool{
+            if !requiresTableCreation{
+                print("Table creation was not required")
+                return
+            }
+        }
+        
         try! sqlHelper.execute(query: "CREATE  TABLE IF NOT EXISTS  Expenses(id TEXT PRIMARY KEY, amount DOUBLE, title TEXT, category TEXT,note TEXT, createdDate DOUBLE);")
         
         try! sqlHelper.execute(query: "CREATE TABLE IF NOT EXISTS  Attachments(id INTEGER PRIMARY KEY AUTOINCREMENT, url TEXT, expenseId TEXT, FOREIGN KEY(expenseId) REFERENCES Expenses(id));")
+        
+        userDefaults.set(false, forKey: "Requires Table Creation")
         
     }
     
