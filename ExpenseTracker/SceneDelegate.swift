@@ -101,7 +101,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
     }
 
-
+    func windowScene(_ windowScene: UIWindowScene, didUpdate previousCoordinateSpace: UICoordinateSpace, interfaceOrientation previousInterfaceOrientation: UIInterfaceOrientation, traitCollection previousTraitCollection: UITraitCollection) {
+        if windowScene.traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection){
+            print("Appearence change ----")
+        }
+    }
 }
 
 extension SceneDelegate{

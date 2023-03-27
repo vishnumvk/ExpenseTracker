@@ -95,7 +95,6 @@
 				474220AE297902CC0030E036 /* SceneDelegate.swift */,
 				474220B0297902CC0030E036 /* AddExpenseVC.swift */,
 				47078E8A29A5E07200B843CF /* AddExpensePresenter.swift */,
-				477647A6298BD7A300D7B0B1 /* AttachmentsVC.swift */,
 				4784E39F2992101B003BBB9F /* RecordsVC.swift */,
 				4739327F29C049AC0026879F /* RecordsPresenter.swift */,
 				477DE21129B06EE5006BA200 /* AnalysisVC.swift */,
@@ -105,6 +104,7 @@
 				47FA90B229CCDFEC0074041C /* ExpenseDetailPresenter.swift */,
 				47FA90AE29C9CAD90074041C /* Cells.swift */,
 				47FA90B429CCE3330074041C /* FormField.swift */,
+				477647A6298BD7A300D7B0B1 /* AttachmentsVC.swift */,
 				474220B5297902CD0030E036 /* Assets.xcassets */,
 				474220BA297902CD0030E036 /* Info.plist */,
 			);

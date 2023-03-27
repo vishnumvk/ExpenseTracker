@@ -19,14 +19,14 @@ enum ExpenseDetailFieldKey: String{
 protocol ExpenseDetailView: AnyObject{
     
     var fields: [FormField] {get set}
-    func showEditScreen(for expense: Expense)
+    func showEditScreen(for expense: ExpenseWithAttachmentsData)
     
 }
 
 
 class ExpenseDetailPresenter: ExpenseDetailPresenterProtocol{
     
-    init(expense: Expense) {
+    init(expense: ExpenseWithAttachmentsData) {
         self.expense = expense
         
     }
@@ -63,16 +63,29 @@ class ExpenseDetailPresenter: ExpenseDetailPresenterProtocol{
         }
         
         if let attachments = expense.attachments{
-            let attachmentsData = attachments.compactMap{try? Data(contentsOf: $0)}
-            if attachmentsData.count != 0{
-                fields.append(AttachmentsField(key: ExpenseDetailFieldKey.attachments.rawValue, data: .init(fieldTitle: "Attachments", data: attachmentsData)))
+//            let attachmentsData = attachments.compactMap{try? Data(contentsOf: $0)}
+            if attachments.count != 0{
+                fields.append(AttachmentsField(key: ExpenseDetailFieldKey.attachments.rawValue, data: .init(fieldTitle: "Attachments", data: attachments)))
             }
         }
         view?.fields = fields
     }
     
     
-    var expense: Expense
+    var expense: ExpenseWithAttachmentsData{
+        didSet{
+            updateFields()
+        }
+    }
     weak var view: ExpenseDetailView?
+    
+}
+
+
+extension ExpenseDetailPresenter: AddExpensePresenterDelegate{
+    func expenseDidChange(editedExpense: ExpenseWithAttachmentsData) {
+        expense = editedExpense
+    }
+    
     
 }

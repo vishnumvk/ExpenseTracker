@@ -215,7 +215,7 @@ extension RecordsVC: RecordsView{
     
     
     
-    func showExpense(expense: Expense) {
+    func showExpense(expense: ExpenseWithAttachmentsData) {
         let detailVC =  ExpenseDetailVC()
         let presenter = ExpenseDetailPresenter(expense: expense)
         presenter.expense = expense

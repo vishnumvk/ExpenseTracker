@@ -23,7 +23,7 @@ protocol RecordsPresenterProtocol: AnyObject{
 protocol RecordsView: NSObject{
     func showNoRecordsView()
     func hideNoRecordsView()
-    func showExpense(expense: Expense)
+    func showExpense(expense: ExpenseWithAttachmentsData)
     func refreshView()
     var sortClue: RecordsSortClue {get}
     
@@ -112,7 +112,7 @@ class RecordsPresenter: RecordsPresenterProtocol{
             print(error.localizedDescription)
         }
         expense.attachments = attachmentURLs
-        view?.showExpense(expense: expense)
+        view?.showExpense(expense: ExpenseWithAttachmentsData(title: expense.title, amount: expense.amount, date: expense.date, note: expense.note, category: expense.category, attachments: attachments, id: expense.id))
     }
 
     
@@ -176,6 +176,7 @@ class RecordsPresenter: RecordsPresenterProtocol{
         configureView()
         
     }
+    
     func configureView(){
         if expenses.count == 0 {
             view?.showNoRecordsView()

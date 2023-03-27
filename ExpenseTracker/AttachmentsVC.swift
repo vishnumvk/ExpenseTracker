@@ -231,11 +231,13 @@ class SlideShowViewController: UIViewController{
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-
+        collectionView.isHidden = true
         DispatchQueue.main.async {
                         [weak self] in
+                        
                         self?.collectionView.scrollToItem(at: self?.selectedIndex ?? .init(row: 0, section: 0), at: .centeredHorizontally, animated: false)
-                        self?.collectionView.layoutIfNeeded()
+                        self?.collectionView.isHidden = false
+                        
                     }
 //        collectionView.scrollToItem(at: self.selectedIndex ?? .init(row: 0, section: 0), at: .centeredHorizontally, animated: false)
 //        collectionView.layoutIfNeeded()
@@ -350,9 +352,11 @@ extension SlideShowViewController:UICollectionViewDelegate,UICollectionViewDataS
                     selectedIndex = index
                 }
                 if needsToScroll{
+                    collectionView.isHidden = true
                     DispatchQueue.main.async {
                         [weak self] in
                         self?.collectionView.scrollToItem(at: self?.selectedIndex ?? .init(row: 0, section: 0), at: .centeredHorizontally, animated: false)
+                        self?.collectionView.isHidden = false
                     }
                 }
 

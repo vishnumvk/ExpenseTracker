@@ -115,11 +115,13 @@ extension ExpenseDetailVC: UITableViewDelegate,UITableViewDataSource{
 
 
 extension ExpenseDetailVC: ExpenseDetailView{
-    func showEditScreen(for expense: Expense) {
+    
+    func showEditScreen(for expense: ExpenseWithAttachmentsData) {
         let  addExpenseVC = AddExpenseVC()
         let presenter = AddExpensePresenter()
         presenter.expense = expense
         presenter.view = addExpenseVC
+        presenter.delegate = self.presenter as? AddExpensePresenterDelegate
         addExpenseVC.presenter = presenter
         
         navigationController?.pushViewController(addExpenseVC, animated: true)
@@ -158,7 +160,7 @@ class AttachmentsCell: UITableViewCell{
         label.numberOfLines = 1
         label.font = .systemFont(ofSize: 18, weight: .medium)
         label.textAlignment = .left
-        label.textColor = .placeholderText
+        label.textColor = .secondaryLabel
         label.text = "Attachments"
         return label
     }()
@@ -242,7 +244,7 @@ class DetailTableViewCell: UITableViewCell{
         label.numberOfLines = 1
         label.font = .systemFont(ofSize: 18, weight: .medium)
         label.textAlignment = .left
-        label.textColor = .placeholderText
+        label.textColor = .secondaryLabel
         return label
     }()
     

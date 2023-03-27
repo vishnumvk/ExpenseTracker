@@ -45,7 +45,11 @@ protocol AddExpenseView: NSObject{
     
 }
 
-
+protocol AddExpensePresenterDelegate: AnyObject{
+    
+    func expenseDidChange(editedExpense: ExpenseWithAttachmentsData)
+    
+}
 
 
 
@@ -54,12 +58,12 @@ protocol AddExpenseView: NSObject{
 
 class AddExpensePresenter: AddExpensePresenterProtocol{
     
-    var expense: Expense?
+    var expense: ExpenseWithAttachmentsData?
     
     weak var view: AddExpenseView?
     var db: ExpenseDBPr? = ExpenseDB()
     
-    
+    weak var delegate: AddExpensePresenterDelegate?
     
     func viewDidLoad() {
         guard let expense else{
@@ -70,7 +74,7 @@ class AddExpensePresenter: AddExpensePresenterProtocol{
         print("expense configured")
         view?.expenseTitle = expense.title
         view?.amount = String(expense.amount)
-        view?.attachments = expense.attachments?.compactMap{try? Data(contentsOf: $0)} ?? [Data]()
+        view?.attachments = expense.attachments ?? [Data]()
         view?.category = expense.category
         view?.note = expense.note
         view?.date = expense.date
@@ -101,12 +105,15 @@ class AddExpensePresenter: AddExpensePresenterProtocol{
         }
         
         if let id = view?.expenseID{
-            db?.update(expense: ExpenseWithAttachmentsData(title: view?.expenseTitle, amount: amount, date: view?.date ?? Date(), note: view?.note, category: category, attachments: view?.attachments.compactMap({$0}),id: id))
+            let expense = ExpenseWithAttachmentsData(title: view?.expenseTitle, amount: amount, date: view?.date ?? Date(), note: view?.note, category: category, attachments: view?.attachments.compactMap({$0}),id: id)
+            db?.update(expense: expense)
+            delegate?.expenseDidChange(editedExpense: expense)
 
         }else{
             db?.save(expense: ExpenseWithAttachmentsData(title: view?.expenseTitle, amount: amount, date: view?.date ?? Date(), note: view?.note, category: category, attachments: view?.attachments.compactMap({$0})))
         }
 //        db?.save(expense: ExpenseWithAttachmentsData(title: view?.expenseTitle, amount: amount, date: view?.date ?? Date(), note: view?.note, category: category, attachments: view?.attachments.compactMap({$0})))
+        
         view?.dismissView()
     }
     
