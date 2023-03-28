@@ -17,6 +17,7 @@ protocol RecordsPresenterProtocol: AnyObject{
     func deleteCellAt(indexPath: IndexPath)
     func sortByAmount()
     func sortByCreatedDate()
+    func didChangeFilter(filterClue: RecordsFilterClue)
 }
 
 
@@ -26,6 +27,8 @@ protocol RecordsView: NSObject{
     func showExpense(expense: ExpenseWithAttachmentsData)
     func refreshView()
     var sortClue: RecordsSortClue {get}
+    var filterClue: RecordsFilterClue {get}
+    var contextTitle: String? {get set}
     
 }
 
@@ -35,8 +38,38 @@ enum RecordsSortClue: Int{
     func callAsFunction() -> Int { rawValue }
 }
 
+enum RecordsFilterClue: Int{
+    
+    case today
+    case thisWeek
+    case thisMonth
+    case thisYear
+    case all
+    
+}
+
 
 class RecordsPresenter: RecordsPresenterProtocol{
+    
+    
+    func didChangeFilter(filterClue: RecordsFilterClue) {
+        loadExpenses()
+        view?.refreshView()
+        switch filterClue{
+            
+        case .today:
+            view?.contextTitle = "Today"
+        case .thisWeek:
+            view?.contextTitle = "This Week"
+        case .thisMonth:
+            view?.contextTitle = "This Month"
+        case .thisYear:
+            view?.contextTitle = "This Year"
+        case .all:
+            view?.contextTitle = "All"
+        }
+    }
+    
     func sortByCreatedDate() {
         expenses = expenses.sorted{$0.date > $1.date}
         view?.refreshView()
@@ -46,6 +79,7 @@ class RecordsPresenter: RecordsPresenterProtocol{
         expenses = expenses.sorted{$0.amount > $1.amount}
         view?.refreshView()
     }
+    
     
     
     func deleteCellAt(indexPath: IndexPath) {
@@ -119,7 +153,7 @@ class RecordsPresenter: RecordsPresenterProtocol{
     func dataForCellAt(indexPath: IndexPath) -> RecordsTableCellData {
         let expense = expenses[indexPath.row]
         
-        let title = expense.title
+        let title = expense.title ?? "-"
         let amount = String(expense.amount)
         let category = expense.category
         let date = expense.date.formatted(date: .abbreviated, time: .shortened)
@@ -138,8 +172,32 @@ class RecordsPresenter: RecordsPresenterProtocol{
         
         do{
             
+            var query = "SELECT \(ExpensesTable.title),\(ExpensesTable.amount),\(ExpensesTable.category),\(ExpensesTable.id),\(ExpensesTable.note),\(ExpensesTable.date) FROM \(ExpensesTable.name)"
+            var interval: (start: Double, end: Double)? = nil
             
-            let rows = try DataBase.shared.sqlHelper.select(table: ExpensesTable.name, columns: ["\(ExpensesTable.title)","\(ExpensesTable.amount)","\(ExpensesTable.category)","\(ExpensesTable.id)","\(ExpensesTable.note)","\(ExpensesTable.date)"])
+            switch(view?.filterClue){
+            case .today:
+                interval = getTimePeriodStartAndEndMillisSince1970(timePeriod: .day)
+            case .thisWeek:
+                interval = getTimePeriodStartAndEndMillisSince1970(timePeriod: .week)
+            case .thisMonth:
+                interval = getTimePeriodStartAndEndMillisSince1970(timePeriod: .month)
+            case .thisYear:
+                interval = getTimePeriodStartAndEndMillisSince1970(timePeriod: .year)
+            default:
+                interval = getTimePeriodStartAndEndMillisSince1970(timePeriod: .overAll)
+                
+                
+            }
+            
+            if let interval{
+                query = "SELECT \(ExpensesTable.title),\(ExpensesTable.amount),\(ExpensesTable.category),\(ExpensesTable.id),\(ExpensesTable.note),\(ExpensesTable.date) FROM \(ExpensesTable.name) WHERE \(ExpensesTable.date) >= \(interval.start) AND \(ExpensesTable.date) < \(interval.end)"
+            }
+            
+            
+            let rows = try DataBase.shared.sqlHelper.executeSelect(query: query)
+            
+            
             expenses.removeAll()
             for row in rows {
                 
@@ -184,5 +242,42 @@ class RecordsPresenter: RecordsPresenterProtocol{
             view?.hideNoRecordsView()
         }
     }
+    
+    
+    
+    
+    func getTimePeriodStartAndEndMillisSince1970(timePeriod: TimePeriod) -> (start: Double, end: Double)? {
+        
+        var startOfDay: Date
+        var endOfDay: Date
+        let referenceDate = Date()
+        let calendar = Calendar.current
+        switch timePeriod {
+        case .day:
+            startOfDay = calendar.startOfDay(for: referenceDate)
+            endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay)!
+        case .week:
+            let startOfWeek = calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: referenceDate))!
+            startOfDay = calendar.startOfDay(for: startOfWeek)
+            endOfDay = calendar.date(byAdding: .weekOfYear, value: 1, to: startOfDay)!
+        case .month:
+            let startOfMonth = calendar.date(from: calendar.dateComponents([.year, .month], from: referenceDate))!
+            startOfDay = calendar.startOfDay(for: startOfMonth)
+            endOfDay = calendar.date(byAdding: .month, value: 1, to: startOfDay)!
+        case .year:
+            let startOfYear = calendar.date(from: calendar.dateComponents([.year], from: referenceDate))!
+            startOfDay = calendar.startOfDay(for: startOfYear)
+            endOfDay = calendar.date(byAdding: .year, value: 1, to: startOfDay)!
+        case .overAll:
+            return nil
+        }
+    
+        let startMillis = startOfDay.timeIntervalSince1970
+        let endMillis = endOfDay.timeIntervalSince1970
+        return (startMillis, endMillis)
+    }
+    
+    
+    
     
 }

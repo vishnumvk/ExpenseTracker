@@ -16,7 +16,8 @@ import UIKit
 class RecordsVC: UIViewController{
     
     var presenter: RecordsPresenterProtocol?
-    private(set) var sortClue: RecordsSortClue = .sortByCreatedDate
+    var filterClue: RecordsFilterClue = .all
+    var sortClue: RecordsSortClue = .sortByCreatedDate
     private lazy var plusBtn = {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -49,6 +50,7 @@ class RecordsVC: UIViewController{
     }()
     
     private var sortMenu: UIMenu?
+    private var filterMenu: UIMenu?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -77,26 +79,70 @@ class RecordsVC: UIViewController{
         table.register(ExpenseTableViewCell.self, forCellReuseIdentifier: ExpenseTableViewCell.reuseId)
         
         
-        let sortByAmount = UIAction(title: "Sort by amount"){ [weak self] _ in
+        let sortByAmount = UIAction(title: "Amount"){ [weak self] _ in
             self?.presenter?.sortByAmount()
-            self?.sortClue = .sortByCreatedDate
+            self?.sortClue = .sortByAmount
         }
         
         
         
-        let sortByCreatedDate = UIAction(title: "Sort by created date"){ [weak self] _ in
+        let sortByCreatedDate = UIAction(title: "Expense date"){ [weak self] _ in
             self?.presenter?.sortByCreatedDate()
             self?.sortClue = .sortByCreatedDate
         }
         
         sortByCreatedDate.state = .on
         
-        sortMenu = UIMenu(options: .singleSelection, children: [sortByAmount,sortByCreatedDate])
-        
-        
-        let sortButton = UIBarButtonItem(title: nil, image: UIImage(systemName: "line.3.horizontal.decrease"), primaryAction: nil, menu: sortMenu!)
+        sortMenu = UIMenu(title: "Sort by",options: .singleSelection, children: [sortByAmount,sortByCreatedDate])
+
+        let sortButton = UIBarButtonItem(title: nil, image: UIImage(systemName: "arrow.up.arrow.down"), primaryAction: nil, menu: sortMenu!)
        
-        navigationItem.rightBarButtonItems = [sortButton]
+        
+        let todayFilter = UIAction(title: "Today") { _ in
+            
+            self.filterClue = .today
+            self.presenter?.didChangeFilter(filterClue: .today)
+        }
+        
+        
+        let thisWeekFilter = UIAction(title: "This week") { _ in
+            
+            self.filterClue = .thisWeek
+            self.presenter?.didChangeFilter(filterClue: .thisWeek)
+        }
+        
+        let thisMonthFilter = UIAction(title: "This month") { _ in
+           
+            self.filterClue = .thisMonth
+            self.presenter?.didChangeFilter(filterClue: .thisMonth)
+        }
+        
+        let thisYearFilter = UIAction(title: "This year") { _ in
+            
+            self.filterClue = .thisYear
+            self.presenter?.didChangeFilter(filterClue: .thisYear)
+        }
+        
+        let overAllFilter = UIAction(title: "All") { _ in
+            
+            self.filterClue = .all
+            self.presenter?.didChangeFilter(filterClue: .all)
+        }
+        
+        overAllFilter.state = .on
+        self.navigationItem.title = "All"
+        
+        
+        
+        filterMenu = UIMenu(options: .singleSelection, children: [todayFilter,thisWeekFilter,thisMonthFilter,thisYearFilter,overAllFilter])
+        
+        
+        let filterButton = UIBarButtonItem(title: nil, image: UIImage(systemName: "line.3.horizontal.decrease"), primaryAction: nil, menu: filterMenu!)
+        
+        
+        
+        
+        navigationItem.rightBarButtonItems = [sortButton,filterButton]
 //
 //        navigationItem.rightBarButtonItems = [sortButton]
         
@@ -212,6 +258,18 @@ extension RecordsVC: UITableViewDataSource,UITableViewDelegate{
 
 
 extension RecordsVC: RecordsView{
+    var contextTitle: String? {
+        get {
+            self.navigationItem.title
+        }
+        set {
+            self.navigationItem.title = newValue
+        }
+    }
+    
+    
+    
+    
     
     
     

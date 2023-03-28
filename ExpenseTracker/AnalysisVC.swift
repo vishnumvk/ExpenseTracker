@@ -270,8 +270,14 @@ extension AnalysisVC: UITableViewDataSource,UITableViewDelegate{
                 let data = pieChartData[indexPath.row - 1]
                 cell.setTitle(data.2 ?? "")
                 cell.setTotal(String(data.0))
-                let percentage = (data.0 * 1000 / total).rounded() / 10
-                cell.setPercentage("\(String(percentage)) %")
+                let percentage = (data.0 * 10000 / total).rounded() / 100
+                var percentString = ""
+                if percentage == 0.00 && data.0 > 0{
+                    percentString = "≈ \(String(percentage)) %"
+                }else{
+                    percentString = "\(String(percentage)) %"
+                }
+                cell.setPercentage(percentString)
                 cell.setIconColor(colour: data.1)
                 return cell
             }

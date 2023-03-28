@@ -190,11 +190,11 @@ class AnalysisPresenter: AnalysisPresenterProctocol{
         var query = "SELECT \(ExpensesTable.category),SUM(\(ExpensesTable.amount)) FROM \(ExpensesTable.name) GROUP BY \(ExpensesTable.category) ORDER BY SUM(\(ExpensesTable.amount)) DESC"
         
         if let fromDateInmillsSince1970, let toDateInmillsSince1970{
-            query = "SELECT \(ExpensesTable.category),SUM(\(ExpensesTable.amount)) FROM \(ExpensesTable.name) WHERE \(ExpensesTable.date) BETWEEN \(fromDateInmillsSince1970) AND \(toDateInmillsSince1970) GROUP BY \(ExpensesTable.category) ORDER BY SUM(\(ExpensesTable.amount)) DESC"
+            query = "SELECT \(ExpensesTable.category),SUM(\(ExpensesTable.amount)) FROM \(ExpensesTable.name) WHERE \(ExpensesTable.date) >= \(fromDateInmillsSince1970) AND \(ExpensesTable.date) < \(toDateInmillsSince1970) GROUP BY \(ExpensesTable.category) ORDER BY SUM(\(ExpensesTable.amount)) DESC"
         }
         
         var pieChartData =  [(Double, UIColor, String?)]()
-        let colours: [UIColor] = [.systemRed,.systemCyan,.systemMint,.systemBlue,.systemPurple,.systemBrown,.systemYellow,.systemOrange,.systemPurple,.systemPink,.systemGreen,.systemIndigo]
+        let colours: [UIColor] = [.systemRed,.systemCyan,.systemMint,.systemBlue,.systemPurple,.systemBrown,.systemYellow,.systemOrange,.systemGreen,.systemIndigo,.systemGray]
         
         do{
             let results = try DataBase.shared.sqlHelper.executeSelect(query: query)

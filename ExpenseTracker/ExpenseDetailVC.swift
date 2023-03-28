@@ -68,7 +68,7 @@ class ExpenseDetailVC: UIViewController{
         navigationItem.largeTitleDisplayMode = .never
         
         
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Edit", style: .plain, target: self, action: #selector(didTapEdit))
+        navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "pencil"), style: .plain, target: self, action: #selector(didTapEdit))
         
         
         self.addChild(attachmentsVC)
@@ -187,6 +187,11 @@ class AttachmentsCell: UITableViewCell{
 
             ])
         }
+    }
+    
+    func setTitle(title: String){
+        titleLabel.text = title
+        
     }
     
     
