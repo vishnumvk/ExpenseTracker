@@ -767,7 +767,7 @@ extension AddExpenseVC: AddExpenseView{
     func openCamera(){
         
         
-        var pickerVC = UIImagePickerController()
+        let pickerVC = UIImagePickerController()
         pickerVC.delegate = self
         
         
