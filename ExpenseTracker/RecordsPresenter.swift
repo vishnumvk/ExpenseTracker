@@ -154,7 +154,8 @@ class RecordsPresenter: RecordsPresenterProtocol{
         let expense = expenses[indexPath.row]
         
         let title = expense.title ?? "-"
-        let amount = String(expense.amount)
+        let rupee = "\u{20B9}"
+        let amount = "\(rupee) \(String(expense.amount))"
         let category = expense.category
         let date = expense.date.formatted(date: .abbreviated, time: .shortened)
         return RecordsTableCellData(id: expense.id, amount: amount, title: title, category: category, date: date)

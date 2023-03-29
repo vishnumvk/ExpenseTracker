@@ -17,6 +17,7 @@ class MainTabBarController: UITabBarController {
         tabBar.backgroundColor = .tertiarySystemGroupedBackground
         tabBar.tintColor = .systemTeal
         tabBar.isTranslucent = false
+        tabBar.isOpaque = true
         tabBar.unselectedItemTintColor = .systemGray3
         
         let recordsVC = RecordsVC()

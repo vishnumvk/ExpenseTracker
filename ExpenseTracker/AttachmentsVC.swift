@@ -128,7 +128,7 @@ extension AttachmentsVC: UICollectionViewDelegateFlowLayout,UICollectionViewData
                 self.attachments.remove(at: index.row)
                 self.collectionView.deleteItems(at: [index])
             }
-            return UIMenu(title: "Options", image: nil, identifier: nil, options: UIMenu.Options.displayInline, children: [delete])
+            return UIMenu(image: nil, identifier: nil, options: UIMenu.Options.displayInline, children: [delete])
         }
         return context
     }

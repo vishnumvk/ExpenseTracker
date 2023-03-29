@@ -474,7 +474,7 @@ class AddExpenseVC: UIViewController {
             self.clipButtonTapped()
         }
         
-        attachmentsBtn.menu = UIMenu(title: "Options", children: [cameraAction,galleryAction])
+        attachmentsBtn.menu = UIMenu(children: [cameraAction,galleryAction])
         
         
     }
@@ -845,17 +845,17 @@ extension AddExpenseVC: UIImagePickerControllerDelegate,UINavigationControllerDe
                 displayImage(image: downsample(image: image)!)
                 
                 
-                let alert = UIAlertController(title: "Save Image", message: "Would you like to save the image to photos", preferredStyle: .alert)
-                alert.addAction(UIAlertAction(title: "No", style: .default))
-                alert.addAction(UIAlertAction(title: "Yes", style: .default, handler: { [self] _ in
-//                    imageToBeSaved = image
-                    presenter?.optedToSaveCapturedImageToPhotos()
-                   
-                }))
-                
-                present(alert, animated: true)
-                
-                
+//                let alert = UIAlertController(title: "Save Image", message: "Would you like to save the image to photos", preferredStyle: .alert)
+//                alert.addAction(UIAlertAction(title: "No", style: .default))
+//                alert.addAction(UIAlertAction(title: "Yes", style: .default, handler: { [self] _ in
+////                    imageToBeSaved = image
+//                    presenter?.optedToSaveCapturedImageToPhotos()
+//
+//                }))
+//
+//                present(alert, animated: true)
+//
+//
                 
             }
             
