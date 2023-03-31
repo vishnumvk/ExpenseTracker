@@ -18,6 +18,7 @@ protocol RecordsPresenterProtocol: AnyObject{
     func sortByAmount()
     func sortByCreatedDate()
     func didChangeFilter(filterClue: RecordsFilterClue)
+    func updateSearchResults(for searchClue: String)
 }
 
 
@@ -50,6 +51,24 @@ enum RecordsFilterClue: Int{
 
 
 class RecordsPresenter: RecordsPresenterProtocol{
+    
+    
+    func updateSearchResults(for searchClue: String) {
+        guard searchClue != "" else{
+            return
+        }
+        loadExpenses()
+        expenses = expenses.filter { expense in
+            if let title = expense.title{
+                return title.lowercased().contains(searchClue.lowercased())
+            }else{
+                return false
+            }
+        }
+        view?.refreshView()
+        configureView()
+    }
+    
     
     
     func didChangeFilter(filterClue: RecordsFilterClue) {

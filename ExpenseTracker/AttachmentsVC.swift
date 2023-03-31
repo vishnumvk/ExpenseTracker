@@ -58,6 +58,7 @@ class AttachmentsVC: UIViewController{
         collectionView.dataSource = self
         collectionView.delegate = self
         
+        collectionView.showsHorizontalScrollIndicator = true
         
         view.addSubview(collectionView)
         collectionView.pinToSafeArea(view: view)

@@ -252,7 +252,7 @@ extension AnalysisVC: UITableViewDataSource,UITableViewDelegate{
         if indexPath.section == 0{
             let cell = table.dequeueReusableCell(withIdentifier: MoneySpentCell.reuseID, for: indexPath) as! MoneySpentCell
             cell.setTitle("Total Expense")
-            cell.setTotal("\u{20B9} \(String(total))")
+            cell.setTotal("\u{20B9} \(String((total * 100).rounded() / 100))")
             cell.selectionStyle = .none
             
             return cell

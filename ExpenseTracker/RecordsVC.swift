@@ -147,6 +147,14 @@ class RecordsVC: UIViewController{
 //        navigationItem.rightBarButtonItems = [sortButton]
         
         navigationController?.navigationBar.prefersLargeTitles = true
+        
+        
+        let search = UISearchController(searchResultsController: nil)
+        search.searchResultsUpdater = self
+        search.searchBar.delegate = self
+        search.obscuresBackgroundDuringPresentation = false
+        search.searchBar.placeholder = "Type something here to search"
+        navigationItem.searchController = search
        
     }
     
@@ -197,7 +205,27 @@ class RecordsVC: UIViewController{
 
 
 
-
+extension RecordsVC: UISearchResultsUpdating,UISearchBarDelegate{
+    
+    
+    func updateSearchResults(for searchController: UISearchController) {
+        
+        guard let text = searchController.searchBar.text else{
+            return
+        }
+        presenter?.updateSearchResults(for: text)
+    }
+    
+    func searchBarCancelButtonClicked(_ searchBar: UISearchBar){
+        print("cancel clicked")
+        presenter?.loadExpenses()
+        table.reloadData()
+        
+    }
+    
+    
+    
+}
 
 
 
