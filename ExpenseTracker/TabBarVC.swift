@@ -14,9 +14,10 @@ class MainTabBarController: UITabBarController {
     override func viewDidLoad() {
         
         
-        tabBar.backgroundColor = .secondarySystemBackground
+        tabBar.backgroundColor = .tertiarySystemGroupedBackground
         tabBar.tintColor = .systemTeal
         tabBar.isTranslucent = false
+        tabBar.isOpaque = true
         tabBar.unselectedItemTintColor = .systemGray3
         
         let recordsVC = RecordsVC()

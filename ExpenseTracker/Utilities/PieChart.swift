@@ -215,6 +215,9 @@ class PieChartView: UIView{
     func samplePie(center: CGPoint, radius: CGFloat){
 
 //        let total = dataSet.reduce(0.0){ $0 + $1.sample }
+        guard dataSet.count != 0 else{
+            return
+        }
         let chartData = dataSet.map(){ ($0.value/total,$0.colour) }
 
         var currentAngle = CGFloat.pi 
@@ -272,7 +275,7 @@ class PieChartView: UIView{
         }
         shapeLayers.removeAll()
         textLayers.removeAll()
-
+        holeLayer.removeFromSuperlayer()
 
 
         samplePie(center: CGPoint(x: rect.midX, y: rect.midY), radius: radius)

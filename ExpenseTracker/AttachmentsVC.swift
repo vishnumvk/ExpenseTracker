@@ -58,6 +58,7 @@ class AttachmentsVC: UIViewController{
         collectionView.dataSource = self
         collectionView.delegate = self
         
+        collectionView.showsHorizontalScrollIndicator = true
         
         view.addSubview(collectionView)
         collectionView.pinToSafeArea(view: view)
@@ -128,7 +129,7 @@ extension AttachmentsVC: UICollectionViewDelegateFlowLayout,UICollectionViewData
                 self.attachments.remove(at: index.row)
                 self.collectionView.deleteItems(at: [index])
             }
-            return UIMenu(title: "Options", image: nil, identifier: nil, options: UIMenu.Options.displayInline, children: [delete])
+            return UIMenu(image: nil, identifier: nil, options: UIMenu.Options.displayInline, children: [delete])
         }
         return context
     }
@@ -255,7 +256,10 @@ class SlideShowViewController: UIViewController{
         view.addSubview(collectionView)
 //        hidesBottomBarWhenPushed = true
         navigationItem.leftBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "multiply"), style: .done, target: self, action: #selector(dismissView))
-
+        
+        
+        navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "square.and.arrow.up"), style: .done, target: self, action: #selector(shareTapped))
+        
         collectionView.register(FullImageCell.self, forCellWithReuseIdentifier: FullImageCell.reuseID)
         NSLayoutConstraint.activate([
             collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
@@ -269,6 +273,17 @@ class SlideShowViewController: UIViewController{
     }
     @objc func dismissView(){
         self.dismiss(animated: true)
+    }
+    
+    @objc func shareTapped(){
+        let index = collectionView.indexPathsForVisibleItems.first ?? .init(row: 0, section: 0)
+        
+        let image = delegate?.image(for: index).jpegData(compressionQuality: 1)
+        
+        let activity = UIActivityViewController(activityItems: [image as Any], applicationActivities: nil)
+        
+        present(activity, animated: true)
+        
     }
 }
 

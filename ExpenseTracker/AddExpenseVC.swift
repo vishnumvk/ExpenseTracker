@@ -44,8 +44,6 @@ enum TextFieldTag: Int{
 
 
 
-
-
 class AddExpenseVC: UIViewController {
     
     
@@ -59,7 +57,7 @@ class AddExpenseVC: UIViewController {
         let datePicker = UIDatePicker()
         datePicker.translatesAutoresizingMaskIntoConstraints = false
         datePicker.preferredDatePickerStyle = .compact
-       
+        datePicker.backgroundColor = .secondarySystemGroupedBackground
         return datePicker
     }()
     
@@ -97,6 +95,25 @@ class AddExpenseVC: UIViewController {
         return stackView
     }()
     
+    private lazy var titleStack = {
+        let stack = UIStackView()
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        stack.axis = .vertical
+        stack.distribution = .equalSpacing
+        stack.spacing = 5
+        return stack
+    }()
+    
+    private lazy var titleLabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = "Title"
+        label.textAlignment = .left
+        label.font = .systemFont(ofSize: 20)
+        label.textColor = .placeholderText
+
+        return label
+    }()
     
     private lazy var titleField = {
        let textfield = UITextField()
@@ -104,9 +121,9 @@ class AddExpenseVC: UIViewController {
         textfield.textColor = .label
         textfield.textAlignment = .left
         textfield.font = .systemFont(ofSize: 20)
-        textfield.placeholder = "Title"
         textfield.delegate = self
         
+        textfield.tag = TextFieldTag.title.rawValue
         textfield.borderStyle = .roundedRect
         textfield.heightAnchor.constraint(equalToConstant: 44).isActive = true
         textfield.layer.cornerRadius = 5
@@ -125,12 +142,12 @@ class AddExpenseVC: UIViewController {
         textfield.textColor = .label
         textfield.textAlignment = .left
         textfield.font = .systemFont(ofSize: 18)
-        textfield.placeholder = "Amount"
+//        textfield.placeholder = "Amount"
         textfield.borderStyle = .roundedRect
         textfield.delegate = self
         
         textfield.keyboardType = .decimalPad
-        
+        textfield.tag = TextFieldTag.amount.rawValue
         
         textfield.heightAnchor.constraint(equalToConstant: 44).isActive = true
         textfield.layer.cornerRadius = 5
@@ -141,6 +158,36 @@ class AddExpenseVC: UIViewController {
         return textfield
     }()
     
+    private lazy var amountLabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = "Amount"
+        label.textAlignment = .left
+        label.font = .systemFont(ofSize: 20)
+        label.textColor = .placeholderText
+
+        return label
+    }()
+    
+    private lazy var amountWarning = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.textAlignment = .left
+        
+        label.font = .systemFont(ofSize: 12)
+        label.textColor = .systemRed
+
+        return label
+    }()
+    
+    private lazy var amountStack = {
+        let stack = UIStackView()
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        stack.axis = .vertical
+        stack.distribution = .equalSpacing
+        stack.spacing = 5
+        return stack
+    }()
     
     
     private lazy var noteStack = {
@@ -195,6 +242,7 @@ class AddExpenseVC: UIViewController {
         return btn
     }()
     
+    
     private lazy var clipBtn = {
         let btn = UIButton()
         let image = UIImage(systemName: "paperclip")
@@ -212,7 +260,7 @@ class AddExpenseVC: UIViewController {
     private lazy var attachmentLabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "Add bill image"
+        label.text = "Add Attachments"
         label.textAlignment = .left
         label.font = .systemFont(ofSize: 20)
         label.textColor = .placeholderText
@@ -227,16 +275,46 @@ class AddExpenseVC: UIViewController {
         return scroll
     }()
     
+    private lazy var categoryStack = {
+        let stack = UIStackView()
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        stack.axis = .vertical
+        stack.distribution = .equalSpacing
+        stack.spacing = 5
+        return stack
+    }()
+    
+    private lazy var categoryLabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = "Category"
+        label.textAlignment = .left
+        label.font = .systemFont(ofSize: 20)
+        label.textColor = .placeholderText
+        return label
+    }()
+    
+    private lazy var categoryWarning = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.textAlignment = .left
+        label.text = "please select category"
+        label.font = .systemFont(ofSize: 12)
+        label.textColor = .systemRed
+
+        return label
+    }()
+    
     private lazy var categoryBtn = {
         var btn = UIButton()
         let image = UIImage(systemName: "chevron.down")
-        btn.setTitle("Category", for: .normal)
+        btn.setTitle("None", for: .normal)
         btn.setImage(image, for: .normal)
         btn.setTitleColor(UIColor.label, for: .normal)
         btn.contentHorizontalAlignment = .fill
         
         
-        btn.tintColor = .label
+        btn.tintColor = .systemTeal
         btn.configuration = .plain()
         
         btn.configuration?.imagePlacement = .trailing
@@ -253,20 +331,53 @@ class AddExpenseVC: UIViewController {
     }()
     
     
-    private lazy var attachmentOptions = {
-        let stack = UIStackView(arrangedSubviews: [attachmentLabel,Spacer(),camBtn,clipBtn])
-        stack.translatesAutoresizingMaskIntoConstraints = false
-        stack.axis = .horizontal
-        stack.distribution = .fill
-        stack.spacing = 15
-        stack.layer.cornerRadius = 5
-        stack.layer.borderWidth = fieldBoarderWidth
-        stack.layer.borderColor = UIColor.placeholderText.cgColor
-        stack.isLayoutMarginsRelativeArrangement = true
-        stack.directionalLayoutMargins = .init(top: 5, leading: 5, bottom: 5, trailing: 5)
+    
+    private lazy var attachmentsBtn = {
+        var btn = UIButton()
+        let image = UIImage(systemName: "plus")
+        btn.setTitle("Add Attachments", for: .normal)
+        btn.setImage(image, for: .normal)
+        btn.setTitleColor(UIColor.label, for: .normal)
+        btn.contentHorizontalAlignment = .fill
+        
+        
+        btn.tintColor = .systemTeal
+        btn.configuration = .plain()
+        
+        btn.configuration?.imagePlacement = .trailing
+        
        
-        return stack
+        btn.layer.cornerRadius = 5
+        btn.layer.borderColor = UIColor.placeholderText.cgColor
+        btn.layer.borderWidth = fieldBoarderWidth
+        
+        btn.showsMenuAsPrimaryAction = true
+        
+        btn.translatesAutoresizingMaskIntoConstraints = false
+        btn.heightAnchor.constraint(equalToConstant: 44).isActive = true
+        return btn
+        
     }()
+    
+    
+    
+    
+    
+    
+//    private lazy var attachmentOptions = {
+//        let stack = UIStackView(arrangedSubviews: [attachmentLabel,Spacer(),camBtn,clipBtn])
+//        stack.translatesAutoresizingMaskIntoConstraints = false
+//        stack.axis = .horizontal
+//        stack.distribution = .fill
+//        stack.spacing = 15
+//        stack.layer.cornerRadius = 5
+////        stack.layer.borderWidth = fieldBoarderWidth
+////        stack.layer.borderColor = UIColor.placeholderText.cgColor
+//        stack.isLayoutMarginsRelativeArrangement = true
+//        stack.directionalLayoutMargins = .init(top: 5, leading: 5, bottom: 5, trailing: 5)
+//
+//        return stack
+//    }()
     
     private lazy var attachmentsVC = {
         AttachmentsVC()
@@ -314,12 +425,24 @@ class AddExpenseVC: UIViewController {
         noteStack.addArrangedSubview(noteLabel)
         noteStack.addArrangedSubview(noteField)
         
-        stackView.addArrangedSubview(amountField)
-        stackView.addArrangedSubview(titleField)
+        amountStack.addArrangedSubview(amountLabel)
+        amountStack.addArrangedSubview(amountField)
+        amountStack.addArrangedSubview(amountWarning)
+        
+        titleStack.addArrangedSubview(titleLabel)
+        titleStack.addArrangedSubview(titleField)
+        
+        
+        categoryStack.addArrangedSubview(categoryLabel)
+        categoryStack.addArrangedSubview(categoryBtn)
+        categoryStack.addArrangedSubview(categoryWarning)
+        
+        stackView.addArrangedSubview(amountStack)
+        stackView.addArrangedSubview(titleStack)
         stackView.addArrangedSubview(dateStack)
-        stackView.addArrangedSubview(categoryBtn)
+        stackView.addArrangedSubview(categoryStack)
         stackView.addArrangedSubview(noteStack)
-        stackView.addArrangedSubview(attachmentOptions)
+        stackView.addArrangedSubview(attachmentsBtn)
         
 //        stackView.addArrangedSubview(Spacer())
         
@@ -337,8 +460,22 @@ class AddExpenseVC: UIViewController {
 //        amountField.addDoneButtonOnKeyboard()
 //          noteField.addDoneButtonOnKeyboard()
 //         titleField.addDoneButtonOnKeyboard()
+        
+          amountWarning.isHidden = true
+        categoryWarning.isHidden = true
 //
        hideKeyboardWhenTappedAround()
+        
+        let cameraAction = UIAction(title: "Take Photo", image: UIImage(systemName: "camera")) { _ in
+            self.camButtonTapped()
+        }
+        
+        let galleryAction = UIAction(title: "Photo Library", image: UIImage(systemName: "photo.on.rectangle")) { _ in
+            self.clipButtonTapped()
+        }
+        
+        attachmentsBtn.menu = UIMenu(children: [cameraAction,galleryAction])
+        
         
     }
     
@@ -387,6 +524,7 @@ class AddExpenseVC: UIViewController {
         optionsVC.didSelectOption = { [weak self] selectedOption in
             
             self?.categoryBtn.setTitle(selectedOption, for: .normal)
+            self?.categoryFieldWarning = nil
             
         }
         
@@ -429,7 +567,7 @@ class AddExpenseVC: UIViewController {
        amountField.backgroundColor = UIColor.secondarySystemGroupedBackground
        categoryBtn.backgroundColor = UIColor.secondarySystemGroupedBackground
          noteField.backgroundColor = UIColor.secondarySystemGroupedBackground
- attachmentOptions.backgroundColor = UIColor.secondarySystemGroupedBackground
+ attachmentsBtn.backgroundColor = UIColor.secondarySystemGroupedBackground
               datePicker.tintColor = .systemTeal
              amountField.tintColor = .systemTeal
               titleField.tintColor = .systemTeal
@@ -440,7 +578,7 @@ class AddExpenseVC: UIViewController {
         amountField.layer.borderColor = UIColor.systemTeal.cgColor
         categoryBtn.layer.borderColor = UIColor.systemTeal.cgColor
           noteField.layer.borderColor = UIColor.systemTeal.cgColor
-  attachmentOptions.layer.borderColor = UIColor.systemTeal.cgColor
+  attachmentsBtn.layer.borderColor = UIColor.systemTeal.cgColor
         
 //        navigationController?.navigationBar.tintColor = .systemTeal
        
@@ -483,6 +621,39 @@ class AddExpenseVC: UIViewController {
 
 
 extension AddExpenseVC: AddExpenseView{
+    
+    
+    var amountFieldWarning: String?{
+        
+        get{
+            amountWarning.text
+        }
+        set{
+            if let newValue {
+                amountWarning.text = newValue
+                amountWarning.isHidden = false
+            }else{
+                amountWarning.isHidden = true
+            }
+        }
+    }
+    
+    
+    var categoryFieldWarning: String?{
+        
+        get{
+            categoryWarning.text
+        }
+        set{
+            if let newValue {
+                categoryWarning.text = newValue
+                categoryWarning.isHidden = false
+            }else{
+                categoryWarning.isHidden = true
+            }
+        }
+    }
+    
     
     
     
@@ -581,10 +752,10 @@ extension AddExpenseVC: AddExpenseView{
     }
     
     
-    func openPhotoLibrary(){
+    func openPhotoLibrary(selectionLimit: Int){
         var config = PHPickerConfiguration(photoLibrary: .shared())
         config.filter = .images
-        config.selectionLimit = 10
+        config.selectionLimit = selectionLimit
         
         let picker = PHPickerViewController(configuration: config)
         picker.delegate = self
@@ -674,17 +845,17 @@ extension AddExpenseVC: UIImagePickerControllerDelegate,UINavigationControllerDe
                 displayImage(image: downsample(image: image)!)
                 
                 
-                let alert = UIAlertController(title: "Save Image", message: "Would you like to save the image to photos", preferredStyle: .alert)
-                alert.addAction(UIAlertAction(title: "No", style: .default))
-                alert.addAction(UIAlertAction(title: "Yes", style: .default, handler: { [self] _ in
-//                    imageToBeSaved = image
-                    presenter?.optedToSaveCapturedImageToPhotos()
-                   
-                }))
-                
-                present(alert, animated: true)
-                
-                
+//                let alert = UIAlertController(title: "Save Image", message: "Would you like to save the image to photos", preferredStyle: .alert)
+//                alert.addAction(UIAlertAction(title: "No", style: .default))
+//                alert.addAction(UIAlertAction(title: "Yes", style: .default, handler: { [self] _ in
+////                    imageToBeSaved = image
+//                    presenter?.optedToSaveCapturedImageToPhotos()
+//
+//                }))
+//
+//                present(alert, animated: true)
+//
+//
                 
             }
             
@@ -770,7 +941,25 @@ extension AddExpenseVC: UITextFieldDelegate{
         textField.layer.borderColor = UIColor.systemTeal.cgColor
     }
     
-    
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        
+        switch TextFieldTag(rawValue: textField.tag){
+            
+            
+        case .none:
+            return true
+        case .some(let field):
+            switch field{
+            case .amount:
+                
+                
+                return presenter?.shouldReplaceTextInAmountField(textPresent: textField.text ?? "",range: range ,incomingText: string) ?? true
+            case .title:
+                return true
+            }
+        }
+       
+    }
 }
 
 

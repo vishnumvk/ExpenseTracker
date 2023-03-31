@@ -130,6 +130,7 @@ extension AttachmentsField: FormField{
     func dequeue(for tableView: UITableView, at indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: AttachmentsCell.reuseID, for: indexPath) as! AttachmentsCell
         configurationHandler?.updateAttachmentsData(field: self, data: data.data)
+        cell.setTitle(title: data.fieldTitle)
         if let view = configurationHandler?.viewFor(field: self){
             cell.attachmentsView = view
         }

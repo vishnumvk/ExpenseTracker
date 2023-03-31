@@ -65,7 +65,7 @@ class ExpenseDetailPresenter: ExpenseDetailPresenterProtocol{
         if let attachments = expense.attachments{
 //            let attachmentsData = attachments.compactMap{try? Data(contentsOf: $0)}
             if attachments.count != 0{
-                fields.append(AttachmentsField(key: ExpenseDetailFieldKey.attachments.rawValue, data: .init(fieldTitle: "Attachments", data: attachments)))
+                fields.append(AttachmentsField(key: ExpenseDetailFieldKey.attachments.rawValue, data: .init(fieldTitle: "Attachments  (\(attachments.count))", data: attachments)))
             }
         }
         view?.fields = fields

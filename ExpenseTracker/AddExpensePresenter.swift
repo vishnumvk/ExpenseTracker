@@ -19,6 +19,7 @@ protocol AddExpensePresenterProtocol: AnyObject{
     func optedToSaveCapturedImageToPhotos()
     func tappedSave()
     func viewDidLoad()
+    func shouldReplaceTextInAmountField(textPresent: String,range: NSRange,incomingText: String) -> Bool
 //    var view: AddExpenseView? {get set}
     
 }
@@ -29,7 +30,7 @@ protocol AddExpenseView: NSObject{
     
     func openCamera()
     func presentCameraSettings()
-    func openPhotoLibrary()
+    func openPhotoLibrary(selectionLimit: Int)
     func presentPhotoLibrarySettings()
     func saveToPhotos()
     func showAlert(title: String,message: String?)
@@ -42,6 +43,8 @@ protocol AddExpenseView: NSObject{
     var attachments: [Data]{get set}
     var navTitle: String? {get set}
     var expenseID: String? {get set}
+    var amountFieldWarning: String? {get set}
+    var categoryFieldWarning: String? {get set}
     
 }
 
@@ -87,20 +90,25 @@ class AddExpensePresenter: AddExpensePresenterProtocol{
     
     func tappedSave() {
         
-        guard let amount = view?.amount else {
-            view?.showAlert(title: "Enter amount", message: nil)
+        var isValid = true
+        
+        
+        if !validateAmountField(amount: view?.amount ?? ""){
+            isValid = false
+        }
+        
+        let category = view?.category ?? "None"
+        if category == "None"{
+            view?.categoryFieldWarning = "Select a category"
+            isValid = false
+           
+        }
+        
+        guard let amount = Double(view?.amount ?? "") else{
             return
         }
-        guard let amount = Double(amount),amount > 0 else{
-            view?.showAlert(title: "Enter valid amount", message: nil)
-            return
-        }
-        guard amount < 100000000 else{
-            view?.showAlert(title: "Enter an amount smaller than 1000,00,000", message: nil)
-            return
-        }
-        guard let category = view?.category,category != "Category" else{
-            view?.showAlert(title: "Please select a Category", message: nil)
+        
+        guard isValid else{
             return
         }
         
@@ -127,7 +135,7 @@ class AddExpensePresenter: AddExpensePresenterProtocol{
                     PHPhotoLibrary.requestAuthorization(for: .addOnly) { [weak self] status in
                         switch status{
                         case .authorized:
-                            self?.view?.openPhotoLibrary()
+                            self?.view?.saveToPhotos()
                         default:
                             print("photo library access was denied")
                         }
@@ -138,11 +146,59 @@ class AddExpensePresenter: AddExpensePresenterProtocol{
     }
     
     
+    func shouldReplaceTextInAmountField(textPresent: String, range: NSRange, incomingText: String) -> Bool {
+        let amount = (textPresent as NSString).replacingCharacters(in: range, with: incomingText)
+        print("--\(amount)--")
+        let regex = try! NSRegularExpression(pattern: "^\\d*(\\.\\d{0,2})?$")
+        let match = regex.firstMatch(in: amount, range: NSRange(location: 0, length: amount.utf16.count))
+        if match != nil{
+            let _ = validateAmountField(amount: amount)
+            return true
+        }
+        else{
+            return false
+        }
+        
+    }
+    
+    private func validateAmountField(amount: String) -> Bool{
+        
+        
+        
+        guard amount != "" else {
+            view?.amountFieldWarning = "Enter amount"
+            return false
+        }
+        print("+\(amount)+")
+        guard Double(amount) != nil else{
+            view?.amountFieldWarning = "Enter valid amount"
+            return false
+        }
+        guard let amountValue = Double(amount),amountValue > 0 else{
+            view?.amountFieldWarning = "Amount cannot be zero"
+            return false
+        }
+        guard amountValue < 100000000 else{
+            view?.amountFieldWarning = "Enter an amount smaller than 1000,00,000"
+            return false
+        }
+        
+        view?.amountFieldWarning = nil
+        return true
+    }
+    
     
     func clipBtnTapped() {
         
+        let selectionLimit = 10 - ((view?.attachments.count) ?? 0)
         
-        view?.openPhotoLibrary()
+        if selectionLimit > 0{
+            view?.openPhotoLibrary(selectionLimit: selectionLimit)
+        }else{
+            view?.showAlert(title: "Attachments", message: "Cannot add more than 10 attachments in a Expense")
+        }
+        
+        
         
 
     }
@@ -151,7 +207,12 @@ class AddExpensePresenter: AddExpensePresenterProtocol{
     
     
     func camBtnTapped() {
+        let selectionLimit = 10 - ((view?.attachments.count) ?? 0)
         
+        guard selectionLimit > 0 else{
+            view?.showAlert(title: "Attachments", message: "Cannot add more than 10 attachments in a Expense")
+            return
+        }
         switch AVCaptureDevice.authorizationStatus(for: .video) {
         case .denied:
             view?.presentCameraSettings()

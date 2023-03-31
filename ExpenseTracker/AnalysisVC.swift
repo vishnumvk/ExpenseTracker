@@ -137,9 +137,9 @@ class AnalysisVC: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
 //        navigationController?.navigationBar.prefersLargeTitles = true
-        view.addSubview(stack)
-        view.addSubview(table)
 //        view.addSubview(stack)
+        view.addSubview(table)
+        view.addSubview(stack)
         
 //        table.pinToSafeArea(view: view)
         
@@ -252,7 +252,7 @@ extension AnalysisVC: UITableViewDataSource,UITableViewDelegate{
         if indexPath.section == 0{
             let cell = table.dequeueReusableCell(withIdentifier: MoneySpentCell.reuseID, for: indexPath) as! MoneySpentCell
             cell.setTitle("Total Expense")
-            cell.setTotal(String(total))
+            cell.setTotal("\u{20B9} \(String((total * 100).rounded() / 100))")
             cell.selectionStyle = .none
             
             return cell
@@ -269,9 +269,15 @@ extension AnalysisVC: UITableViewDataSource,UITableViewDelegate{
                 cell.selectionStyle = .none
                 let data = pieChartData[indexPath.row - 1]
                 cell.setTitle(data.2 ?? "")
-                cell.setTotal(String(data.0))
-                let percentage = (data.0 * 1000 / total).rounded() / 10
-                cell.setPercentage("\(String(percentage)) %")
+                cell.setTotal("\u{20B9} \(String(data.0))")
+                let percentage = (data.0 * 10000 / total).rounded() / 100
+                var percentString = ""
+                if percentage == 0.00 && data.0 > 0{
+                    percentString = "≈ \(String(percentage)) %"
+                }else{
+                    percentString = "\(String(percentage)) %"
+                }
+                cell.setPercentage(percentString)
                 cell.setIconColor(colour: data.1)
                 return cell
             }
